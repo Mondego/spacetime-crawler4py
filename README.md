@@ -12,7 +12,7 @@ If you do not have Python 3.6+:
 
 Windows: https://www.python.org/downloads/windows/
 
-Linux: sudo apt-get install python3
+Linux: https://docs.python-guide.org/starting/install3/linux/
 
 MAC: https://docs.python-guide.org/starting/install3/osx/
 
