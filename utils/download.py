@@ -4,8 +4,8 @@ import time
 
 from utils.response import Response
 
-def download(url, cache_server, config, logger):
-    host, port = cache_server
+def download(url, config, logger=None):
+    host, port = config.cache_server
     stime = time.perf_counter()
     resp = requests.get(f"http://{host}:{port}/?q={url}&u={config.user_agent}")
     etime = time.perf_counter()
