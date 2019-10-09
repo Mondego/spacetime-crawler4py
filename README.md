@@ -91,12 +91,13 @@ class Response:
             server (600-606) that define caching specific errors.
         error:
             If the status codes are between 600 and 606, the reason for
-            the error is provided in this attrbiute. Note that errors
-            (400-599) are not logged to error.
+            the error is provided in this attrbiute. Note that for status codes
+            (400-599), the error message is not put in this error attribute; instead it
+            must picked up from the raw_response (if any, and if useful).
         raw_response:
-            If the response is between 200-599 (standard http). A
-            response object defined by the requests library.
-            Useful resources in understanding this response object:
+            If the status is between 200-599 (standard http), the raw
+            response object is the one defined by the requests library.
+            Useful resources in understanding this raw response object:
                 https://realpython.com/python-requests/#the-response
                 https://requests.kennethreitz.org/en/master/api/#requests.Response
             HINT: raw_response.content gives you the webpage html content.
