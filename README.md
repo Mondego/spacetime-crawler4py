@@ -9,8 +9,11 @@ CONFIGURATION
 ### Step 1: Install dependencies
 
 If you do not have Python 3.6+:
+
 Windows: https://www.python.org/downloads/windows/
+
 Linux: sudo apt-get install python3
+
 MAC: https://docs.python-guide.org/starting/install3/osx/
 
 Check if pip is installed by opening up a terminal/command prompt and typing
@@ -63,11 +66,15 @@ def scraper (url: str, resp: utils.response.Response): -> list
 The scraper takes in two parameters that are already provided to it.
 
 **ARGS**
+
 *url*:
+
 The URL that was added to the frontier, and downloaded from the cache.
 It is of type str and was an url that was previously added to the
 frontier.
+
 *resp*:
+
 This is the response given by the caching server for the requested URL.
 The response is an object of type Response (see utils/response.py)
 ```
@@ -94,6 +101,7 @@ class Response:
             HINT: raw_response.content gives you the webpage html content.
 ```
 **Return Value**
+
 This function needs to return a list of urls that are scraped from the
 response. (An empty list for responses that are empty). These urls will be
 added to the Frontier and retrieved from the cache. These urls have to be
@@ -126,7 +134,7 @@ ARCHITECTURE
 The crawler receives a cache host and port from the spacetime servers
 and instantiates the config.
 
-It launches a crawler (defined in crawler/__init__.py L5) which creates a 
+It launches a crawler (defined in crawler/\_\_init\_\_.py L5) which creates a 
 Frontier and Worker(s) using the optional parameters frontier_factory, and
 worker_factory.
 
