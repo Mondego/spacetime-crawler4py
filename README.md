@@ -39,13 +39,6 @@ configurations exist.
 It is important to set the useragent appropriately to get the credit for 
 hitting our cache.
 
-**THREADCOUNT**: This can be a configuration used to increase the number of parallel
-threads used. Do not change it if you have not implemented multi threading in
-the crawler. The crawler as it is, is deliberately not thread safe.
-
-**SAVE**: The file that is used to save crawler progress. If you want to restart the
-crawler from the seed url, you can simply delete this file.
-
 **HOST**: This is the host name of our caching server. Please set it as per spec.
 
 **PORT**: THis is the port number of our caching server. Please set it as per spec.
@@ -53,6 +46,14 @@ crawler from the seed url, you can simply delete this file.
 **SEEDURL**: The starting url that a crawler first starts downloading.
 
 **POLITENESS**: The time delay each thread has to wait for after each download.
+
+**SAVE**: The file that is used to save crawler progress. If you want to restart the
+crawler from the seed url, you can simply delete this file.
+
+**THREADCOUNT**: This can be a configuration used to increase the number of concurrent
+threads used. Do not change it if you have not implemented multi threading in
+the crawler. The crawler, as it is, is deliberately not thread safe.
+
 
 ### Step 3: Define your scraper rules.
 
