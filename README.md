@@ -64,7 +64,7 @@ def scraper (url: str, resp: utils.response.Response): -> list
     pass
 ```
 
-The scraper takes in two parameters that are already provided to it.
+The scraper takes in two parameters:
 
 **ARGS**
 
@@ -110,10 +110,8 @@ added to the Frontier and retrieved from the cache. These urls have to be
 filtered so that urls that do not have to be downloaded are not added to the
 frontier.
 
-The first step of filtering the urls can be by using the is_valid function
-provided in the same scraper.py file.
-
-Additional rules can be added to the is_valid function to filter the urls.
+The first step of filtering the urls can be by using the **is_valid** function
+provided in the same scraper.py file. Additional rules should be added to the is_valid function to filter the urls.
 
 EXECUTION
 -------------------------
