@@ -1,10 +1,11 @@
+import os
 from spacetime import Node
 from utils.pcc_models import Register
 
-def init(df, user_agent):
+def init(df, user_agent, fresh):
     reg = df.read_one(Register, user_agent)
     if not reg:
-        reg = Register(user_agent)
+        reg = Register(user_agent, fresh)
         df.add_one(Register, reg)
         df.commit()
         df.push_await()
@@ -16,6 +17,8 @@ def init(df, user_agent):
             df.push()
     return reg.load_balancer
 
-def get_cache_server(config):
-    init_node = Node(init, Types=[Register], dataframe=(config.host, config.port))
-    return init_node.start(config.user_agent)
+def get_cache_server(config, restart):
+    init_node = Node(
+        init, Types=[Register], dataframe=(config.host, config.port))
+    return init_node.start(
+        config.user_agent, restart or not os.path.exists(config.save_file))

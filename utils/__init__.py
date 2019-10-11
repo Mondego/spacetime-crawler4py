@@ -1,10 +1,13 @@
+import os
 import logging
 from hashlib import sha256
 
 def get_logger(name, filename=None):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.ERROR)
-    fh = logging.FileHandler(f"{filename if filename else name}.log")
+    logger.setLevel(logging.INFO)
+    if not os.path.exists("Logs"):
+        os.makedirs("Logs")
+    fh = logging.FileHandler(f"Logs/{filename if filename else name}.log")
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
