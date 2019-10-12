@@ -4,7 +4,7 @@ import shelve
 from threading import Thread, RLock
 from queue import Queue, Empty
 
-from utils import get_logger, get_urlhash
+from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 
 class Frontier(object):
@@ -54,6 +54,7 @@ class Frontier(object):
             return None
 
     def add_url(self, url):
+        url = normalize(url)
         urlhash = get_urlhash(url)
         if urlhash not in self.save:
             self.save[urlhash] = (url, False)
