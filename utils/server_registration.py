@@ -11,6 +11,8 @@ def init(df, user_agent, fresh):
         df.push_await()
     while not reg.load_balancer:
         df.pull_await()
+        if reg.invalid:
+            raise RuntimeError("User agent string is not acceptable.")
         if reg.load_balancer:
             df.delete_one(Register, reg)
             df.commit()
