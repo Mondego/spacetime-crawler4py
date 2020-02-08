@@ -40,7 +40,8 @@ def is_valid(url):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())):
                 return False
         if(re.match(
-            r"*.ics.uci.edu/*|*.cs.uci.edu/*|*.informatics.uci.edu/*|*.stat.uci.edu/*|today.uci.edu/department/information_computer_sciences/*"
+            r".*\.ics\.uci\.edu/.*|.*\.cs\.uci\.edu/.*|.*\.informatics\.uci\.edu/.*|.*\.stat\.uci\.edu/.*"
+            + r"|today\.uci\.edu/department/information_computer_sciences/.*$"
             ,parsed.netloc.lower() )):
                 return True    
     
