@@ -3,6 +3,8 @@ from urllib.parse import urlparse
 import utils.response
 from bs4 import BeautifulSoup
 
+
+
 def scraper(url:str, resp: utils.response.Response) -> list:
     links = extract_next_links(url,resp)
     for i in links:
@@ -12,13 +14,18 @@ def scraper(url:str, resp: utils.response.Response) -> list:
 def extract_next_links(url, resp):
     # Implementation requred.
     links = []
-    if (200 <= resp.status <= 600):
+    #print(url)
+    if (200 <= resp.status <= 599)  and resp.status != 204:
+        
         soup = BeautifulSoup(resp.raw_response.content, "lxml")
     #print("the status is", resp.status)
-        for link in soup.findAll('a'):
-            if is_valid(link.get('href')):
-                print(link.get('href'))
-            #links.append(link.get('href'))
+        if resp.status == 200 and soup.prettify() == '':
+            pass
+        else:
+            for link in soup.findAll('a'):
+               if is_valid(link.get('href')):
+                   #print(link.get('href'))
+                   links.append(link.get('href'))
     
     links.append(url)
     return links
