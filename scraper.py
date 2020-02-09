@@ -7,19 +7,15 @@ from bs4 import BeautifulSoup
 
 def scraper(url:str, resp: utils.response.Response) -> list:
     links = extract_next_links(url,resp)
-    for i in links:
-        return [link for link in links]
+    return links
      
 
-def extract_next_links(url, resp):
-    # Implementation requred.
+def extract_next_links(url, resp) -> list:
     links = []
-    #print(url)
     if (200 <= resp.status <= 599)  and resp.status != 204:
-        
         soup = BeautifulSoup(resp.raw_response.content, "lxml")
-    #print("the status is", resp.status)
-        if resp.status == 200 and soup.prettify() == '':
+        
+        if resp.status == 200 and soup.prettify() == '':  # avoid dead URLs that return a 200 status but no data
             pass
         else:
             for link in soup.findAll('a'):
@@ -52,9 +48,12 @@ def is_valid(url):
             r".*\.ics\.uci\.edu\/?.*|.*\.cs\.uci\.edu\/?.*|.*\.informatics\.uci\.edu\/?.*|.*\.stat\.uci\.edu\/?.*"
             + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
             ,parsed.netloc.lower() )):
-            return True    
+            return True
+
+        if (len(parsed.geturl()) > 200): # any links bigger than 200 will be discarded
+            return False
     
-        return False
+        return True
 
     except TypeError:
         print ("TypeError for ", parsed)
