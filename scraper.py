@@ -32,18 +32,23 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
-        if( re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())): # need to check if other parts have these toos
+        not_crawling_patterns = (r".*\.(css|js|bmp|gif|jpe?g|ico"
+                                 r"|png|tiff?|mid|mp2|mp3|mp4"
+                                 r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                                 r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                                 r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                                 r"|epub|dll|cnf|tgz|sha1"
+                                 r"|thmx|mso|arff|rtf|jar|csv"
+                                 r"|rm|smil|wmv|swf|wma|zip|rar|gz)$")
+
+
+        if( re.match(not_crawling_patterns, parsed.path.lower())): # check if the path has the patterns
                 return False
 
-        # print(parsed.netloc.lower())
+        if(re.match(not_crawling_patterns, parsed.query.lower())):  # also need to check if the query has the patterns
+            # ex: http://sli.ics.uci.edu/Classes/2011W-178?action=download&upname=HW2.pdf
+            return False
+
         if(re.match(
             r".*\.ics\.uci\.edu\/?.*|.*\.cs\.uci\.edu\/?.*|.*\.informatics\.uci\.edu\/?.*|.*\.stat\.uci\.edu\/?.*"
             + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
