@@ -2,7 +2,7 @@ import re
 from urllib.parse import urlparse
 import utils.response
 from bs4 import BeautifulSoup
-
+from urllib.parse import urldefrag
 
 
 def scraper(url:str, resp: utils.response.Response) -> list:
@@ -20,8 +20,10 @@ def extract_next_links(url, resp) -> list:
         else:
             for link in soup.findAll('a'):
                if is_valid(link.get('href')):
-                   #print(link.get('href'))
-                   links.append(link.get('href'))
+                    
+                    # remove the fragment here
+                   unfragmented = urldefrag(link.get('href'))
+                   links.append(unfragmented.url)
     
     links.append(url)
     return links
@@ -43,14 +45,14 @@ def is_valid(url):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())):
                 return False
 
-        #print(parsed.netloc.lower())
+        # print(parsed.netloc.lower())
         if(re.match(
             r".*\.ics\.uci\.edu\/?.*|.*\.cs\.uci\.edu\/?.*|.*\.informatics\.uci\.edu\/?.*|.*\.stat\.uci\.edu\/?.*"
             + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
             ,parsed.netloc.lower() )):
             if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
                 return True
-                
+
         return False
 
     except TypeError:
