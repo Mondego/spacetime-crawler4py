@@ -50,7 +50,7 @@ def is_valid(url):
                                  r"|thmx|mso|arff|rtf|jar|csv"
                                  r"|rm|smil|wmv|swf|wma|zip|rar|gz).*$")
 
-        if(re.match(not_crawling_patterns, parsed.path.lower()) or re.match(not_crawling_path_patterns, parsed.path.lower()):  # check if the path has the patterns
+        if(re.match(not_crawling_patterns, parsed.path.lower()) or re.match(not_crawling_path_patterns, parsed.path.lower())):  # check if the path has the patterns
             # ex: https://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018
                 return False
 
