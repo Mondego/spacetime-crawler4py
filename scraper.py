@@ -11,7 +11,7 @@ def scraper(url:str, resp: utils.response.Response) -> list:
      
 
 def extract_next_links(url, resp) -> list:
-    links = []
+    links = set() # make it a set so it checks duplicates after removing the fragment
     if (200 <= resp.status <= 599)  and resp.status != 204:
         soup = BeautifulSoup(resp.raw_response.content, "lxml")
         
@@ -23,10 +23,8 @@ def extract_next_links(url, resp) -> list:
                     
                     # remove the fragment here
                    unfragmented = urldefrag(link.get('href'))
-                   links.append(unfragmented.url)
-    
-    links.append(url)
-    return links
+                   links.add(unfragmented.url)
+    return list(links)
     
 def is_valid(url):
     try:
