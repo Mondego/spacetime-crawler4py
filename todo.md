@@ -1,16 +1,17 @@
 # things for crawler
 
-* duplicate/near duplicate
+* duplicate/near duplicate 
 
 * traps
-  * remove fragments
+  * remove fragments 
+    - done
 
 * noise
 
 * low information value
 
-  *   tags over length graph
-  ___
+  *   tags over length graph 
+  ___ 
   # things for assignment
 *  track unique pages found
 *  find longest page in terms of number of words
