@@ -40,9 +40,18 @@ def is_valid(url):
                                  r"|epub|dll|cnf|tgz|sha1"
                                  r"|thmx|mso|arff|rtf|jar|csv"
                                  r"|rm|smil|wmv|swf|wma|zip|rar|gz)$")
+        
+        not_crawling_path_patterns = (r".*/?(css|js|bmp|gif|jpe?g|ico"
+                                 r"|png|tiff?|mid|mp2|mp3|mp4"
+                                 r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                                 r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+                                 r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                                 r"|epub|dll|cnf|tgz|sha1"
+                                 r"|thmx|mso|arff|rtf|jar|csv"
+                                 r"|rm|smil|wmv|swf|wma|zip|rar|gz).*$")
 
-
-        if( re.match(not_crawling_patterns, parsed.path.lower())): # check if the path has the patterns
+        if(re.match(not_crawling_patterns, parsed.path.lower()) or re.match(not_crawling_path_patterns, parsed.path.lower())):  # check if the path has the patterns
+            # ex: https://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018
                 return False
 
         if(re.match(not_crawling_patterns, parsed.query.lower())):  # also need to check if the query has the patterns
