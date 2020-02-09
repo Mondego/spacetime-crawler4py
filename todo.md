@@ -3,13 +3,15 @@
 * duplicate/near duplicate
 
 * traps
-  * remove fragments
+* remove fragments
 
 * noise
 
 * low information value
 
   *   tags over length graph
+
+* avoid pages that dont respond
   ___
   # things for assignment
 *  track unique pages found
