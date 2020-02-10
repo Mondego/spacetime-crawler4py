@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 import utils.response
 from bs4 import BeautifulSoup
 from urllib.parse import urldefrag
-from urllib.robotparser
+import urllib.robotparser
 
 
 def scraper(url:str, resp: utils.response.Response) -> list:
