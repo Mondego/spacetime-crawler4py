@@ -105,7 +105,7 @@ class Scrape():
                             x = Response(cbor.loads(resp.content))
                             print(x.raw_response.content.decode())
                         except:
-                            print "No robot"
+                            print("No robot")
                     else:
                         print("Failure")
                     time.sleep(500)
