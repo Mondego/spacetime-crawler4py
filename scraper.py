@@ -55,7 +55,7 @@ def is_valid(url):
                 return False
 
         if(re.match(not_crawling_patterns, parsed.query.lower())):  # also need to check if the query has the patterns
-            # ex: http://sli.ics.uci.edu/Classes/2011W-178?action=download&upname=HW2.pdf
+            # ex: http://sli.ics.uci.edu/Classes/2011W-178?action=download&upname=HW2.pdfcle
             return False
 
         if(re.match(
