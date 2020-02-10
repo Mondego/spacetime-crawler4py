@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 import utils.response
 from bs4 import BeautifulSoup
 from urllib.parse import urldefrag
+import urllib.robotparser
 
 
 def scraper(url:str, resp: utils.response.Response) -> list:
@@ -63,9 +64,21 @@ def is_valid(url):
             + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
             ,parsed.netloc.lower() )):
             if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
-                return True
+                parser = urllib.robotparser.RobotFileParser()
+                parser.set_url(url)
+                try:
+                    parser.read()
+                except:
+                    return False;
+                if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
+                    print("Robot Fetched ", url)
+                    return True
+                else:
+                    print("No robot ", url)
+                    
+            return False
 
-        return False
+        
 
     except TypeError:
         print ("TypeError for ", parsed)
