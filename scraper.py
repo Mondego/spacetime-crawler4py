@@ -70,6 +70,7 @@ def is_valid(url):
         parser.set_url(url)
         rp.read()
         if(rp.can_fetch("IR W20 94612036 73401826 79557971",url)){
+            self.logger.info("There's a robot")
             return True
         }
 
