@@ -2,7 +2,7 @@ from threading import Thread
 
 from utils.download import download
 from utils import get_logger
-from scraper import scraper
+from scraper import Scrape
 import time
 
 
@@ -11,6 +11,7 @@ class Worker(Thread):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
+        self.s = Scrape()
         super().__init__(daemon=True)
         
     def run(self):
@@ -23,7 +24,7 @@ class Worker(Thread):
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
-            scraped_urls = scraper(tbd_url, resp)
+            scraped_urls = self.s.scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
