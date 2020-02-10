@@ -7,6 +7,7 @@ from simhash import Simhash, SimhashIndex
 import requests
 from utils.response import Response
 import cbor
+import time
 
 
 class Scrape():
@@ -100,11 +101,14 @@ class Scrape():
                             f"http://{self.host}:{self.port}/",
                             params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                     if resp:
-                        print(Response(cbor.loads(resp.content)))
-                        #print(x.raw_response.content.decode())
+                        try:
+                            x = Response(cbor.loads(resp.content)))
+                            print(x.raw_response.content.decode())
+                        except:
+                            print "No robot"
                     else:
                         print("Failure")
-                    
+                    time.sleep(500)
                     return True
                         
                 return False
