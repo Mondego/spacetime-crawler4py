@@ -108,7 +108,7 @@ class Scrape():
                             print("No robot")
                     else:
                         print("Failure")
-                    time.sleep(500)
+                    time.sleep(0.5)
                     return True
                         
                 return False
