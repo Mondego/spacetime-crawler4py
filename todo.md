@@ -3,8 +3,6 @@
 * duplicate/near duplicate 
 
 * traps
-  * remove fragments 
-    - done
 
 * noise
 
