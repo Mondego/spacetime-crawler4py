@@ -95,10 +95,10 @@ class Scrape():
                 ,parsed.netloc.lower() )):
                 if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
                     #code from utils.download
-                    print(f"{parsed.scheme}{parsed.netloc}")
+                    print(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
                     resp = requests.get(
                             f"http://{self.host}:{self.port}/",
-                            params=[("q", f"{parsed.scheme}{parsed.netloc}"), ("u", f"{self.config.user_agent}")])
+                            params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                     if resp:
                         print(Response(cbor.loads(resp.content)))
                         #print(x.raw_response.content.decode())
