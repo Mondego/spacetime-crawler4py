@@ -11,7 +11,7 @@ class Worker(Thread):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
-        self.s = Scrape()
+        self.s = Scrape(config)
         super().__init__(daemon=True)
         
     def run(self):

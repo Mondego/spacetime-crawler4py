@@ -3,13 +3,16 @@ from urllib.parse import urlparse
 import utils.response
 from bs4 import BeautifulSoup
 from urllib.parse import urldefrag
-import urllib.robotparser
 from simhash import Simhash, SimhashIndex
+import requests
+import cbor
 
 
 class Scrape():
 
-    def __init__(self):
+    def __init__(self,config):
+        self.host, self.port = config.cache_server
+        self.robots = {}
         self.simhashes = SimhashIndex([])
         self.link = 1
 
@@ -89,15 +92,17 @@ class Scrape():
                 + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
                 ,parsed.netloc.lower() )):
                 if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
+                    #code from utils.download
+                    print(f"{parsed.schmee}{parsed.netloc}")
+                    resp = requests.get(
+                            f"http://{self.host}:{self.port}/",
+                            params=[("q", f"{parsed.schmee}{parsed.netloc}"), ("u", f"{config.user_agent}")])
+                    if resp:
+                        print(resp.raw_response.content.decode())
+                    else:
+                        print("Failure")
+                    
                     return True
-                    # parser = urllib.robotparser.RobotFileParser()
-                    # parser.set_url(url)
-                    # try:
-                    #     parser.read()
-                    # except:
-                    #     return False;
-                    # if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
-                    #     return True
                         
                 return False
 
