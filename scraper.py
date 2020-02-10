@@ -102,7 +102,7 @@ class Scrape():
                             params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                     if resp:
                         try:
-                            x = Response(cbor.loads(resp.content)))
+                            x = Response(cbor.loads(resp.content))
                             print(x.raw_response.content.decode())
                         except:
                             print "No robot"
