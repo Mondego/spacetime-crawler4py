@@ -11,6 +11,8 @@ class Scrape():
 
     def __init__(self):
         self.simhashes = SimhashIndex()
+        self.link = 1
+
     def scraper(self,url:str, resp: utils.response.Response) -> list:
         links = self.extract_next_links(url,resp)
         return links
@@ -32,7 +34,8 @@ class Scrape():
                         # remove the fragment here
                        unfragmented = urldefrag(link.get('href'))
                        links.add(unfragmented.url)
-            self.simhashes.add(simh)
+            self.simhashes.add(self.link,simh)
+            self.link += 1
             return list(links)
         return list(links)
         
