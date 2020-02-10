@@ -64,14 +64,15 @@ def is_valid(url):
             + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
             ,parsed.netloc.lower() )):
             if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
-                parser = urllib.robotparser.RobotFileParser()
-                parser.set_url(url)
-                try:
-                    parser.read()
-                except:
-                    return False;
-                if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
-                    return True
+                return True
+                # parser = urllib.robotparser.RobotFileParser()
+                # parser.set_url(url)
+                # try:
+                #     parser.read()
+                # except:
+                #     return False;
+                # if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
+                #     return True
                     
             return False
 
