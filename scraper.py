@@ -10,7 +10,7 @@ from simhash import Simhash, SimhashIndex
 class Scrape():
 
     def __init__(self):
-        self.simhashes = SimhashIndex()
+        self.simhashes = SimhashIndex([])
         self.link = 1
 
     def scraper(self,url:str, resp: utils.response.Response) -> list:
