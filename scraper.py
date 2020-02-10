@@ -20,18 +20,7 @@ class Scrape():
 
     def extract_next_links(self,url, resp) -> list:
         
-        blackList =
-        '[document]',
-        'noscript',
-        'header',
-        'html',
-        'meta',
-        'head',
-        'input',
-        'script',
-        'style',
-        'b',
-        'button']
+        blackList = ['[document]', 'noscript', 'header', 'html', 'meta', 'head', 'input', 'script', 'style', 'b', 'button']
 
         links = set() # make it a set so it checks duplicates after removing the fragment
         if (200 <= resp.status <= 599)  and resp.status != 204:
