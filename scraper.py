@@ -34,7 +34,7 @@ class Scrape():
             text = soup.find_all(text=True)
 
             for t in text:
-                if t.parent.name not in blacklist:
+                if t.parent.name not in blackList:
                     output += '{} '.format(t)
 
             simh = Simhash(output)
