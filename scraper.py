@@ -71,10 +71,7 @@ def is_valid(url):
                 except:
                     return False;
                 if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
-                    print("Robot Fetched ", url)
                     return True
-                else:
-                    print("No robot ", url)
                     
             return False
 
