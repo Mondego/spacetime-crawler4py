@@ -11,6 +11,7 @@ import cbor
 class Scrape():
 
     def __init__(self,config):
+        self.config = config
         self.host, self.port = config.cache_server
         self.robots = {}
         self.simhashes = SimhashIndex([])
@@ -96,7 +97,7 @@ class Scrape():
                     print(f"{parsed.scheme}{parsed.netloc}")
                     resp = requests.get(
                             f"http://{self.host}:{self.port}/",
-                            params=[("q", f"{parsed.schmee}{parsed.netloc}"), ("u", f"{config.user_agent}")])
+                            params=[("q", f"{parsed.schmee}{parsed.netloc}"), ("u", f"{self.config.user_agent}")])
                     if resp:
                         print(resp.raw_response.content.decode())
                     else:
