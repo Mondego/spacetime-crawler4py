@@ -19,13 +19,37 @@ class Scrape():
 
 
     def extract_next_links(self,url, resp) -> list:
+        
+        blackList =
+        '[document]',
+        'noscript',
+        'header',
+        'html',
+        'meta',
+        'head',
+        'input',
+        'script',
+        'style',
+        'b',
+        'button']
+
         links = set() # make it a set so it checks duplicates after removing the fragment
         if (200 <= resp.status <= 599)  and resp.status != 204:
             soup = BeautifulSoup(resp.raw_response.content, "lxml")
 
             if resp.status == 200 and soup.prettify() == '':  # avoid dead URLs that return a 200 status but no data
                 return []
-            simh = Simhash("<text goes here>")
+            
+            output = " "
+
+            text = soup.find_all(text=True)
+
+            for t in text:
+                if t.parent.name not in blacklist:
+                    output += '{} '.format(t)
+
+            simh = Simhash(output)
+
             if len(self.simhashes.get_near_dups(simh)) != 0:
                 return []
             else:
