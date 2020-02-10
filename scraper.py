@@ -96,7 +96,7 @@ class Scrape():
                     print(f"{parsed.scheme}{parsed.netloc}")
                     resp = requests.get(
                             f"http://{self.host}:{self.port}/",
-                            params=[("q", f"{parsed.schmee}{parsed.netloc}"), ("u", f"{config.user_agent}")])
+                            params=[("q", f"{parsed.scheme}{parsed.netloc}"), ("u", f"{config.user_agent}")])
                     if resp:
                         print(resp.raw_response.content.decode())
                     else:
