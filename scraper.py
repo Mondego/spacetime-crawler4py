@@ -68,10 +68,12 @@ def is_valid(url):
 
         parser = urllib.robotparser.RobotFileParser()
         parser.set_url(url)
-        
-        parser.read()
+        try:
+            parser.read()
+        except:
+            return False;
         if(parser.can_fetch("IR W20 94612036 73401826 79557971",url)):
-            self.logger("Roboted successfully")
+            print("robot is fetched")
             return True
 
         return False
