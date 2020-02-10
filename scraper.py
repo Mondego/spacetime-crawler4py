@@ -99,7 +99,8 @@ class Scrape():
                             f"http://{self.host}:{self.port}/",
                             params=[("q", f"{parsed.scheme}{parsed.netloc}"), ("u", f"{self.config.user_agent}")])
                     if resp:
-                        print(resp.raw_response.content.decode())
+                        x = Response(cbor.loads(resp.content))
+                        print(x.raw_response.content.decode())
                     else:
                         print("Failure")
                     
