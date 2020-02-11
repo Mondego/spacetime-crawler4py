@@ -102,12 +102,12 @@ class Scrape():
                             f"http://{self.host}:{self.port}/",
                             params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                     if resp:
-                        try:
+                        #try:
                             x = Response(cbor.loads(resp.content))
                             print(x.raw_response.content.decode())
                             robot_parser(x.raw_response.content.decode())
-                        except:
-                            print("Error in Response Parsing")
+                        #except:
+                        #    print("Error in Response Parsing")
                     else:
                         print("Failure")
                     time.sleep(0.5)
