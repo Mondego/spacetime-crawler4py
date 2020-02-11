@@ -105,7 +105,7 @@ class Scrape():
                         #try:
                             x = Response(cbor.loads(resp.content))
                             print(x.raw_response.content.decode())
-                            robot_parser(x.raw_response.content.decode())
+                            self.robot_parser(x.raw_response.content.decode())
                         #except:
                         #    print("Error in Response Parsing")
                     else:
@@ -119,6 +119,7 @@ class Scrape():
         except TypeError:
             print ("TypeError for ", parsed)
             raise
+            
     #Updates self.robot with domains and disallows.
     def robot_parser(robot:str):
         print("parsing")
