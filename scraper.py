@@ -129,9 +129,9 @@ class Scrape():
             print(words)
             if(words[0].lower() == "user-agent"):
                 curr_agent = words[1] 
-            elif(word[0].lower() == "disallow"):
+            elif(words[0].lower() == "disallow"):
                 user_perm[curr_agent].append("-" + word[1])
-            elif(word[0].lower() == "allow"):
+            elif(words[0].lower() == "allow"):
                 user_perm[curr_agent].append("+" + word[1])
         print(user_perm)
 
