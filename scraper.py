@@ -121,12 +121,14 @@ class Scrape():
             raise
     #Updates self.robot with domains and disallows.
     def robot_parser(robot:str):
+        print("parsing")
         lines = robot.splitlines()
         curr_agent = config.user_agent
         #temporary agent - permission
         user_perm = defaultdict(list)
         for i in range(len(lines)):
             words = line[i].split()
+            print(words)
             if(words[0].lower() == "user-agent"):
                 curr_agent = words[1] 
             elif(word[0].lower() == "disallow"):
