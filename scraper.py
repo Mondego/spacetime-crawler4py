@@ -118,6 +118,6 @@ class Scrape():
             print ("TypeError for ", parsed)
             raise
     #Updates self.robot with domains and disallows.
-    def robot_parser(robot:str):
-
+    #def robot_parser(robot:str):
+        
 
