@@ -8,6 +8,7 @@ import requests
 from utils.response import Response
 import cbor
 import time
+from collections import defaultdict 
 
 
 class Scrape():
@@ -103,7 +104,8 @@ class Scrape():
                     if resp:
                         try:
                             x = Response(cbor.loads(resp.content))
-                            print(repr(x.raw_response.content.decode()))
+                            print(x.raw_response.content.decode())
+                            robot_parser(x.raw_response.content.decode())
                         except:
                             print("Error in Response Parsing")
                     else:
@@ -118,6 +120,22 @@ class Scrape():
             print ("TypeError for ", parsed)
             raise
     #Updates self.robot with domains and disallows.
-    #def robot_parser(robot:str):
+    def robot_parser(robot:str):
+        lines = robot.splitlines()
+        curr_agent = config.user_agent
+        #temporary agent - permission
+        user_perm = defaultdict(list)
+        for i in range(len(lines)):
+            words = line[i].split()
+            if(words[0].lower() == "user-agent"):
+                curr_agent = words[1] 
+            elif(word[0].lower() == "disallow"):
+                user_perm[curr_agent].append("-" + word[1])
+            elif(word[0].lower() == "allow"):
+                user_perm[curr_agent].append("+" + word[1])
+        print(user_perm)
+
+
+        #looking for user agents
         
 
