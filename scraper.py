@@ -103,7 +103,7 @@ class Scrape():
                     if resp:
                         try:
                             x = Response(cbor.loads(resp.content))
-                            print(type(x))
+                            print(type(x.raw_response.content.decode()))
                             print(x.raw_response.content.decode())
                         except:
                             print("No robot")
