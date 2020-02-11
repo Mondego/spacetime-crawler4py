@@ -102,12 +102,9 @@ class Scrape():
                             f"http://{self.host}:{self.port}/",
                             params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                     if resp:
-                        #try:
-                            x = Response(cbor.loads(resp.content))
-                            print(x.raw_response.content.decode())
-                            self.robot_parser(x.raw_response.content.decode())
-                        #except:
-                        #    print("Error in Response Parsing")
+                        x = Response(cbor.loads(resp.content))
+                        print(x.raw_response.content.decode())
+                        self.robot_parser(x.raw_response.content.decode())
                     else:
                         print("Failure")
                     time.sleep(0.5)
@@ -124,7 +121,7 @@ class Scrape():
     def robot_parser(self,robot:str):
         print("parsing")
         lines = robot.splitlines()
-        curr_agent = config.user_agent
+        curr_agent = self.config.user_agent
         #temporary agent - permission
         user_perm = defaultdict(list)
         for i in range(len(lines)):
