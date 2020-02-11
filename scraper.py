@@ -125,7 +125,7 @@ class Scrape():
         #temporary agent - permission
         user_perm = defaultdict(list)
         for i in range(len(lines)):
-            words = line[i].split()
+            words = lines[i].split()
             print(words)
             if(words[0].lower() == "user-agent"):
                 curr_agent = words[1] 
