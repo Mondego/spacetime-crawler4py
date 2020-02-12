@@ -128,10 +128,13 @@ class Scrape():
             words = lines[i].split()
             print(words)
             if(words[0].lower() == "user-agent"):
+                print("user")
                 curr_agent = words[1] 
             elif(words[0].lower() == "disallow"):
+                print("dissallow")
                 user_perm[curr_agent].append("-" + word[1])
             elif(words[0].lower() == "allow"):
+                print("allow")
                 user_perm[curr_agent].append("+" + word[1])
         print(user_perm, "\n")
 
