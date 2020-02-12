@@ -134,10 +134,10 @@ class Scrape():
                     curr_agent = words[1] 
                 elif(words[0].lower() == "disallow:"):
                     print("dissallow")
-                    user_perm[curr_agent].append("-" + word[1])
+                    user_perm[curr_agent].append("-" + words[1])
                 elif(words[0].lower() == "allow:"):
                     print("allow")
-                    user_perm[curr_agent].append("+" + word[1])
+                    user_perm[curr_agent].append("+" + words[1])
         print("dictionary: " ,user_perm, "\n")
 
 
