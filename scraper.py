@@ -108,13 +108,13 @@ class Scrape():
 
                         if resp:
                             x = Response(cbor.loads(resp.content))
-                                try:
-                                    user_perm = self.robot_parser(x.raw_response.content.decode())
-                                    print(user_perm)
-                                    #adding the banned paths to the dictionary.
-                                    self.robots[f"{parsed.netloc}"] = user_perm
-                                except:
-                                    "no robot"
+                            try:
+                                user_perm = self.robot_parser(x.raw_response.content.decode())
+                                print(user_perm)
+                                #adding the banned paths to the dictionary.
+                                self.robots[f"{parsed.netloc}"] = user_perm
+                            except:
+                                "no robot"
                         else:
                             print("No Robot Response")
                         time.sleep(self.config.time_delay)
