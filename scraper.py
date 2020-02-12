@@ -105,13 +105,16 @@ class Scrape():
                                 f"http://{self.host}:{self.port}/",
                                 params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
                         #might have to check what type of respons we're getting.
+
                         if resp:
                             x = Response(cbor.loads(resp.content))
-                            user_perm = self.robot_parser(x.raw_response.content.decode())
-                            print(user_perm)
-                            #adding the banned paths to the dictionary.
-                            self.robots[f"{parsed.netloc}"] = user_perm
-
+                                try:
+                                    user_perm = self.robot_parser(x.raw_response.content.decode())
+                                    print(user_perm)
+                                    #adding the banned paths to the dictionary.
+                                    self.robots[f"{parsed.netloc}"] = user_perm
+                                except:
+                                    "no robot"
                         else:
                             print("No Robot Response")
                         time.sleep(self.config.time_delay)
