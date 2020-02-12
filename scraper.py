@@ -100,7 +100,6 @@ class Scrape():
                     #code from utils.download to download and parse the robot
                     #assumes that the URL is a new URL
                     if(not f"{parsed.netloc}/{parsed.path}" in self.robots.keys()):
-                        print(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
                         resp = requests.get(
                                 f"http://{self.host}:{self.port}/",
                                 params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
@@ -120,7 +119,7 @@ class Scrape():
                         print("Check Robot: invalid")
                         return False
                     else:
-                        print("Check Robot: Valid")
+                        print("Check Robot: Valid", f"{parsed.scheme}://{parsed.netloc}/robots.txt")
                         return True
                 
                 return False
