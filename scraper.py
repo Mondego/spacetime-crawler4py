@@ -116,10 +116,10 @@ class Scrape():
                         time.sleep(self.config.time_delay)
                     #Checks if the path is one we're allowed in crawl
                     if (f"/{parsed.path}/" in self.robots[f"{parsed.netloc}/{parsed.path}"]):
-                        print("Check Robot: invalid")
+                        print("Check Robot: invalid", url)
                         return False
                     else:
-                        print("Check Robot: Valid", f"{parsed.scheme}://{parsed.netloc}/robots.txt")
+                        print("Check Robot: Valid", url)
                         return True
                 
                 return False
