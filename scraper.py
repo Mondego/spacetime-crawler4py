@@ -126,7 +126,6 @@ class Scrape():
         user_perm = defaultdict(list)
         for i in range(len(lines)):
             words = lines[i].split()
-            print(words)
             if(words[0].lower() == "user-agent"):
                 curr_agent = words[1] 
             elif(words[0].lower() == "disallow"):
