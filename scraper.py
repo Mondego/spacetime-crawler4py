@@ -148,7 +148,7 @@ class Scrape():
                     user_perm[curr_agent].append(words[1])
                 # elif(words[0].lower() == "allow:"):
                 #     user_perm[curr_agent].append("+" + words[1])
-        if (user_perm in user_perm.keys()):
+        if (self.config.user_agent in user_perm.keys()):
             return user-perm[self.config.user_agent]
         else:
             return user_perm["*"]
