@@ -114,7 +114,7 @@ class Scrape():
                                 #adding the banned paths to the dictionary.
                                 self.robots[f"{parsed.netloc}"] = user_perm
                             except:
-                                "no robot"
+                                print("Dead Link")
                         else:
                             print("No Robot Response")
                         time.sleep(self.config.time_delay)
