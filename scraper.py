@@ -137,7 +137,7 @@ class Scrape():
             elif(words[0].lower() == "allow"):
                 print("allow")
                 user_perm[curr_agent].append("+" + word[1])
-        print(user_perm, "\n")
+        print("dictionary: " ,user_perm, "\n")
 
 
         #looking for user agents
