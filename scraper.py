@@ -16,6 +16,7 @@ class Scrape():
     def __init__(self,config):
         self.config = config
         self.host, self.port = config.cache_server
+        #self.robots = list of banned paths
         self.robots = {}
         self.simhashes = SimhashIndex([])
         self.link = 1
@@ -96,19 +97,31 @@ class Scrape():
                 + r"|today\.uci\.edu\/department\/information_computer_sciences\/?.*$"
                 ,parsed.netloc.lower() )):
                 if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
-                    #code from utils.download
-                    print(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
-                    resp = requests.get(
-                            f"http://{self.host}:{self.port}/",
-                            params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
-                    if resp:
-                        x = Response(cbor.loads(resp.content))
-                        print(x.raw_response.content.decode())
-                        self.robot_parser(x.raw_response.content.decode())
+                    #code from utils.download to download and parse the robot
+                    #assumes that the URL is a new URL
+                    if(not f"{parsed.netloc}/{parsed.path}" in self.robots.keys()):
+                        print(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
+                        resp = requests.get(
+                                f"http://{self.host}:{self.port}/",
+                                params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
+                        if resp:
+                            x = Response(cbor.loads(resp.content))
+                            print(x.raw_response.content.decode())
+                            user_perm = self.robot_parser(x.raw_response.content.decode())
+                            
+                            #adding the banned paths to the dictionary.
+                            self.robots[f"{parsed.netloc}/{parsed.path}"] = user_perm
+
+                        else:
+                            print("No Robot Response")
+                        time.sleep(self.config.time_delay)
+                    #Checks if the path is one we're allowed in crawl
+                    if (f"/{parsed.path}/" in self.robots[f"{parsed.netloc}/{parsed.path}"]):
+                        print("Check Robot: invalid")
+                        return False
                     else:
-                        print("Failure")
-                    time.sleep(5)
-                    return True
+                        print("Check Robot: Valid")
+                        return True
                 
                 return False
 
@@ -118,10 +131,10 @@ class Scrape():
             raise
             
     #Updates self.robot with domains and disallows.
-    def robot_parser(self,robot:str):
+    #the values of the list starts with /
+    def robot_parser(self,robot:str) -> list:
         print("parsing")
         lines = robot.splitlines()
-        print(lines)
         curr_agent = self.config.user_agent
         #temporary agent - permission
         user_perm = defaultdict(list)
@@ -130,15 +143,16 @@ class Scrape():
             print(words)
             if(len(words) != 0):
                 if(words[0].lower() == "user-agent:"):
-                    print("user")
                     curr_agent = words[1] 
                 elif(words[0].lower() == "disallow:"):
-                    print("dissallow")
-                    user_perm[curr_agent].append("-" + words[1])
-                elif(words[0].lower() == "allow:"):
-                    print("allow")
-                    user_perm[curr_agent].append("+" + words[1])
-        print("dictionary: " ,user_perm, "\n")
+                    user_perm[curr_agent].append(words[1])
+                # elif(words[0].lower() == "allow:"):
+                #     user_perm[curr_agent].append("+" + words[1])
+        if (user_perm in user_perm.keys()):
+            return user-perm[self.config.user_agent]
+        else:
+            return user_perm[*]
+        
 
 
         #looking for user agents
