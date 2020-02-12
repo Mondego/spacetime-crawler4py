@@ -99,7 +99,7 @@ class Scrape():
                 if (len(parsed.geturl()) <= 200):  # any links bigger than 200 will be discarded
                     #code from utils.download to download and parse the robot
                     #assumes that the URL is a new URL
-                    if(not f"{parsed.netloc}/{parsed.path}" in self.robots.keys()):
+                    if(not f"{parsed.netloc}" in self.robots.keys()):
                         print("New Robot", url)
                         resp = requests.get(
                                 f"http://{self.host}:{self.port}/",
@@ -110,13 +110,13 @@ class Scrape():
                             user_perm = self.robot_parser(x.raw_response.content.decode())
                             print(user_perm)
                             #adding the banned paths to the dictionary.
-                            self.robots[f"{parsed.netloc}/{parsed.path}"] = user_perm
+                            self.robots[f"{parsed.netloc}"] = user_perm
 
                         else:
                             print("No Robot Response")
                         time.sleep(self.config.time_delay)
                     #Checks if the path is one we're allowed in crawl
-                    if (f"/{parsed.path}/" in self.robots[f"{parsed.netloc}/{parsed.path}"]):
+                    if (f"/{parsed.path}/" in self.robots[f"{parsed.netloc}"]):
                         print("Check Robot: invalid", url)
                         return False
                     else:
