@@ -107,7 +107,7 @@ class Scrape():
                         self.robot_parser(x.raw_response.content.decode())
                     else:
                         print("Failure")
-                    time.sleep(0.5)
+                    time.sleep(5)
                     return True
                 
                 return False
@@ -121,6 +121,7 @@ class Scrape():
     def robot_parser(self,robot:str):
         print("parsing")
         lines = robot.splitlines()
+        print(lines)
         curr_agent = self.config.user_agent
         #temporary agent - permission
         user_perm = defaultdict(list)
