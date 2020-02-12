@@ -109,7 +109,7 @@ class Scrape():
                         print("Failure")
                     time.sleep(0.5)
                     return True
-                        
+                
                 return False
 
 
@@ -126,13 +126,14 @@ class Scrape():
         user_perm = defaultdict(list)
         for i in range(len(lines)):
             words = lines[i].split()
+            print(words)
             if(words[0].lower() == "user-agent"):
                 curr_agent = words[1] 
             elif(words[0].lower() == "disallow"):
                 user_perm[curr_agent].append("-" + word[1])
             elif(words[0].lower() == "allow"):
                 user_perm[curr_agent].append("+" + word[1])
-        print(user_perm)
+        print(user_perm, "\n")
 
 
         #looking for user agents
