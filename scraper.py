@@ -104,9 +104,9 @@ class Scrape():
                         resp = requests.get(
                                 f"http://{self.host}:{self.port}/",
                                 params=[("q", f"{parsed.scheme}://{parsed.netloc}/robots.txt"), ("u", f"{self.config.user_agent}")])
+                        #might have to check what type of respons we're getting.
                         if resp:
                             x = Response(cbor.loads(resp.content))
-                            print(x.raw_response.content.decode())
                             user_perm = self.robot_parser(x.raw_response.content.decode())
                             
                             #adding the banned paths to the dictionary.
@@ -133,14 +133,12 @@ class Scrape():
     #Updates self.robot with domains and disallows.
     #the values of the list starts with /
     def robot_parser(self,robot:str) -> list:
-        print("parsing")
         lines = robot.splitlines()
         curr_agent = self.config.user_agent
         #temporary agent - permission
         user_perm = defaultdict(list)
         for i in range(len(lines)):
             words = lines[i].split()
-            print(words)
             if(len(words) != 0):
                 if(words[0].lower() == "user-agent:"):
                     curr_agent = words[1] 
