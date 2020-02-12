@@ -108,7 +108,7 @@ class Scrape():
                         if resp:
                             x = Response(cbor.loads(resp.content))
                             user_perm = self.robot_parser(x.raw_response.content.decode())
-                            
+                            print(user_perm)
                             #adding the banned paths to the dictionary.
                             self.robots[f"{parsed.netloc}/{parsed.path}"] = user_perm
 
@@ -120,7 +120,7 @@ class Scrape():
                         print("Check Robot: invalid", url)
                         return False
                     else:
-                        print("Check Robot: Valid", url)
+                        #print("Check Robot: Valid", url)
                         return True
                 
                 return False
