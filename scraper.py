@@ -151,7 +151,7 @@ class Scrape():
         if (user_perm in user_perm.keys()):
             return user-perm[self.config.user_agent]
         else:
-            return user_perm[*]
+            return user_perm["*"]
         
 
 
