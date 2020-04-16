@@ -1,7 +1,8 @@
 import re
 from urllib.parse import urlparse
-import urllib.request
+from utils.response import Response
 from bs4 import BeautifulSoup
+import urllib.request
 
     #For tokenizing 
 dec_values = set()
@@ -36,27 +37,6 @@ def tokenize(html):
                     tokens.append(word)
     return tokens
 
-
-def checkalnum(word):
-    for i in range(len(word)):
-        if ord(word[i]) not in dec_values:
-            return False
-    return True
-
-def scraper(url, resp):
-    links = extract_next_links(url, resp)
-    if is_valid(url):
-        tokens = tokenize(resp)
-        all_results[url] = tokens
-    return [link for link in links if is_valid(link)]
-
-def extract_next_links(url, resp):
-    #res = urllib.request.urlopen(url)
-    #html = res.read()
-    soup = BeautifulSoup(resp,features='lxml')
-    links = soup.find_all('a',attrs={'href': re.compile("^https://|^http://")})
-    return links
-
 def is_valid(url):
     try:
         parsed = urlparse(url)
@@ -75,5 +55,39 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def checkalnum(word):
+    for i in range(len(word)):
+        if ord(word[i]) not in dec_values:
+            return False
+    return True
+
+def scraper(url, resp):
+    links = extract_next_links(url, resp)
+
+    conn = urllib.request.urlopen(url)
+    html = conn.read()
+
+    soup = BeautifulSoup(html,'lxml')
+    res = tokenize(soup)
+    print(res)
+    
+    return [link for link in links if is_valid(link)]
+
+def extract_next_links(url, resp):
+    conn = urllib.request.urlopen(url)
+    html = conn.read()
+
+    soup = BeautifulSoup(html,'lxml')
+    links = soup.find_all('a')
+
+    res = []
+    for tag in links:
+        link = tag.get('href',None)
+        if link is not None:
+            res.append(link)
+    
+    return res
+
 
 

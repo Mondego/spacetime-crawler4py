@@ -21,6 +21,6 @@ def init(df, user_agent, fresh):
 
 def get_cache_server(config, restart):
     init_node = Node(
-        init, Types=[Register], dataframe=(config.host, config.port))
+        init, Types=[Register], dataframe=(config.host, config.port),threading=True)
     return init_node.start(
         config.user_agent, restart or not os.path.exists(config.save_file))
