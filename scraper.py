@@ -3,28 +3,19 @@ from urllib.parse import urlparse
 from utils.response import Response
 from bs4 import BeautifulSoup
 import urllib.request
+from urllib.parse import urlparse
 
-    #For tokenizing 
 dec_values = set()
 dec_values.update(range(48,57+1))
 dec_values.update(range(65,90+1))
 dec_values.update(range(97,122+1))
-
 #Pages found
 unique_pages = set()
 
-    #Longest page in terms of words
-longest_page = dict()
+#Allowed domains
+allowed_domains = ("ics.uci.edu","cs.uci.edu","informatics.uci.edu","stat.uci.edu","today.uci.edu/department/information_computer_sciences")
 
-    #Common words
-common_words = dict()
-
-    #Subdomains of ics.uci.edu
-subdomains = 0
-
-    #All results ?
-all_results = dict()
-
+#TODO: Swap to Kevin's implementation 
 def tokenize(html):
     tokens = []
     for line in html:
@@ -37,10 +28,13 @@ def tokenize(html):
                     tokens.append(word)
     return tokens
 
+#TODO: Check if url is in allowed domains 
 def is_valid(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
+            return False
+        if urlparse(url).netloc[4:] not in allowed_domains:
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -63,31 +57,31 @@ def checkalnum(word):
     return True
 
 def scraper(url, resp):
-    links = extract_next_links(url, resp)
 
+    links = extract_next_links(url, resp)
     conn = urllib.request.urlopen(url)
     html = conn.read()
 
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup)
-    print(res)
-    
+
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    conn = urllib.request.urlopen(url)
-    html = conn.read()
+    if is_valid(url):
+        conn = urllib.request.urlopen(url)
+        html = conn.read()
 
-    soup = BeautifulSoup(html,'lxml')
-    links = soup.find_all('a')
+        soup = BeautifulSoup(html,'lxml')
+        links = soup.find_all('a')
 
-    res = []
-    for tag in links:
-        link = tag.get('href',None)
-        if link is not None:
-            res.append(link)
-    
-    return res
+        res = []
+        for tag in links:
+            link = tag.get('href',None)
+            if link is not None:
+                res.append(link)
+        
+        return res
 
 
 
