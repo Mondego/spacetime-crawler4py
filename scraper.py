@@ -1,5 +1,6 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -7,7 +8,29 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     # Implementation requred.
-    return list()
+    extractedLinks = []
+    parsed = urlparse(url)
+    linkDomain = "http://" + parsed.netloc
+    
+    '''
+    # save (write) data to text files while crawling for report data
+
+    # only crawl valid urls with status 200  OK series
+    # if valid and OK status, check if in visitedURLs{}
+    if is_valid(url) and (resp.status >= 200 ):
+        # use beautiful soup here to get webpage text
+        html_content = resp.raw_response.content
+        soup = BeautifulSoup(html_content, 'html.parser')
+    '''
+    
+    # findall urls listed on this html doc
+    for linkPath in soup.findall('a'):
+        link = linkPath.get('href')
+        # link may be incomplete
+        #https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
+        completeLink = urljoin(linkDomain, linkPath)
+        extractedLinks.append(completeLink)
+    return extractedLinks
 
 def is_valid(url):
     try:
