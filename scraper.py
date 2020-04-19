@@ -15,7 +15,16 @@ unique_pages = set()
 #Allowed domains
 allowed_domains = ("ics.uci.edu","cs.uci.edu","informatics.uci.edu","stat.uci.edu","today.uci.edu/department/information_computer_sciences")
 
-#TODO: Swap to Kevin's implementation 
+#Read stopwords from text 
+def load_stopwords():
+    stop_words = set()
+    f = open("stopwords.txt","r")
+    words = f.read().split("\n")
+    for word in words:
+        stop_words.add(word)
+    return stop_words
+stop_words = load_stopwords()
+
 def tokenize(html):
     tokens = []
     for line in html:
@@ -24,7 +33,7 @@ def tokenize(html):
             if len(word) > 1:
                 word = word.lower()
                 val = checkalnum(word)
-                if val:
+                if val and word not in stop_words:
                     tokens.append(word)
     return tokens
 
@@ -64,7 +73,7 @@ def scraper(url, resp):
 
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup)
-
+    
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
