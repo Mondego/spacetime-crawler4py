@@ -10,28 +10,39 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     # Implementation requred.
-    extractedLinks = []  
-
+    extractedLinks = [] 
+    
+    #create main domain for incomplete extracted links
+    parsed = urlparse(url)
+    linkDomain = parsed.scheme + "://" + parsed.netloc
+    
     # only crawl valid urls with status 200-299 OK series
         #https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-    # if valid and OK status, check if in visitedURLs{}
-    if is_valid(url) and (resp.status >= 200 and resp.status <= 299):
-        if url not in visitedURLs:  #url was not already crawled
-            # use beautiful soup here to get html content
-            html_content = resp.raw_response.content 
-            soup = BeautifulSoup(html_content, 'html.parser')
     
-            #create main domain for incomplete extracted links
-            parsed = urlparse(url)
-            linkDomain = "http://" + parsed.netloc  
-            
-            # findall urls listed on this html doc
-            for link in soup.findall('a'):
-                linkPath = link.get('href')
-                # link may be incomplete
-                #https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
-                completeLink = urljoin(linkDomain, linkPath)  
-                extractedLinks.append(completeLink)
+    # we don't necessarily need to check if the url is valid in this stage
+    # since is_valid will then be called on the links in extractedLinks
+    
+    # we don't need to check if its already been visited because
+    # the politeness aspect is already set up for us.
+    
+    if resp.status >= 200 and resp.status <= 299:
+        # use beautiful soup here to get html content
+        html_content = resp.raw_response.content
+        soup = BeautifulSoup(html_content, 'html.parser')
+
+        # findall urls listed on this html doc
+        for link in soup.findall('a', href=True):
+            tempLink = link.get('href')
+            # link may be incomplete - but!! it may be a complete link
+            # to a different domain, so let's check if it's a path first
+            # by checking if its an "absolute" url or a "relative" url
+            #       https://html.com/anchors-links/#Absolute_vs_Relative_URLs
+            if tempLink.startswith("http"):     # absolute url will always have scheme
+                completeLink = tempLink
+            else:                               # relative url - always relative to the base url so
+                completeLink = urljoin(url, tempLink)       # we can simply urljoin  with original url
+                
+            extractedLinks.append(completeLink)
                 
             # save (write) data to text files while crawling for report data
                     
@@ -39,6 +50,8 @@ def extract_next_links(url, resp):
 
 def is_valid(url):
     try:
+        # remove fragment
+        url = url.split("#", 1)[0]
         parsed = urlparse(url)
         
         if parsed.scheme not in set(["http", "https"]):
