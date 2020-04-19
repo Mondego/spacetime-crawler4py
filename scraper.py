@@ -8,10 +8,7 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     # Implementation requred.
-    extractedLinks = []
-    parsed = urlparse(url)
-    #create main domain for incomplete extracted links
-    linkDomain = "http://" + parsed.netloc    
+    extractedLinks = []  
 
     # only crawl valid urls with status 200-299 OK series
         #https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -22,15 +19,19 @@ def extract_next_links(url, resp):
             html_content = resp.raw_response.content 
             soup = BeautifulSoup(html_content, 'html.parser')
     
+            #create main domain for incomplete extracted links
+            parsed = urlparse(url)
+            linkDomain = "http://" + parsed.netloc  
+            
             # findall urls listed on this html doc
-            for linkPath in soup.findall('a'):
-                link = linkPath.get('href')
+            for link in soup.findall('a'):
+                linkPath = link.get('href')
                 # link may be incomplete
                 #https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
                 completeLink = urljoin(linkDomain, linkPath)  
                 extractedLinks.append(completeLink)
                 
-                 # save (write) data to text files while crawling for report data
+            # save (write) data to text files while crawling for report data
                     
     return extractedLinks
 
