@@ -10,26 +10,28 @@ def extract_next_links(url, resp):
     # Implementation requred.
     extractedLinks = []
     parsed = urlparse(url)
-    linkDomain = "http://" + parsed.netloc
-    
-    '''
-    # save (write) data to text files while crawling for report data
+    #create main domain for incomplete extracted links
+    linkDomain = "http://" + parsed.netloc    
 
-    # only crawl valid urls with status 200  OK series
+    # only crawl valid urls with status 200-299 OK series
+        #https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
     # if valid and OK status, check if in visitedURLs{}
-    if is_valid(url) and (resp.status >= 200 ):
-        # use beautiful soup here to get webpage text
-        html_content = resp.raw_response.content
-        soup = BeautifulSoup(html_content, 'html.parser')
-    '''
+    if is_valid(url) and (resp.status >= 200 and resp.status <= 299):
+        if url not in visitedURLs:  #url was not already crawled
+            # use beautiful soup here to get html content
+            html_content = resp.raw_response.content 
+            soup = BeautifulSoup(html_content, 'html.parser')
     
-    # findall urls listed on this html doc
-    for linkPath in soup.findall('a'):
-        link = linkPath.get('href')
-        # link may be incomplete
-        #https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
-        completeLink = urljoin(linkDomain, linkPath)
-        extractedLinks.append(completeLink)
+            # findall urls listed on this html doc
+            for linkPath in soup.findall('a'):
+                link = linkPath.get('href')
+                # link may be incomplete
+                #https://stackoverflow.com/questions/10893374/python-confusions-with-urljoin
+                completeLink = urljoin(linkDomain, linkPath)  
+                extractedLinks.append(completeLink)
+                
+                 # save (write) data to text files while crawling for report data
+                    
     return extractedLinks
 
 def is_valid(url):
