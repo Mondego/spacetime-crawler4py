@@ -12,10 +12,6 @@ def extract_next_links(url, resp):
     # Implementation requred.
     extractedLinks = [] 
     
-    #create main domain for incomplete extracted links
-    parsed = urlparse(url)
-    linkDomain = parsed.scheme + "://" + parsed.netloc
-    
     # only crawl valid urls with status 200-299 OK series
         #https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
     
