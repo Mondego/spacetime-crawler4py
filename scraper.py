@@ -50,7 +50,8 @@ def extract_next_links(url, resp):
 
                 if completeLink not in uniqueURLs:  #not yet crawled
                     url_counter += 1
-                    uniqueURLs.add(completeLink)
+                    uniqueURLs.add(completeLink)  #might not need to save these b/c we 
+                                                    #just need to specify how many unique urls we found
 
         # subdomain check
         mainURL = urlparse(url)
