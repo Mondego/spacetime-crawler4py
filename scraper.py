@@ -3,6 +3,8 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 visitedURLs = {}  #set of already crawled urls
+uniqueURLs = set()  # set
+subDomains = {}  # dict {url hostname, num of unique urls}
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -21,6 +23,7 @@ def extract_next_links(url, resp):
     # we don't need to check if its already been visited because
     # the politeness aspect is already set up for us.
     
+    url_counter = 0
     if resp.status >= 200 and resp.status <= 299:
         # use beautiful soup here to get html content
         html_content = resp.raw_response.content
@@ -40,7 +43,25 @@ def extract_next_links(url, resp):
                 
             extractedLinks.append(completeLink)
                 
-            # save (write) data to text files while crawling for report data
+         # before adding a url to dict, check if it's valid, not already crawled, unique
+            if is_valid(completeLink):
+                # check uniqueness --> remove fragment
+                completeLink = completeLink.split("#", 1)[0]
+
+                if completeLink not in uniqueURLs:  #not yet crawled
+                    url_counter += 1
+                    uniqueURLs.add(completeLink)
+
+        # subdomain check
+        mainURL = urlparse(url)
+        URL_hostname = mainURL.hostname
+        if URL_hostname == None:
+            URL_hostname = ""
+        if re.match(r"(www.)?[-a-z0-9.]+\.ics\.uci\.edu", URL_hostname):
+            subDomains[URL_hostname] = url_counter  #stores the number of unique pages found in each subdomain
+     
+    
+    # save (write) data to text files while crawling for report data
                     
     return extractedLinks
 
