@@ -1,13 +1,24 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urldefrag
+from urllib.request import urlopen
+import html.parser
+from bs4 import BeautifulSoup
+import utils
 
-def scraper(url, resp):
-    links = extract_next_links(url, resp)
+
+def scraper(url: str, resp: utils.response.Response):
+    defrag_url = urldefrag(url)[0]
+    links = extract_next_links(defrag_url, resp)
     return [link for link in links if is_valid(link)]
+
 
 def extract_next_links(url, resp):
     # Implementation requred.
-    return list()
+    f = urlopen(url)
+    html_object = BeautifulSoup(f, "html.parser")
+    links = [link.get('href') for link in html_object.find_all('a')]
+    return links
+
 
 def is_valid(url):
     try:
