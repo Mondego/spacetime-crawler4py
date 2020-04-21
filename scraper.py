@@ -65,6 +65,15 @@ def checkalnum(word):
             return False
     return True
 
+def writeToFile(url,res):
+    new_url = urlparse(url).netloc[4:] #Parse URL 
+    file = open(new_url+".txt","a")
+    file.write(url+"\n")
+    for word in res:
+        file.write(word+"\n")
+    file.write("STOPHERE\n")
+    file.close()
+    
 def scraper(url, resp):
 
     links = extract_next_links(url, resp)
@@ -74,6 +83,7 @@ def scraper(url, resp):
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup.get_text())
     #print(res) Don't print. Write to file instead.
+    writeToFile(url,res)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
