@@ -26,6 +26,7 @@ def load_stopwords():
 stop_words = load_stopwords()
 
 def tokenize(html):
+    html = html.split("\n")
     tokens = []
     for line in html:
         line = str(line)
@@ -37,7 +38,6 @@ def tokenize(html):
                     tokens.append(word)
     return tokens
 
-#TODO: Check if url is in allowed domains 
 def is_valid(url):
     try:
         parsed = urlparse(url)
@@ -72,8 +72,8 @@ def scraper(url, resp):
     html = conn.read()
 
     soup = BeautifulSoup(html,'lxml')
-    res = tokenize(soup)
-    
+    res = tokenize(soup.get_text())
+    #print(res) Don't print. Write to file instead.
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
