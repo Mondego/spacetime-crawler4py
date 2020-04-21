@@ -77,8 +77,7 @@ def writeToFile(url,res):
 def scraper(url, resp):
 
     links = extract_next_links(url, resp)
-    conn = urllib.request.urlopen(url)
-    html = conn.read()
+    html = resp.raw_response.content
 
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup.get_text())
@@ -88,8 +87,8 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     if is_valid(url):
-        conn = urllib.request.urlopen(url)
-        html = conn.read()
+        #conn = urllib.request.urlopen(url)
+        html = resp.raw_response.content
 
         soup = BeautifulSoup(html,'lxml')
         links = soup.find_all('a')
