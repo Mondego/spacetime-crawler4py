@@ -11,7 +11,7 @@ dec_values.update(range(65,90+1))
 dec_values.update(range(97,122+1))
 
 #Allowed domains
-allowed_domains = ("www.ics.uci.edu","www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu")
+allowed_domains = ("ics.uci.edu","cs.uci.edu","informatics.uci.edu","stat.uci.edu")
 allowed_domain2 = "https://today.uci.edu/department/information_computer_sciences"
 #Read stopwords from text 
 def load_stopwords():
@@ -45,7 +45,7 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if parsed.netloc not in allowed_domains and url[:62] != allowed_domain2:
+        if parsed.netloc[4:] not in allowed_domains and url[:62] != allowed_domain2:
             return False
         if pdf in url:
             return False
