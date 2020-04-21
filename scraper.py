@@ -79,12 +79,14 @@ def writeToFile(url,res):
     file.close()
     
 def scraper(url, resp):
+    url = defragURL(url)
+    #Where to defrag?
     links = extract_next_links(url, resp)
     html = resp.raw_response.content
 
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup.get_text())
-    url = defragURL(url)
+    #url = defragURL(url)
     writeToFile(url,res)
     return [link for link in links if is_valid(link)]
 
