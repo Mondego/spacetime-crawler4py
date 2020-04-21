@@ -14,10 +14,11 @@ def scraper(url: str, resp: utils.response.Response):
 
 def extract_next_links(url, resp):
     # Implementation requred.
-    f = urlopen(url)
-    html_object = BeautifulSoup(f, "html.parser")
-    links = [link.get('href') for link in html_object.find_all('a')]
-    return links
+    if is_valid(url):
+        f = urlopen(url)
+        html_object = BeautifulSoup(f, "html.parser")
+        links = [link.get('href') for link in html_object.find_all('a')]
+        return links
 
 
 def is_valid(url):
