@@ -38,12 +38,18 @@ def tokenize(html):
                     tokens.append(word)
     return tokens
 
+def defragURL(url):
+    url = url.split("#")
+    return url[0]
+
 def is_valid(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
         if urlparse(url).netloc[4:] not in allowed_domains:
+            return False
+        if pdf in url:
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -75,19 +81,17 @@ def writeToFile(url,res):
     file.close()
     
 def scraper(url, resp):
-
     links = extract_next_links(url, resp)
     html = resp.raw_response.content
 
     soup = BeautifulSoup(html,'lxml')
     res = tokenize(soup.get_text())
-    #print(res) Don't print. Write to file instead.
+    url = defragURL(url)
     writeToFile(url,res)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
     if is_valid(url):
-        #conn = urllib.request.urlopen(url)
         html = resp.raw_response.content
 
         soup = BeautifulSoup(html,'lxml')
@@ -100,6 +104,5 @@ def extract_next_links(url, resp):
                 res.append(link)
         
         return res
-
 
 
