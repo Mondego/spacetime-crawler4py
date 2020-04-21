@@ -9,12 +9,10 @@ dec_values = set()
 dec_values.update(range(48,57+1))
 dec_values.update(range(65,90+1))
 dec_values.update(range(97,122+1))
-#Pages found
-unique_pages = set()
 
 #Allowed domains
-allowed_domains = ("ics.uci.edu","cs.uci.edu","informatics.uci.edu","stat.uci.edu","today.uci.edu/department/information_computer_sciences")
-
+allowed_domains = ("www.ics.uci.edu","www.cs.uci.edu","www.informatics.uci.edu","www.stat.uci.edu")
+allowed_domain2 = "https://today.uci.edu/department/information_computer_sciences"
 #Read stopwords from text 
 def load_stopwords():
     stop_words = set()
@@ -47,7 +45,7 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if urlparse(url).netloc[4:] not in allowed_domains:
+        if parsed.netloc not in allowed_domains and url[:62] != allowed_domain2:
             return False
         if pdf in url:
             return False
@@ -72,7 +70,7 @@ def checkalnum(word):
     return True
 
 def writeToFile(url,res):
-    new_url = urlparse(url).netloc[4:] #Parse URL 
+    new_url = urlparse(url).netloc #Parse URL 
     file = open(new_url+".txt","a")
     file.write(url+"\n")
     for word in res:
