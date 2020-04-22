@@ -19,10 +19,10 @@ class Worker(Thread):
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
                 break
-            self.logger.info(
-                        f"Downloaded {tbd_url}, status <{resp.status}>, "
-                        f"using cache {self.config.cache_server}.")
             resp = download(tbd_url, self.config, self.logger)
+            self.logger.info(
+                f"Downloaded {tbd_url}, status <{resp.status}>, "
+                f"using cache {self.config.cache_server}.")
             if resp.status == 200:
                 scraped_urls = scraper(tbd_url, resp)
                 for scraped_url in scraped_urls:

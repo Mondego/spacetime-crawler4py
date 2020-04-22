@@ -47,7 +47,7 @@ def is_valid(url):
             return False
         if parsed.netloc[4:] not in allowed_domains and url[:62] != allowed_domain2:
             return False
-        if pdf in url:
+        if "pdf" in url:
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
