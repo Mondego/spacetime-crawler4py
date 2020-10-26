@@ -1,4 +1,6 @@
 import re
+from bs4 import BeautifulSoup
+import requests
 from urllib.parse import urlparse
 
 def scraper(url, resp):
@@ -6,8 +8,10 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    # Implementation requred.
-    return list()
+    	# Implementation requred.
+	with open(url) as html_file:
+		soup = BeautifulSoup(html_file, 'lxml')
+	return list()
 
 def is_valid(url):
     try:
