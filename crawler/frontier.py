@@ -72,4 +72,11 @@ class Frontier(object):
         self.save.sync()
 
 
+<<<<<<< HEAD
 # Roy commented here
+=======
+
+
+
+#comment by Andrew
+>>>>>>> adfacddee45d1a52d490ba2a8adc9b79f62f4d6c
