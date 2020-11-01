@@ -70,3 +70,9 @@ class Frontier(object):
 
         self.save[urlhash] = (url, True)
         self.save.sync()
+
+
+
+
+
+#comment by Andrew
