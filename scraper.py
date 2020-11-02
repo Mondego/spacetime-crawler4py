@@ -35,9 +35,13 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
+        uci_link = False
         for base_link in valid_sites:
-            if(not (base_link in parsed.netloc)):
-                return False
+            if(base_link in parsed.netloc):
+                uci_link = True
+
+        if(not uci_link):
+            return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
