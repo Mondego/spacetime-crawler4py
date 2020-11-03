@@ -14,12 +14,11 @@ def extract_next_links(url, resp):
 
     # Parse the html but only parse the URLs to make it more effiecent
     # SoupStrainer code found https://www.crummy.com/software/BeautifulSoup/bs4/doc/#soupstrainer
-    soup = BeautifulSoup(resp.raw_response.content, parse_only=SoupStrainer("a"), features="html.parser")
+    soup = BeautifulSoup(resp.raw_response.content, parse_only=SoupStrainer("a"), features="html.parser", from_encoding="iso-8859-1")
     for link in soup:
         if link.has_attr("href") and is_valid(link["href"]):
             return_list.append(link["href"])
 
-    print(return_list)
     return return_list
 
 def is_valid(url):
@@ -41,6 +40,9 @@ def is_valid(url):
                 uci_link = True
 
         if(not uci_link):
+            return False
+
+        if('/pdf/' in parsed.path.lower()):
             return False
         
         return not re.match(
