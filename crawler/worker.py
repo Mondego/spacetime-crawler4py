@@ -26,17 +26,20 @@ class Worker(Thread):
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
+
             scraped_urls = scraper(tbd_url, resp)
 
             # adding data to recorder
             record.add_url(tbd_url)
 
-            if not (resp.raw_response is None):
-                record.add_words(resp.raw_response.content)
+            if not (resp.raw_response is None and is_valid(tbd_url)):
+                record.add_words(resp.raw_response.content, tbd_url)
+
+            record.save()
 
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)
         
-        record.print_report()
+        record.finish_crawl_report()
