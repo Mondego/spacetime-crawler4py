@@ -45,19 +45,8 @@ def is_valid(url):
             return False
 
         # Being used to detect calaneder links that go on for too long
-        if('wics' in parsed.netloc.lower()):
-            split = parsed.path.split('/')
-            last = ''
-            # urls can be .../2012-12-13/ or .../2012-12-13
-            if (split[len(split) - 1] == '' and len(split) > 1):
-                last = split[len(split) - 2].split('-')[0]
-            else:
-                last = split[len(split) - 1].split('-')[0]
-            
-            if (last.isnumeric()):
-                result_year = int(last)
-                if result_year <= 2015 and result_year > 1900:
-                    return False
+        if('wics' in parsed.netloc.lower() and bool(re.search('/events/.*?/', parsed.path.lower()))):
+            return False
         
         # There are fragments that that just give the browser direction and can be thrown out
         if(parsed.fragment != ''):
