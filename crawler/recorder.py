@@ -1,10 +1,59 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import json
+import sys
 
 class Recorder:
     def __init__(self):
         self.uniqueUrls = 0
         self.urls = set()
         self.words = dict()
+        self.longestUrlContent = 0
+        self.longestUrl = ''
+        self.uniqueDomains = dict()
+
+        if ('--restart' not in sys.argv):
+            self.load_data()
+
+    def save(self):
+        misc_stats = {}
+        misc_stats['uniqueUrls'] = self.uniqueUrls
+        misc_stats['longestUrl'] = self.longestUrl
+        misc_stats['longestUrlContent'] = self.longestUrlContent
+        with open('misc_stats.json', 'w') as outfile:
+            json_dump = json.dumps(misc_stats, indent=4)
+            print(json_dump, file=outfile)
+
+        with open('domainCount.json', 'w') as outfile:
+            json_dump = json.dumps(self.uniqueDomains, indent=4)
+            print(json_dump, file=outfile)
+
+        with open('word_count.json', 'w') as outfile:
+            json_dump = json.dumps(self.words, indent=4)
+            print(json_dump, file=outfile)
+
+        urls = list(self.urls)
+        urls_obj = {}
+        urls_obj['urls'] = urls
+        with open('urls.json', 'w') as outfile:
+            json_dump = json.dumps(urls_obj, indent=4)
+            print(json_dump, file=outfile)
+
+    def load_data(self):
+        with open('word_count.json') as json_file:
+            self.words = json.load(json_file)
+
+        with open('domainCount.json') as json_file:
+            self.uniqueDomains = json.load(json_file)
+
+        with open('misc_stats.json') as json_file:
+            data = json.load(json_file)
+            self.uniqueUrls = data['uniqueUrls']
+            self.longestUrl = data['longestUrl']
+            self.longestUrlContent = data['longestUrlContent']
+        
+        with open('urls.json') as json_file:
+            self.urls = set(json.load(json_file)['urls'])
 
     def is_stop_word(self, word):
         stop_words = [
@@ -185,7 +234,7 @@ class Recorder:
 
         return word in stop_words
 
-    def add_words(self, resp):
+    def add_words(self, resp, url):
         soup = BeautifulSoup(resp, features="html.parser", from_encoding="iso-8859-1")
         text = soup.get_text()
         # Code taken from Assignment 1 Part A
@@ -195,13 +244,18 @@ class Recorder:
         # filtering out all the non alphanumeric chars
         resp_words = list(map(lambda word: ''.join(list(filter(lambda x: x.isalnum(), [char for char in word]))), resp_words))
 
-        resp_words = list(filter(lambda word: word != '', resp_words))
+        resp_words = list(filter(lambda word: len(word) > 1, resp_words))
 
         for word in resp_words:
             if word in self.words:
                 self.words[word] += 1
             else:
                 self.words[word] = 1
+        
+        if len(resp_words) > self.longestUrlContent:
+            print('Found new longest page: {} words'.format(len(resp_words)))
+            self.longestUrlContent = len(resp_words)
+            self.longestUrl = url
 
     def add_url(self, url):
         len_before = len(self.urls)
@@ -209,11 +263,25 @@ class Recorder:
         if(len(self.urls) != len_before):
             self.uniqueUrls += 1
 
+        # counting the number of pages in each domain
+        netloc = urlparse(url).netloc
+        if netloc in self.uniqueDomains:
+            self.uniqueDomains[netloc] += 1
+        else:
+            self.uniqueDomains[netloc] = 1
+
+        if(len(self.urls) % 200 == 0):
+            self.finish_crawl_report()
+
     def already_scrapped(self, url):
         return url in self.urls
 
     def print_report(self):
         print('Unique pages: {}'.format(self.uniqueUrls))
+        print('--------------------')
+        print('Longest page is {}'.format(self.longestUrl))
+        print('With a word count of {}'.format(self.longestUrlContent))
+        print('--------------------')
         print('Most common words:')
 
         # getting the 50 most common words
@@ -227,3 +295,11 @@ class Recorder:
         for i in range(50):
             curr_word = sorted_list[i]
             print('{} -> {}'.format(list(curr_word.keys())[0], list(curr_word.values())[0]))
+
+        # saving url count to json
+        with open('domainCount.json', 'w') as outfile:
+            json_dump = json.dumps(self.uniqueDomains, indent=4)
+            print(json_dump, file=outfile)
+
+    def finish_crawl_report(self):
+        self.save()

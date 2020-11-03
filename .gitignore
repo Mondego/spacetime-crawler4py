@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+domainCount.json
+misc_stats.json
+urls.json
+word_count.json
+
 # Distribution / packaging
 .Python
 build/
