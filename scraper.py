@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup, SoupStrainer
 from urllib.parse import urlparse
 
 def scraper(url, resp):
+    # parsed the pages and compare it with document store
+    # if similar enough return emptry list  `return []`
+
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
