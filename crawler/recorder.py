@@ -270,36 +270,5 @@ class Recorder:
         else:
             self.uniqueDomains[netloc] = 1
 
-        if(len(self.urls) % 200 == 0):
-            self.finish_crawl_report()
-
-    def already_scrapped(self, url):
-        return url in self.urls
-
-    def print_report(self):
-        print('Unique pages: {}'.format(self.uniqueUrls))
-        print('--------------------')
-        print('Longest page is {}'.format(self.longestUrl))
-        print('With a word count of {}'.format(self.longestUrlContent))
-        print('--------------------')
-        print('Most common words:')
-
-        # getting the 50 most common words
-        frequency_list = []
-        for key in self.words:
-            if self.is_stop_word(key):
-                continue
-            frequency_list.append({key: self.words[key]})
-
-        sorted_list = sorted(frequency_list, key=lambda word: list(word.values())[0], reverse=True)
-        for i in range(50):
-            curr_word = sorted_list[i]
-            print('{} -> {}'.format(list(curr_word.keys())[0], list(curr_word.values())[0]))
-
-        # saving url count to json
-        with open('domainCount.json', 'w') as outfile:
-            json_dump = json.dumps(self.uniqueDomains, indent=4)
-            print(json_dump, file=outfile)
-
     def finish_crawl_report(self):
         self.save()
