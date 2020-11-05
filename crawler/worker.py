@@ -1,5 +1,8 @@
 from threading import Thread
 
+from urllib.robotparser import RobotFileParser
+from urllib.parse import urlparse
+
 from utils.download import download
 from utils import get_logger
 from scraper import scraper, is_valid
@@ -13,9 +16,26 @@ class Worker(Thread):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
+        self.robots_txt_dict = dict()
         super().__init__(daemon=True)
         
+    def can_fetch(self, url):
+        parsed = urlparse(url)
+
+        if parsed.netloc in self.robots_txt_dict:
+            return self.robots_txt_dict[parsed.netloc].can_fetch('*', url)
+        
+        rp = RobotFileParser()
+        rp.set_url('{}://{}/robots.txt'.format(parsed.scheme, parsed.netloc))
+        rp.read()
+        self.robots_txt_dict[parsed.netloc] = rp
+
+        return rp.can_fetch('*', url)
+
+
     def run(self):
+        
+        # this is where we are gonna call the function to get the robot.txt
         record = Recorder()
         while True:
             tbd_url = self.frontier.get_tbd_url()
@@ -24,9 +44,8 @@ class Worker(Thread):
                 self.logger.info("Frontier is empty. Stopping Crawler.")
                 break
 
-            # check sitemap for if valid
-            # if not valid:
-            #   continue
+            if not self.can_fetch(tbd_url):
+                continue
 
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(

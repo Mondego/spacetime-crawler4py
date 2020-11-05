@@ -38,7 +38,7 @@ def is_valid(url):
 
         uci_link = False
         for base_link in valid_sites:
-            if(base_link in parsed.netloc):
+            if(base_link in parsed.netloc + parsed.path):
                 uci_link = True
 
         if(not uci_link):
@@ -49,6 +49,9 @@ def is_valid(url):
 
         # Being used to detect calaneder links that go on for too long
         if('wics' in parsed.netloc.lower() and bool(re.search('/events/.*?/', parsed.path.lower()))):
+            return False
+
+        if('today' in parsed.netloc.lower() and bool(re.search('/calender/.*?/', parsed.path.lower()))):
             return False
         
         # There are fragments that that just give the browser direction and can be thrown out

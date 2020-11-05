@@ -263,12 +263,13 @@ class Recorder:
         if(len(self.urls) != len_before):
             self.uniqueUrls += 1
 
-        # counting the number of pages in each domain
+        # counting the number of pages in each ics domain
         netloc = urlparse(url).netloc
-        if netloc in self.uniqueDomains:
-            self.uniqueDomains[netloc] += 1
-        else:
-            self.uniqueDomains[netloc] = 1
+        if '.ics.uci.edu' in netloc:
+            if netloc in self.uniqueDomains:
+                self.uniqueDomains[netloc] += 1
+            else:
+                self.uniqueDomains[netloc] = 1
 
     def finish_crawl_report(self):
         self.save()
