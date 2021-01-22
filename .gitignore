@@ -108,3 +108,6 @@ venv.bak/
 
 *.full.py
 *.shelve
+
+# shelve
+frontier.shelve.db
