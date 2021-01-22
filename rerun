@@ -1,0 +1,2 @@
+rm frontier.shelve.db
+python3.6 launch.py
