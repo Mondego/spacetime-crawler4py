@@ -1,5 +1,7 @@
+from soup import get_soup
+
 def print_page_links(resp):
-    soup = _get_soup(resp)
+    soup = get_soup(resp)
 
     if soup == None:
         print("soup is none")
@@ -9,7 +11,7 @@ def print_page_links(resp):
         print(link.get('href'))
 
 def print_page_text(resp):
-    soup = _get_soup(resp)
+    soup = get_soup(resp)
 
     if soup == None:
         print("soup is none")
