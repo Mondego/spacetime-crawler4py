@@ -1,15 +1,13 @@
 import re
-from bs4 import BeautifulSoup as bs4
+from utils.soup import get_soup
 from urllib.parse import urlparse
 
 def scraper(url, resp):
-    # _print_page_links(resp)
-    # _print_page_text(resp)
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    soup = _get_soup(resp)
+    soup = get_soup(resp)
 
     if soup == None:
         print("soup is none")
@@ -41,31 +39,3 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
-
-def _get_soup(resp):
-    if resp.raw_response ==  None:
-        return None
-
-    page_text = resp.raw_response.text
-    soup = bs4(page_text, 'html.parser')
-    return soup
-
-def _print_page_links(resp):
-    soup = _get_soup(resp)
-
-    if soup == None:
-        print("soup is none")
-        return
-
-    for link in soup.find_all('a'):
-        print(link.get('href'))
-
-def _print_page_text(resp):
-    soup = _get_soup(resp)
-
-    if soup == None:
-        print("soup is none")
-        return
-
-    for p_elem in soup.find_all('p'):
-        print(p_elem.get_text())
