@@ -1,3 +1,4 @@
+from utils.subdomain import SubDomainPrinter
 from utils import get_logger
 from crawler.frontier import Frontier
 from crawler.worker import Worker
@@ -9,10 +10,11 @@ class Crawler(object):
         self.frontier = frontier_factory(config, restart)
         self.workers = list()
         self.worker_factory = worker_factory
+        self.subdomain_printer = SubDomainPrinter(config, restart)
 
     def start_async(self):
         self.workers = [
-            self.worker_factory(worker_id, self.config, self.frontier)
+            self.worker_factory(worker_id, self.config, self.frontier, self.subdomain_printer)
             for worker_id in range(self.config.threads_count)]
         for worker in self.workers:
             worker.start()

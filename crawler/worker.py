@@ -7,10 +7,11 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier):
+    def __init__(self, worker_id, config, frontier, subdomain_printer):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
+        self.subdomain_printer = subdomain_printer
         super().__init__(daemon=True)
         
     def run(self):
@@ -26,5 +27,6 @@ class Worker(Thread):
             scraped_urls = scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
+            self.subdomain_printer.print_sub_doms_to_file(scraped_urls)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)

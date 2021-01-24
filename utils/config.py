@@ -17,3 +17,6 @@ class Config(object):
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
 
         self.cache_server = None
+
+        self.subdomain_file = config["LOCAL PROPERTIES"]["SUBDOMAIN_FILE"]
+        self.domain = config["LOCAL PROPERTIES"]["DOMAIN"]
