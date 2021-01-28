@@ -1,15 +1,36 @@
 import re
 from urllib.parse import urlparse
-
+import pickle
+# TODO: How many subdomains did you find in the ics.uci.edu domain?
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    # pickle.dumps
+    print(resp.raw_response)
     # Implementation requred.
+    # 1. parse resp
+    #   1.1 get all url
+    #   1.2 clean up hmtl 
+    #   1.3 tokenize + filter stop word + count work
+    print("hello")
     return list()
 
 def is_valid(url):
+    # TODO: change it to verify the url is in xxx domains
+    
+    # * *.ics.uci.edu/*
+    # 	* 
+    # *.cs.uci.edu/*
+    # 	* 
+    # *.informatics.uci.edu/*
+    # 	* 
+    # *.stat.uci.edu/*
+    # 	* 
+    # today.uci.edu/department/information_computer_sciences/*
+
+
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):

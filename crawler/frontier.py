@@ -7,6 +7,8 @@ from queue import Queue, Empty
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 
+# record downloaded URL
+# TODO: uniqueness of URL
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
