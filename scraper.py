@@ -1,10 +1,16 @@
 import re
 from urllib.parse import urlparse
 import pickle
+from bs4 import BeautifulSoup
+from word_freq import WordFreq
+import report
+
+
 # TODO: How many subdomains did you find in the ics.uci.edu domain?
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
+
 
 def extract_next_links(url, resp):
     # pickle.dumps
@@ -17,6 +23,28 @@ def extract_next_links(url, resp):
     print("hello "+url)
     print(is_valid(url))
     return list()
+
+
+def extract_word_freq(url, content):
+    soup = BeautifulSoup(content, 'html.parser')
+    pure_content = soup.get_text()
+    parsed_content = WordFreq(pure_content)
+    # tokenize
+    token_lst = parsed_content.tokenize()
+    # filter out stop word
+    filtered_lst = parsed_content.filter_stop(token_lst)
+    # get number of words in this page
+    page_len = len(filtered_lst)
+    Report.page_length = max(Report.page_length, page_len)
+    if page_len > Report.page_length:
+        Report.page_length = page_len
+        Report.longest_page_url = url
+
+    for i in filtered_lst:
+        if i not in Report.word_freq:
+            Report.word_freq[i] = 0
+        Report.word_freq[i] += 1
+
 
 def is_valid(url):
     # TODO: change it to verify the url is in xxx domains
