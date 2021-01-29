@@ -14,7 +14,8 @@ def extract_next_links(url, resp):
     #   1.1 get all url
     #   1.2 clean up hmtl 
     #   1.3 tokenize + filter stop word + count work
-    print("hello")
+    print("hello "+url)
+    print(is_valid(url))
     return list()
 
 def is_valid(url):
@@ -29,6 +30,10 @@ def is_valid(url):
     # *.stat.uci.edu/*
     # 	* 
     # today.uci.edu/department/information_computer_sciences/*
+    if re.match(r".*\.((ics|cs|informatics|stat).uci.edu|today.uci.edu/department/information_computer_sciences)(\/.*)?", url):
+        return True
+    else: 
+        return False
 
 
     try:
