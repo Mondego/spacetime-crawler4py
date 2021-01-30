@@ -15,7 +15,7 @@ def extract_next_links(url, resp):
             with shelve.open('store_url') as db:
                 un_url = url.split("#")[0]
                 # get text on the url and write into db
-                text = re.findall(r'^\w+$', resp.raw_response.strip().lower())
+                text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
                 print(text)
                 if un_url not in db:
                     db[un_url] = text
