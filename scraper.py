@@ -1,9 +1,6 @@
-import re
-import shelve
+import re, shelve, urllib
 from collections import defaultdict
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
-
 from urllib.parse import urlparse
 
 def scraper(url, resp):
@@ -13,7 +10,7 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     links = []
     if 599 >=resp.status >= 200 and resp.raw_response != None:
-        bsObj = BeautifulSoup(resp.raw_response, 'html.parser')
+        bsObj = BeautifulSoup(resp.raw_response.content(), 'html.parser')
         try:
             with shelve.open('store_url') as db:
                 un_url = url.split("#")[0]
@@ -48,7 +45,7 @@ def is_valid(url):
             return False
         if len(parsed.path.split('/')) > 20:
             return False
-        if not any([i.match(i) for i in seeds]):
+        if not any([parsed.match(i) for i in seeds]):
             return False
         the_path = parsed.path.split('/')
         path_dict = defaultdict(int)
