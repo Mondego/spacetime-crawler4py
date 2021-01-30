@@ -10,12 +10,13 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     links = []
     if 599 >=resp.status >= 200 and resp.raw_response != None:
-        bsObj = BeautifulSoup(resp.raw_response.content(), 'html.parser')
+        bsObj = BeautifulSoup(resp.raw_response.content, 'html.parser')
         try:
             with shelve.open('store_url') as db:
                 un_url = url.split("#")[0]
                 # get text on the url and write into db
                 text = re.findall(r'^\w+$', resp.raw_response.strip().lower())
+                print(text)
                 if un_url not in db:
                     db[un_url] = text
 
@@ -23,6 +24,7 @@ def extract_next_links(url, resp):
                 for t2 in t1:
                     if(t2.get('href') != None and t2.get('href') not in links):
                         links.append(t2)
+                        print(f"links: {links}")
 
         finally:
             db.close()
@@ -45,7 +47,7 @@ def is_valid(url):
             return False
         if len(parsed.path.split('/')) > 20:
             return False
-        if not any([parsed.match(i) for i in seeds]):
+        if not any([i.match(url) for i in seeds]):
             return False
         the_path = parsed.path.split('/')
         path_dict = defaultdict(int)
