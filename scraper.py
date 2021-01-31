@@ -12,21 +12,21 @@ def extract_next_links(url, resp):
     if 599 >= resp.status >= 200 and resp.raw_response != None:
         bsObj = BeautifulSoup(resp.raw_response.content, 'html.parser')
         try:
-            url_list = shelve.open('urlText.db')
-            un_url = url.split("#")[0]
-            # get text on the url and write into db
-            text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
-            if un_url not in url_list:
-                url_list[un_url] = text
+            # url_list = shelve.open('urlText.db')
+            # un_url = url.split("#")[0]
+            ## get text on the url and write into db
+            # text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
+            # if un_url not in url_list:
+            #     url_list[un_url] = text
 
-            # for link in bsObj.findAll('a'):
-            #     if link.get('href') is not None:
-            #         if link.get('href') not in url_list:
-            #             links.append(link.get('href'))
-            t1 = bsObj.find_all('a')
-            for t2 in t1:
-                if(t2.get('href') != None and t2.get('href') not in links):
-                    links.append(t2)
+            for link in bsObj.findAll('a'):
+                if link.get('href') is not None:
+                    if link.get('href') not in url_list:
+                        links.append(link.get('href'))
+            # t1 = bsObj.find_all('a')
+            # for t2 in t1:
+            #     if(t2.get('href') != None and t2.get('href') not in links):
+            #         links.append(t2)
 
         finally:
             url_list.close()
@@ -41,7 +41,7 @@ seeds = ['.+\.cs.uci.edu/.*',
              '.+\.informatics.uci.edu/.*',
              '.+\.stat.uci.edu/.*',
              'today.uci.edu/department/information_computer_sciences/.*']
-seeds = [re.compile(i) for i in seeds]
+allowed_url = [re.compile(i) for i in seeds]
 def is_valid(url):
     try:
         parsed = urlparse(url)
@@ -50,7 +50,7 @@ def is_valid(url):
         elif len(parsed.path.split('/')) > 20:
             return False
         else:
-            if not any([i.match(url) for i in seeds]):
+            if not any([i.match(url) for i in allowed_url]):
                 return False
             
         The_path = parsed.path.split("/")
@@ -58,7 +58,8 @@ def is_valid(url):
         
         for i in The_path:
             pass_dict[i] += 1
-            if pass_dict[i] > 4:
+            
+            if pass_dict[i] > 3:
                 return False
             
         return not re.match(
