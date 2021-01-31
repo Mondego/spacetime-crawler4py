@@ -19,10 +19,14 @@ def extract_next_links(url, resp):
             if un_url not in url_list:
                 url_list[un_url] = text
 
-            t1 = bsObj.find_all('a')
-            for t2 in t1:
-                if(t2.get('href') != None and t2.get('href') not in links):
-                    links.append(t2)
+            for link in bsObj.findAll('a'):
+                if link.get('href') is not None:
+                    if link.get('href') not in url_list:
+                        links.append(link.get('href'))
+            # t1 = bsObj.find_all('a')
+            # for t2 in t1:
+            #     if(t2.get('href') != None and t2.get('href') not in links):
+            #         links.append(t2)
 
         finally:
             url_list.close()
@@ -32,13 +36,13 @@ def extract_next_links(url, resp):
 def containHugeNum(path):
     return not re.match('^\d+$', path)
 
-def is_valid(url):
-    seeds = ['.+\.cs.uci.edu/.*',
+seeds = ['.+\.cs.uci.edu/.*',
              '.+\.ics.uci.edu/.*',
              '.+\.informatics.uci.edu/.*',
              '.+\.stat.uci.edu/.*',
              'today.uci.edu/department/information_computer_sciences/.*']
-    seeds = [re.compile(i)for i in seeds]
+seeds = [re.compile(i)for i in seeds]
+def is_valid(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
@@ -53,8 +57,8 @@ def is_valid(url):
         for i in the_path:
             if containHugeNum(i.lower()):
                 return False
-            path_dict[i] +=1
-            if path_dict[i] >=4:
+            path_dict[i] += 1
+            if path_dict[i] >= 4:
                 return False
 
         return not re.match(
