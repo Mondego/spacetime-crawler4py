@@ -9,25 +9,23 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     links = []
-    if 599 >=resp.status >= 200 and resp.raw_response != None:
+    if 599 >= resp.status >= 200 and resp.raw_response != None:
         bsObj = BeautifulSoup(resp.raw_response.content, 'html.parser')
         try:
-            with shelve.open('store_url') as db:
-                un_url = url.split("#")[0]
-                # get text on the url and write into db
-                text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
-                if un_url not in db:
-                    db[un_url] = text
+            url_list = shelve.open('urlText.db')
+            un_url = url.split("#")[0]
+            # get text on the url and write into db
+            text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
+            if un_url not in url_list:
+                url_list[un_url] = text
 
-                t1 = bsObj.find_all('a')
-                for t2 in t1:
-                    if(t2.get('href') != None and t2.get('href') not in links):
-                        print('4')
-                        links.append(t2)
-                        print(f"links: {links}")
+            t1 = bsObj.find_all('a')
+            for t2 in t1:
+                if(t2.get('href') != None and t2.get('href') not in links):
+                    links.append(t2)
 
         finally:
-            db.close()
+            url_list.close()
     return links
 
 
