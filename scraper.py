@@ -1,43 +1,45 @@
 import re, shelve, urllib
-from urllib.parse import urlparse
-from urllib.request import urlopen
-from utils.response import Response
-from bs4 import BeautifulSoup
 from collections import defaultdict
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
-# global variable for regular expression
+
 allowed_url = ['.+\.cs.uci.edu/.*', '.+\.ics.uci.edu/.*', '.+\.informatics.uci.edu/.*', '.+\.stat.uci.edu/.*', 'today.uci.edu/department/information_computer_sciences/.*']
 allowed_url = [re.compile(x) for x in allowed_url]
 
-def scraper(url: str, resp: Response) -> list:
+def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 
 def extract_next_links(url, resp):
     links = []
-    # get links from resp
     if 200 <= resp.status <= 599 and resp.raw_response != None:
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        # Store text and url to shelve
+        bsObj = BeautifulSoup(resp.raw_response.content, 'html.parser')
         try:
             url_list = shelve.open('urlText.db')
-            un_url = url.split('#')[0]
-
-            all_word = re.sub(r'[^A-Z^a-z^0-9^ ]', '', soup.get_text().strip().lower())
-
+            un_url = url.split("#")[0]
+            # get text on the url and write into db
+            text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
             if un_url not in url_list:
-                url_list[un_url] = all_word
+                url_list[un_url] = text
 
-            for link in soup.findAll('a'):
-                if link.get('href') is not None:
-                    if link.get('href') not in url_list:
-                        links.append(link.get('href'))  
-                    
+            t1 = bsObj.find_all('a')
+            for t2 in t1:
+                if(t2.get('href') != None and t2.get('href') not in url_list):
+                    links.append(t2)
+
         finally:
             url_list.close()
-
+        
     return links
+
+
+def containHugeNum(path):
+    return re.match('^\d+$', path)
+def containDummyWord(path):
+    if path.find("comment") != -1 or path.find("respond") != -1 or path.find("reply") != -1:
+        return True
 
 def is_valid(url):
     try:
@@ -45,6 +47,10 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         elif len(parsed.path.split('/')) > 20:
+            return False
+        elif containHugeNum(url):
+            return False
+        elif containDummyWord(url):
             return False
         else:
             if not any([i.match(url) for i in allowed_url]):
@@ -54,11 +60,9 @@ def is_valid(url):
         pass_dict = defaultdict(int)
         
         for i in The_path:
-            if "pdf" in i or "img" in i or re.match('[0-9]+', i) or re.match('[0-9]+-[0-9]+-[0-9]+',i):
-                return False
             pass_dict[i] += 1
             
-            if pass_dict[i] > 4:
+            if pass_dict[i] > 3:
                 return False
             
         return not re.match(
