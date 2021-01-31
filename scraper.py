@@ -19,14 +19,14 @@ def extract_next_links(url, resp):
             if un_url not in url_list:
                 url_list[un_url] = text
 
-            for link in bsObj.findAll('a'):
-                if link.get('href') is not None:
-                    if link.get('href') not in url_list:
-                        links.append(link.get('href'))
-            # t1 = bsObj.find_all('a')
-            # for t2 in t1:
-            #     if(t2.get('href') != None and t2.get('href') not in links):
-            #         links.append(t2)
+            # for link in bsObj.findAll('a'):
+            #     if link.get('href') is not None:
+            #         if link.get('href') not in url_list:
+            #             links.append(link.get('href'))
+            t1 = bsObj.find_all('a')
+            for t2 in t1:
+                if(t2.get('href') != None and t2.get('href') not in links):
+                    links.append(t2)
 
         finally:
             url_list.close()
@@ -41,22 +41,23 @@ seeds = ['.+\.cs.uci.edu/.*',
              '.+\.informatics.uci.edu/.*',
              '.+\.stat.uci.edu/.*',
              'today.uci.edu/department/information_computer_sciences/.*']
-seeds = [re.compile(i)for i in seeds]
+seeds = [re.compile(i) for i in seeds]
 def is_valid(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if len(parsed.path.split('/')) > 20:
+        elif len(parsed.path.split("/")) > 20:
             return False
-        if not any([i.match(url) for i in seeds]):
-            return False
-        the_path = parsed.path.split('/')
+        else:
+            if not any([i.match(url) for i in seeds]):
+                return False
+        the_path = parsed.path.split("/")
         path_dict = defaultdict(int)
 
         for i in the_path:
-            if containHugeNum(i.lower()):
-                return False
+            # if containHugeNum(i.lower()):
+            #     return False
             path_dict[i] += 1
             if path_dict[i] >= 4:
                 return False
