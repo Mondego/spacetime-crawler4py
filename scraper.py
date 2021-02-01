@@ -20,14 +20,15 @@ def extract_next_links(url, resp):
             url_list = shelve.open('urlText.db')
             un_url = url.split("#")[0]
             # get text on the url and write into db
-            text = re.findall(r'^\w+$', bsObj.get_text().strip().lower())
+            text =  re.sub(r'[^A-Z^a-z^0-9^ ]', '', bsObj.get_text().strip().lower())
+
             if un_url not in url_list:
                 url_list[un_url] = text
 
-            t1 = bsObj.find_all('a')
-            for t2 in t1:
-                if(t2.get('href') != None and t2.get('href') not in url_list):
-                    links.append(t2)
+            for link in bsObj.findAll('a'):
+                if link.get('href') is not None:
+                    if link.get('href') not in url_list:
+                        links.append(link.get('href'))
 
         finally:
             url_list.close()
