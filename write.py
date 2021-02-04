@@ -3,7 +3,7 @@ import re, os
 from urllib.parse import urlparse
 from PartA import tokenize, computeWordFrequencies
 
-stopWord= '''
+stopWord = '''
 a 
 about
 above
@@ -179,6 +179,7 @@ yours
 yourself
 yourselves'''
 
+
 def writeReport():
     try:
         if os.path.exists("summary.txt"):
@@ -196,31 +197,30 @@ def writeReport():
         longest_url = ''
         subdomain = set()
         for url, content in s.items():
-            f1.write(content+'\n')
+            f1.write(content + '\n')
             parsed = urlparse(url)
             if re.match('.+\.ics\.uci\.edu', parsed.netloc):
                 subdomain.add(parsed.netloc)
             if longest < len(content.split()):
                 longest = len(content.split())
                 longest_url = url
-        
         for u in subdomain:
             f.write(f'{u}\n')
-
-        f.write(f'------------------above are {len(subdomain)} subdomains------------------------------------------------\n')
+        f.write(
+            f'------------------above are {len(subdomain)} subdomains------------------------------------------------\n')
         f.write(f'The page that has most words is {longest_url}, and it has {longest} words\n')
         f.write('------------------above are longest page----------------------------------------------\n')
         f1.close()
 
         i = 1
         the_dict = computeWordFrequencies(tokenize('all_content.txt'))
-        for key, value in sorted(the_dict.items(), key=lambda x:-x[1]):
+        for key, value in sorted(the_dict.items(), key=lambda x: -x[1]):
             if key in stopWord: continue
             if i > 50: break
             i += 1
             f.write(f'{key}->{value}\n')
         f.write('------------------above are 50 top words except English stop word---------------------\n')
-        
+
     except:
         pass
 
@@ -228,5 +228,6 @@ def writeReport():
         s.close()
         f.close()
 
-if __name__ =='_main__':
+
+if __name__ == '__main__':
     writeReport()

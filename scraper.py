@@ -20,7 +20,7 @@ def extract_next_links(url, resp):
             url_list = shelve.open('urlText.db')
             un_url = url.split("#")[0]
             # get text on the url and write into db
-            text =  re.sub(r'[^A-Z^a-z^0-9^ ]', '', bsObj.get_text().strip().lower())
+            text = re.sub(r'[^A-Z^a-z^0-9^ ]', '', bsObj.get_text().strip().lower())
 
             if un_url not in url_list:
                 url_list[un_url] = text
