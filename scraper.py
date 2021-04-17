@@ -3,15 +3,19 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
+links_visited = set()
+
 def scraper(url, resp):
     # do something with resp
-    is_valid(url)
+    links_visited.add(url)
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
     # do something with resp
     reqs = requests.get(url)
+    # print("     this is reqs:", reqs.text)
+    # print("     this is URL:", url)
     soup = BeautifulSoup(reqs.text, 'html.parser')
 
     urls = []
@@ -29,6 +33,7 @@ def is_valid(url):
             return False
 
         # something.ics.uci.edu
+        #today.uci.edu/department/information_computer_sciences/*
         if re.match(r'today.uci.edu', parsed.netloc) and re.match(r'/department/information_computer_sciences/*', parsed.path):
             print("parsed:",parsed)
         if not (re.search(".ics.uci.edu", parsed.netloc) or 
