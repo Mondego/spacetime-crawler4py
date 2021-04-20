@@ -1,10 +1,11 @@
 import re
+import nltk
 from nltk.tokenize import word_tokenize
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from bs4 import BeautifulSoup
 from collections import defaultdict
-
+nltk.download('punkt')
 
 '''
 crawler meat:
@@ -64,10 +65,11 @@ config.read('config.ini')
 valid_domains = config['CRAWLER']['SEEDURL'].split(',')
 
 def scraper(url, resp):
+    global longest_page
     # resp.raw_response.content gives HTML content, which we can pass to BeautifulSoup(content, 'lxml')
     # then to get all text on the page, use soup.get_text() -> answer the different qs/do stuff with it
     # then call extract_next_links() to get all links on this page -> we can validate the links with is_valid()
-    print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
+    print(f'-------------------------------\nScraping Webpage: {url}\nWith response: {resp.status}')
 
     url_no_fragment = url.split('#')[0]
 
@@ -89,7 +91,7 @@ def scraper(url, resp):
         if word_token_count > longest_page[1]:
             longest_page = (url, word_token_count)
             
-        print(f'Longest Webpage: {url}\nCount: {word_token_count}')
+        print(f'Longest Webpage: {longest_page[0]}\nCount: {longest_page[1]}')
         
         # QUESTION 3 CODE: put in all words not in stop word and get the 50 most common words across all the pages crawled
         stop_words = set()
@@ -106,7 +108,7 @@ def scraper(url, resp):
         print('most common words', common_50)
 
         # QUESTION 4 CODE: do regex check to see if anything before ics in ics.uci.edu, retrieve it, add to dict along w defragmented url
-        parsed_url = re.search(r'[\S+](\w+)(.ics.uci.edu)')
+        parsed_url = re.search(r'[\S+](\w+)(.ics.uci.edu)', url_no_fragment)
         if parsed_url:
             subdomain = parsed_url.group(1)
             subdomains[subdomain].add(url_no_fragment)
