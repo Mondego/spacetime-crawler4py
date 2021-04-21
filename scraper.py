@@ -4,7 +4,7 @@ from nltk.tokenize import RegexpTokenizer
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from bs4 import BeautifulSoup
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 nltk.download('punkt')
 
 '''
@@ -62,6 +62,8 @@ stop_words = set()
 with open('stop_words.txt') as f:
     for line in f:
         stop_words.add(line.strip())
+# dictionary to keep track of output file writes, we will use subdomains dict for #4 output and longest_page tuple for #2 output
+output = OrderedDict(int)
 
 
 # reading all acceptable domains from config file
@@ -75,6 +77,7 @@ def scraper(url, resp):
     # then to get all text on the page, use soup.get_text() -> answer the different qs/do stuff with it
     # then call extract_next_links() to get all links on this page -> we can validate the links with is_valid()
     print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
+    output['WEBPAGE AND RESPONSE STATUS'] = f'{url} ---- {resp.status}'
 
     url_no_fragment = url.split('#')[0]
 
@@ -85,7 +88,8 @@ def scraper(url, resp):
         
         # QUESTION 1 CODE: substring url to discard fragment and add to unique_urls
         unique_urls.add(url_no_fragment)
-        print('QUESTION 1: Number of Unique URLs', len(unique_urls))
+        output['QUESTION 1 : Number of Unique URLs'] = len(unique_urls)
+        # print('QUESTION 1: Number of Unique URLs', len(unique_urls))
 
         # QUESTION 2 CODE: tokenize the webpage to get the number of words and then determine if it is the longest webpage
         word_tokens = []
@@ -99,7 +103,8 @@ def scraper(url, resp):
         if word_token_count > longest_page[1]:
             longest_page = (url, word_token_count)
             
-        print(f'Longest Webpage: {longest_page[0]}\nCount: {longest_page[1]}')
+        # print(f'Longest Webpage: {longest_page[0]}\nCount: {longest_page[1]}')
+        
         
         # QUESTION 3 CODE: get the 50 most common words across all the pages crawled
         for word in word_tokens:
@@ -116,13 +121,15 @@ def scraper(url, resp):
         if parsed_url:
             subdomain = parsed_url.group(2)
             subdomains[subdomain].add(url_no_fragment)
-            print('QUESTION 4: Subdomains and Number of Pages Within')
-            for subdomain, urls in sorted(subdomains.items()):
-                print(subdomain, len(urls))
+             
+            # print('QUESTION 4: Subdomains and Number of Pages Within')
+            # for subdomain, urls in sorted(subdomains.items()):
+            #     print(subdomain, len(urls))
 
         print("---------------------------------------------------")
         # retrieve all valid links on page and return them (to be added to frontier)
         links = extract_next_links(url, resp)
+        write_output()
         return [link for link in links if is_valid(link)]
         
     print("---------------------------------------------------")
@@ -160,3 +167,26 @@ def is_valid(url) -> bool:
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def write_output():
+    with open('output.txt', 'a') as file:
+
+        # for number 1
+        for k,v in output.items():
+            file.write(k)
+            file.write(v)
+        
+        # for number 2
+        file.write('NUMBER 2 : Longest Webpage')
+        file.write(longest_page[0])
+        file.write(longest_page[1])
+
+        # for number 3
+        file.write('NUMBER 3 : 50 Most Common Words')
+        file.write(common_50)
+
+        file.write('QUESTION 4: Subdomains and Number of Pages Within')
+        for k,v in sorted(subdomains.items()):
+            file.write(k)
+            file.write(len(v))
+    
