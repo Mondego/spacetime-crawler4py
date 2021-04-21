@@ -1,6 +1,6 @@
 import re
 import nltk
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import RegexpTokenizer
 from urllib.parse import urlparse
 from configparser import ConfigParser
 from bs4 import BeautifulSoup
@@ -57,6 +57,11 @@ subdomains = defaultdict(set)
 longest_page = ("www", float("-inf"))
 # dictionary to count word frequency
 word_count = defaultdict(int)
+# put in all words not in stop word
+stop_words = set()
+with open('stop_words.txt') as f:
+    for line in f:
+        stop_words.add(line.strip())
 
 
 # reading all acceptable domains from config file
@@ -69,7 +74,7 @@ def scraper(url, resp):
     # resp.raw_response.content gives HTML content, which we can pass to BeautifulSoup(content, 'lxml')
     # then to get all text on the page, use soup.get_text() -> answer the different qs/do stuff with it
     # then call extract_next_links() to get all links on this page -> we can validate the links with is_valid()
-    print(f'-------------------------------\nScraping Webpage: {url}\nWith response: {resp.status}')
+    print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
 
     url_no_fragment = url.split('#')[0]
 
@@ -84,42 +89,43 @@ def scraper(url, resp):
 
         # QUESTION 2 CODE: tokenize the webpage to get the number of words and then determine if it is the longest webpage
         word_tokens = []
-        for word in word_tokenize(text):
-            if not re.match(r'^\W+|(http|https)$', word):
-                word_tokens.append(word)
+        reg_tokenizer = RegexpTokenizer('\s+', gaps=True)
+        kdsajkfas = re.compile(r'\W')
+        for word in reg_tokenizer.tokenize(text):
+            if not re.match(r'^\W+$', word):
+                word_tokens.append(kdsajkfas.sub("", word))
+
         word_token_count = len(word_tokens)        
         if word_token_count > longest_page[1]:
             longest_page = (url, word_token_count)
             
         print(f'Longest Webpage: {longest_page[0]}\nCount: {longest_page[1]}')
         
-        # QUESTION 3 CODE: put in all words not in stop word and get the 50 most common words across all the pages crawled
-        stop_words = set()
-        with open('stop_words.txt') as f:
-            for line in f:
-                stop_words.add(line)
-
+        # QUESTION 3 CODE: get the 50 most common words across all the pages crawled
         for word in word_tokens:
-            if word not in stop_words:
-                word_count[word] += 1
+            if word.lower() not in stop_words:
+                word_count[word.lower()] += 1
 
         frequency = sorted(word_count.items(), key = lambda f: f[1], reverse = True)
         common_50 = [w[0] for w in frequency[:50]]
         print('most common words', common_50)
+        print('#1 word frequency: ', word_count[common_50[0]])
 
         # QUESTION 4 CODE: do regex check to see if anything before ics in ics.uci.edu, retrieve it, add to dict along w defragmented url
-        parsed_url = re.search(r'[\S+](\w+)(.ics.uci.edu)', url_no_fragment)
+        parsed_url = re.search(r'(https?:\/\/)(.+\.ics\.uci\.edu)(.+)', url_no_fragment)
         if parsed_url:
-            subdomain = parsed_url.group(1)
+            subdomain = parsed_url.group(2)
             subdomains[subdomain].add(url_no_fragment)
             print('QUESTION 4: Subdomains and Number of Pages Within')
             for subdomain, urls in sorted(subdomains.items()):
                 print(subdomain, len(urls))
 
+        print("---------------------------------------------------")
         # retrieve all valid links on page and return them (to be added to frontier)
         links = extract_next_links(url, resp)
         return [link for link in links if is_valid(link)]
-
+        
+    print("---------------------------------------------------")
     return []
 
 def extract_next_links(url, resp):
@@ -132,6 +138,9 @@ def extract_next_links(url, resp):
 
 def is_valid(url) -> bool:
     try:
+        url_no_fragment = url.split('#')[0]
+        if url_no_fragment in unique_urls:
+            return False
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
