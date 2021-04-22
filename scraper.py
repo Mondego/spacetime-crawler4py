@@ -62,8 +62,7 @@ stop_words = set()
 with open('stop_words.txt') as f:
     for line in f:
         stop_words.add(line.strip())
-# dictionary to keep track of output file writes, we will use subdomains dict for #4 output and longest_page tuple for #2 output
-output = OrderedDict(int)
+
 
 
 # reading all acceptable domains from config file
@@ -76,6 +75,10 @@ def scraper(url, resp):
     # resp.raw_response.content gives HTML content, which we can pass to BeautifulSoup(content, 'lxml')
     # then to get all text on the page, use soup.get_text() -> answer the different qs/do stuff with it
     # then call extract_next_links() to get all links on this page -> we can validate the links with is_valid()
+
+    # dictionary to keep track of output file writes, we will use subdomains dict for #4 output and longest_page tuple for #2 output
+    output = OrderedDict()
+
     print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
     output['WEBPAGE AND RESPONSE STATUS'] = f'{url} ---- {resp.status}'
 
@@ -97,7 +100,12 @@ def scraper(url, resp):
         kdsajkfas = re.compile(r'\W')
         for word in reg_tokenizer.tokenize(text):
             if not re.match(r'^\W+$', word):
-                word_tokens.append(kdsajkfas.sub("", word))
+                sanitized_word = kdsajkfas.sub("", word)
+                if len(sanitized_word) > 1: 
+                    word_tokens.append()
+        
+        if len(word_tokens) < 250:
+            return []
 
         word_token_count = len(word_tokens)        
         if word_token_count > longest_page[1]:
@@ -110,10 +118,17 @@ def scraper(url, resp):
         for word in word_tokens:
             if word.lower() not in stop_words:
                 word_count[word.lower()] += 1
+            else:
+                word_tokens.remove(word)
+
+        if len(word_tokens) < 250:
+            return []
 
         frequency = sorted(word_count.items(), key = lambda f: f[1], reverse = True)
         common_50 = [w[0] for w in frequency[:50]]
-        print('most common words', common_50)
+
+        output['QUESTION 3: 50 Most Common Words'] = common_50
+        print('most common words', common_50) 
         print('#1 word frequency: ', word_count[common_50[0]])
 
         # QUESTION 4 CODE: do regex check to see if anything before ics in ics.uci.edu, retrieve it, add to dict along w defragmented url
@@ -122,14 +137,14 @@ def scraper(url, resp):
             subdomain = parsed_url.group(2)
             subdomains[subdomain].add(url_no_fragment)
              
-            # print('QUESTION 4: Subdomains and Number of Pages Within')
-            # for subdomain, urls in sorted(subdomains.items()):
-            #     print(subdomain, len(urls))
+            print('QUESTION 4: Subdomains and Number of Pages Within')
+            for subdomain, urls in sorted(subdomains.items()):
+                print(subdomain, len(urls))
 
         print("---------------------------------------------------")
         # retrieve all valid links on page and return them (to be added to frontier)
         links = extract_next_links(url, resp)
-        write_output()
+        write_output(output)
         return [link for link in links if is_valid(link)]
         
     print("---------------------------------------------------")
@@ -144,6 +159,9 @@ def extract_next_links(url, resp):
     return next_links
 
 def is_valid(url) -> bool:
+    if not url:
+        return False
+
     try:
         url_no_fragment = url.split('#')[0]
         if url_no_fragment in unique_urls:
@@ -158,7 +176,7 @@ def is_valid(url) -> bool:
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|epub|dll|cnf|tgz|sha1|nb"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
@@ -168,25 +186,22 @@ def is_valid(url) -> bool:
         print ("TypeError for ", parsed)
         raise
 
-def write_output():
+def write_output(output_dict):
     with open('output.txt', 'a') as file:
 
         # for number 1
-        for k,v in output.items():
-            file.write(k)
-            file.write(v)
+        for k,v in output_dict.items():
+            file.write(k+'\t')
+            file.write(str(v)+"\n")
         
         # for number 2
-        file.write('NUMBER 2 : Longest Webpage')
-        file.write(longest_page[0])
-        file.write(longest_page[1])
+        file.write('QUESTION 2 : Longest Webpage\n')
+        file.write(longest_page[0]+"\t")
+        file.write(str(longest_page[1])+"\n")
 
-        # for number 3
-        file.write('NUMBER 3 : 50 Most Common Words')
-        file.write(common_50)
-
-        file.write('QUESTION 4: Subdomains and Number of Pages Within')
+        file.write('QUESTION 4: Subdomains and Number of Pages Within\n')
         for k,v in sorted(subdomains.items()):
-            file.write(k)
-            file.write(len(v))
-    
+            file.write(k+"\t")
+            file.write(str(len(v))+"\n")
+        
+        file.write("-----------------------------------\n")
