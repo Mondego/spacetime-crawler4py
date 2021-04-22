@@ -44,6 +44,101 @@ Some important notes:
 3. You can use whatever libraries make your life easier to parse things. Optional dependencies you might want to look at: BeautifulSoup, lxml (nudge, nudge, wink, wink!)
 4. Optionally, in the scraper function, you can also save the URL and the web page on your local disk.
 
+---------------------------------------------------
+2021-04-22 01:52:44,586 - Worker-0 - INFO - Downloaded https://www.ics.uci.edu, status <200>, using cache ('styx.ics.uci.edu', 9006).
+Scraping Webpage: https://www.ics.uci.edu
+With response: 200
+most common words ['research', '2020', 'reply', 'says', 'information', '2021', 'ramesh', 'computer', 'will', 'students', '2018', 'software', 'events', 'student', '2019', 'news', 'current', '2016', 'data', 'past', '2017', 'can', 'march', 'engineering', 'search', 'may', '2015', 'courses', 'april', 'pm', 'informatics', 'books', 'science', 'graduate', 'january', 'jain', 'bs', 'design', 'people', 'read', 'february', 'computing', 'undergraduate', 'projects', 'november', 'september', 'phd', 'december', 'october', 'us']
+#1 word frequency:  31705
+QUESTION 4: Subdomains and Number of Pages Within
+Transformativeplay.ics.uci.edu 1
+acoi.ics.uci.edu 56
+aiclub.ics.uci.edu 1
+archive.ics.uci.edu 5
+asterix.ics.uci.edu 6
+cbcl.ics.uci.edu 3
+cert.ics.uci.edu 2
+checkmate.ics.uci.edu 1
+chenli.ics.uci.edu 1
+cloudberry.ics.uci.edu 60
+cml.ics.uci.edu 173
+computableplant.ics.uci.edu 30
+coronavirustwittermap.ics.uci.edu 1
+cradl.ics.uci.edu 20
+create.ics.uci.edu 6
+cwicsocal18.ics.uci.edu 12
+cyberclub.ics.uci.edu 2
+dejavu.ics.uci.edu 1
+duttgroup.ics.uci.edu 107
+dynamo.ics.uci.edu 1
+elms.ics.uci.edu 1
+emj.ics.uci.edu 46
+esl.ics.uci.edu 1
+evoke.ics.uci.edu 109
+flamingo.ics.uci.edu 6
+fr.ics.uci.edu 3
+frost.ics.uci.edu 1
+futurehealth.ics.uci.edu 3
+grape.ics.uci.edu 12
+graphics.ics.uci.edu 3
+graphmod.ics.uci.edu 1
+hack.ics.uci.edu 1
+hai.ics.uci.edu 2
+hana.ics.uci.edu 19
+helpdesk.ics.uci.edu 1
+hombao.ics.uci.edu 1
+iasl.ics.uci.edu 5
+ics.uci.edu 5
+informatics.ics.uci.edu 1
+intranet.ics.uci.edu 1
+ipf.ics.uci.edu 2
+ipubmed.ics.uci.edu 1
+isg.ics.uci.edu 138
+jgarcia.ics.uci.edu 23
+keys.ics.uci.edu 1
+luci.ics.uci.edu 4
+mailman.ics.uci.edu 4
+malek.ics.uci.edu 2
+mcs.ics.uci.edu 38
+mdogucu.ics.uci.edu 1
+mds.ics.uci.edu 11
+mhcid.ics.uci.edu 15
+mondego.ics.uci.edu 3
+mse.ics.uci.edu 1
+mswe.ics.uci.edu 22
+nalini.ics.uci.edu 7
+ngs.ics.uci.edu 3033
+perennialpolycultures.ics.uci.edu 1
+plrg.ics.uci.edu 14
+psearch.ics.uci.edu 1
+redmiles.ics.uci.edu 5
+riscit.ics.uci.edu 1
+scale.ics.uci.edu 1
+sconce.ics.uci.edu 2
+sdcl.ics.uci.edu 208
+seal.ics.uci.edu 6
+sherlock.ics.uci.edu 1
+sli.ics.uci.edu 382
+sourcerer.ics.uci.edu 1
+sprout.ics.uci.edu 2
+stairs.ics.uci.edu 1
+statconsulting.ics.uci.edu 5
+studentcouncil.ics.uci.edu 2
+support.ics.uci.edu 2
+swiki.ics.uci.edu 1
+tastier.ics.uci.edu 1
+tippers.ics.uci.edu 1
+tippersweb.ics.uci.edu 5
+transformativeplay.ics.uci.edu 57
+tutors.ics.uci.edu 1
+ugradforms.ics.uci.edu 1
+unite.ics.uci.edu 10
+vision.ics.uci.edu 7
+wearablegames.ics.uci.edu 11
+wics.ics.uci.edu 1224
+www.ics.uci.edu 1154
+xtune.ics.uci.edu 6
+https://www.stat.uci.edu/wp-content/uploads/JuliaPalaciosAbstract6-6-19
 '''
 
 '''
@@ -83,6 +178,8 @@ def scraper(url, resp):
     output['WEBPAGE AND RESPONSE STATUS'] = f'{url} ---- {resp.status}'
 
     url_no_fragment = url.split('#')[0]
+    url_no_fragment = url_no_fragment.split("?replytocom=")[0]
+    url_no_fragment = url_no_fragment.split("?share=")[0]
 
     if resp.status == 200 and url_no_fragment not in unique_urls:
         # received webpage -> convert to beautifulsoup object
@@ -102,10 +199,10 @@ def scraper(url, resp):
             if not re.match(r'^\W+$', word):
                 sanitized_word = kdsajkfas.sub("", word)
                 if len(sanitized_word) > 1: 
-                    word_tokens.append()
-        
-        if len(word_tokens) < 250:
-            return []
+                    word_tokens.append(sanitized_word)
+
+            if len(word_tokens) < 250:
+                return []
 
         word_token_count = len(word_tokens)        
         if word_token_count > longest_page[1]:
@@ -123,7 +220,7 @@ def scraper(url, resp):
 
         if len(word_tokens) < 250:
             return []
-
+            
         frequency = sorted(word_count.items(), key = lambda f: f[1], reverse = True)
         common_50 = [w[0] for w in frequency[:50]]
 
@@ -132,7 +229,7 @@ def scraper(url, resp):
         print('#1 word frequency: ', word_count[common_50[0]])
 
         # QUESTION 4 CODE: do regex check to see if anything before ics in ics.uci.edu, retrieve it, add to dict along w defragmented url
-        parsed_url = re.search(r'(https?:\/\/)(.+\.ics\.uci\.edu)(.+)', url_no_fragment)
+        parsed_url = re.search(r'(https?:\/\/)(\w*\.?ics\.uci\.edu)+(.*)', url_no_fragment)
         if parsed_url:
             subdomain = parsed_url.group(2)
             subdomains[subdomain].add(url_no_fragment)
@@ -164,6 +261,8 @@ def is_valid(url) -> bool:
 
     try:
         url_no_fragment = url.split('#')[0]
+        url_no_fragment = url_no_fragment.split("?replytocom=")[0]
+        url_no_fragment = url_no_fragment.split("?share=")[0]
         if url_no_fragment in unique_urls:
             return False
         parsed = urlparse(url)
@@ -176,9 +275,17 @@ def is_valid(url) -> bool:
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1|nb"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|epub|dll|cnf|tgz|sha1|nb|txt"
+            + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) and re.search(
+            r"\/(css|js|bmp|gif|jpe?g|ico"
+            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|epub|dll|cnf|tgz|sha1|nb|txt"
+            + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)\/", parsed.path.lower()) is None
 
             
 
@@ -205,3 +312,7 @@ def write_output(output_dict):
             file.write(str(len(v))+"\n")
         
         file.write("-----------------------------------\n")
+
+    with open("unique_urls.txt", "a") as f:
+        f.write(str(unique_urls)+'\n')
+        f.write("-----------------------------------------------------\n")
