@@ -177,13 +177,16 @@ def scraper(url, resp):
     print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
     output['WEBPAGE AND RESPONSE STATUS'] = f'{url} ---- {resp.status}'
 
-    url_no_fragment = url.split('#')[0]
-    url_no_fragment = url_no_fragment.split("?replytocom=")[0]
-    url_no_fragment = url_no_fragment.split("?share=")[0]
+    url_no_fragment = sanitize_url(url)
 
     if resp.status == 200 and url_no_fragment not in unique_urls:
         # received webpage -> convert to beautifulsoup object
         soup = BeautifulSoup(resp.raw_response.content, 'lxml')
+
+        # Avoid webpages without less than one div because these commonly do not hold much valuable information
+        if soup.find_all("div") < 1:
+            return []
+
         text = soup.get_text()
         
         # QUESTION 1 CODE: substring url to discard fragment and add to unique_urls
@@ -196,7 +199,7 @@ def scraper(url, resp):
         reg_tokenizer = RegexpTokenizer('\s+', gaps=True)
         kdsajkfas = re.compile(r'\W')
         for word in reg_tokenizer.tokenize(text):
-            if not re.match(r'^\W+$', word):
+            if not re.match(r'^(\W+|^[\w+])$', word):
                 sanitized_word = kdsajkfas.sub("", word)
                 if len(sanitized_word) > 1: 
                     word_tokens.append(sanitized_word)
@@ -260,9 +263,7 @@ def is_valid(url) -> bool:
         return False
 
     try:
-        url_no_fragment = url.split('#')[0]
-        url_no_fragment = url_no_fragment.split("?replytocom=")[0]
-        url_no_fragment = url_no_fragment.split("?share=")[0]
+        url_no_fragment = sanitize_url(url)
         if url_no_fragment in unique_urls:
             return False
         parsed = urlparse(url)
@@ -283,7 +284,7 @@ def is_valid(url) -> bool:
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1|nb|txt"
+            + r"|epub|dll|cnf|tgz|sha1|nb|txt|uploads"
             + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)\/", parsed.path.lower()) is None
 
@@ -292,6 +293,12 @@ def is_valid(url) -> bool:
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def sanitize_url(url):
+    url_no_fragment = url.split('#')[0]
+    url_no_fragment = url_no_fragment.split("/?replytocom=")[0]
+    url_no_fragment = url_no_fragment.split("/?share=")[0]url_no_fragment = url_no_fragment.split("/?share=")[0]
+    return url_no_fragment
 
 def write_output(output_dict):
     with open('output.txt', 'a') as file:
