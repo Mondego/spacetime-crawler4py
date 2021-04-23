@@ -2,8 +2,13 @@ import re
 from urllib.parse import urlparse
 
 def scraper(url, resp):
-    links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+	if resp:
+		fileName = url + ".txt"
+		f = open(filename, "w")
+		f.write(resp.text())
+
+	links = extract_next_links(url, resp)
+	return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
     # Implementation requred.
@@ -14,6 +19,12 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+
+        accetable_domains = [".ics.uci.edu", ".cs.uci.edu", ".informatics.uci.edu", 
+        ".stat.uci.edu", "today.uci.edu/department/information_computer_sciences"]
+        if not any(domain in parsed.netloc for domain in accetable_domains):
+        	return False
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
