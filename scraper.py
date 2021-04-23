@@ -184,7 +184,7 @@ def scraper(url, resp):
         soup = BeautifulSoup(resp.raw_response.content, 'lxml')
 
         # Avoid webpages without less than one div because these commonly do not hold much valuable information
-        if soup.find_all("div") < 1:
+        if len(soup.find_all("div")) < 1:
             return []
 
         text = soup.get_text()
@@ -204,8 +204,8 @@ def scraper(url, resp):
                 if len(sanitized_word) > 1: 
                     word_tokens.append(sanitized_word)
 
-            if len(word_tokens) < 250:
-                return []
+        if len(word_tokens) < 150:
+            return []
 
         word_token_count = len(word_tokens)        
         if word_token_count > longest_page[1]:
@@ -221,9 +221,9 @@ def scraper(url, resp):
             else:
                 word_tokens.remove(word)
 
-        if len(word_tokens) < 250:
+        if len(word_tokens) < 150:
             return []
-            
+
         frequency = sorted(word_count.items(), key = lambda f: f[1], reverse = True)
         common_50 = [w[0] for w in frequency[:50]]
 
@@ -241,11 +241,12 @@ def scraper(url, resp):
             for subdomain, urls in sorted(subdomains.items()):
                 print(subdomain, len(urls))
 
-        print("---------------------------------------------------")
         # retrieve all valid links on page and return them (to be added to frontier)
         links = extract_next_links(url, resp)
         write_output(output)
-        return [link for link in links if is_valid(link)]
+        ret_links = [link for link in links if is_valid(link)]
+        print("---------------------------------------------------")
+        return ret_links
         
     print("---------------------------------------------------")
     return []
@@ -253,9 +254,20 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     # lxml is the recommended page parser from assignment spec -> faster than html.parser
     page_soup = BeautifulSoup(resp.raw_response.content, "lxml")
+    urlparts = urlparse(url)
+    next_links = []
+
     # for all links (identifiable by the <a> tag), get the link and add to frontier
-    next_links = [link.get('href') for link in page_soup.find_all('a')]
-    
+    for atag in page_soup.find_all("a"):
+        new_link = atag.get("href")
+        if new_link and len(new_link) > 1 and new_link[0] == '/':
+            if new_link[1] == '/':
+                new_link = 'https:' + new_link
+            else:
+                new_link = urlparts.scheme + "://" + urlparts.netloc + new_link
+
+        if is_valid(new_link):
+            next_links.append(new_link)
     return next_links
 
 def is_valid(url) -> bool:
@@ -272,7 +284,7 @@ def is_valid(url) -> bool:
             
         return re.search(r"(ics.uci.edu|cs.uci.edu|informatics.uci.edu|stat.uci.edu)", parsed.netloc.lower()) is not None and not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|Z|odc"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
@@ -280,7 +292,7 @@ def is_valid(url) -> bool:
             + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) and re.search(
             r"\/(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|Z|odc"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
@@ -297,7 +309,11 @@ def is_valid(url) -> bool:
 def sanitize_url(url):
     url_no_fragment = url.split('#')[0]
     url_no_fragment = url_no_fragment.split("/?replytocom=")[0]
-    url_no_fragment = url_no_fragment.split("/?share=")[0]url_no_fragment = url_no_fragment.split("/?share=")[0]
+    url_no_fragment = url_no_fragment.split("/?share=")[0]
+    url_no_fragment = url_no_fragment.split("/?ical=")[0]
+    if url_no_fragment and url_no_fragment[-1] == "/":
+        url_no_fragment = url_no_fragment[:-1]
+
     return url_no_fragment
 
 def write_output(output_dict):
@@ -320,6 +336,7 @@ def write_output(output_dict):
         
         file.write("-----------------------------------\n")
 
-    with open("unique_urls.txt", "a") as f:
-        f.write(str(unique_urls)+'\n')
-        f.write("-----------------------------------------------------\n")
+    if len(unique_urls) > 6000:
+        with open("unique_urls.txt", "a") as f:
+            f.write(str(unique_urls)+'\n')
+            f.write("-----------------------------------------------------\n")
