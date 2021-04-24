@@ -1,44 +1,61 @@
 import re
 from urllib.parse import urlparse
+from urllib.parse import urldefrag # for removing fragments form url
 from bs4 import BeautifulSoup
 
+longest_file_len = 0;
 
 def scraper(url, resp):
-	#save url
-    f = open("urls.txt",'a')
-    file.write(url)
-    file.write('\n')
-    file.close()
-
-    #check if resp is greater than 400
-    if not resp:
-        return list()
-
-    if resp.raw_response.status_code > 400:
-        return list()
-
-    if resp.raw_response.status > 400:
-        return list()
-
-    if resp.status > 400:
-        return list()
-
-    # check if this is a valid url
-    if not is_valid(url):
-        return list()
-
-    tokens = tokenize(resp.raw_response.content)
-
-
-
-
-
 	links = extract_next_links(url, resp)
 	return [link for link in links if is_valid(link)]
 
+### **************************** ###
+### *** CURRENTLY INCOMPLETE *** ###
+### **************************** ###
 def extract_next_links(url, resp):
+    extracted_links = list();
+
+    # create if files doesn't exist
+    # otherwise write into files the url, context and longest 
+    # text file in each appropriate file
+    # using with automatically closese all files after the with statement
+    with open("url.txt", "a", encoding='utf-8') as url_file, open("context.txt", "a", encoding='utf-8') as context_file, open("longestpage.txt", "a", encoding='utf-8') as longest_file:
+        #check if resp is greater than 400
+        if not resp:
+            return extracted_links   
+
+        if resp.raw_response.status_code > 400:
+            return extracted_links
+
+        if resp.raw_response.status > 400:
+            return extracted_links
+
+        if resp.status > 400:
+            return extracted_links
+
+        # check if this is a valid url
+        if not is_valid(url):
+            return extracted_links
+
+        if is_valid(url) and (resp.status == 200 or resp.status == 201 or resp.status == 202):
+            resp_raw_response = resp.raw_response.content
+            soup = BeautifulSoup(resp_raw_response, 'html.parser')
+            url_file.write(url+'\n')
+
+            word_list = list()
+            for i in soup.txt.split():
+                if i:
+                    word_list.append(i)
+
+            longest_file.write(url + " " + str
+
+
+
+
+        # tokens = tokenize(resp.raw_response.content)
+
     # Implementation requred.
-    return list()
+    return extracted_links;
 
 def is_valid(url):
     try:
