@@ -98,10 +98,10 @@ def scraper(url, resp):
         # QUESTION 2 CODE: tokenize the webpage to get the number of words and then determine if it is the longest webpage
         word_tokens = []
         reg_tokenizer = RegexpTokenizer('\s+', gaps=True)
-        kdsajkfas = re.compile(r'\W')
+        alphanum_word = re.compile(r'\W')
         for word in reg_tokenizer.tokenize(text):
             if not re.match(r'^(\W+|^[\w+])$', word):
-                sanitized_word = kdsajkfas.sub("", word)
+                sanitized_word = alphanum_word.sub("", word)
                 if len(sanitized_word) > 1: 
                     word_tokens.append(sanitized_word)
 
