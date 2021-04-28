@@ -43,7 +43,6 @@ Some important notes:
 2. Make sure to defragment the URLs, i.e. remove the fragment part.
 3. You can use whatever libraries make your life easier to parse things. Optional dependencies you might want to look at: BeautifulSoup, lxml (nudge, nudge, wink, wink!)
 4. Optionally, in the scraper function, you can also save the URL and the web page on your local disk.
-
 '''
 
 '''
@@ -78,8 +77,6 @@ def scraper(url, resp):
 
     # dictionary to keep track of output file writes, we will use subdomains dict for #4 output and longest_page tuple for #2 output
     output = OrderedDict()
-
-    print(f'Scraping Webpage: {url}\nWith response: {resp.status}')
     output['WEBPAGE AND RESPONSE STATUS'] = f'{url} ---- {resp.status}'
 
     url_no_fragment = sanitize_url(url)
@@ -97,7 +94,6 @@ def scraper(url, resp):
         # QUESTION 1 CODE: substring url to discard fragment and add to unique_urls
         unique_urls.add(url_no_fragment)
         output['QUESTION 1 : Number of Unique URLs'] = len(unique_urls)
-        # print('QUESTION 1: Number of Unique URLs', len(unique_urls))
 
         # QUESTION 2 CODE: tokenize the webpage to get the number of words and then determine if it is the longest webpage
         word_tokens = []
@@ -114,10 +110,7 @@ def scraper(url, resp):
 
         word_token_count = len(word_tokens)        
         if word_token_count > longest_page[1]:
-            longest_page = (url, word_token_count)
-            
-        # print(f'Longest Webpage: {longest_page[0]}\nCount: {longest_page[1]}')
-        
+            longest_page = (url, word_token_count)        
         
         # QUESTION 3 CODE: get the 50 most common words across all the pages crawled
         for word in word_tokens:
@@ -133,27 +126,19 @@ def scraper(url, resp):
         common_50 = [w[0] for w in frequency[:50]]
 
         output['QUESTION 3: 50 Most Common Words'] = common_50
-        print('most common words', common_50) 
-        print('#1 word frequency: ', word_count[common_50[0]])
 
         # QUESTION 4 CODE: do regex check to see if anything before ics in ics.uci.edu, retrieve it, add to dict along w defragmented url
         parsed_url = re.search(r'(https?:\/\/)(\w*\.?ics\.uci\.edu)+(.*)', url_no_fragment)
         if parsed_url:
             subdomain = parsed_url.group(2)
             subdomains[subdomain].add(url_no_fragment)
-             
-            print('QUESTION 4: Subdomains and Number of Pages Within')
-            for subdomain, urls in sorted(subdomains.items()):
-                print(subdomain, len(urls))
 
         # retrieve all valid links on page and return them (to be added to frontier)
         links = extract_next_links(url, resp)
         write_output(output)
         ret_links = [link for link in links if is_valid(link)]
-        print("---------------------------------------------------")
         return ret_links
         
-    print("---------------------------------------------------")
     return []
 
 def extract_next_links(url, resp):
@@ -194,7 +179,7 @@ def is_valid(url) -> bool:
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1|nb|txt"
-            + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
+            + r"|thmx|mso|arff|rtf|jar|csv|ppsx|img"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) and re.search(
             r"\/(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4|Z|odc"
@@ -202,7 +187,7 @@ def is_valid(url) -> bool:
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1|nb|txt|uploads"
-            + r"|thmx|mso|arff|rtf|jar|csv|ppsx"
+            + r"|thmx|mso|arff|rtf|jar|csv|ppsx|img"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)\/", parsed.path.lower()) is None
 
             
@@ -216,6 +201,10 @@ def sanitize_url(url):
     url_no_fragment = url_no_fragment.split("/?replytocom=")[0]
     url_no_fragment = url_no_fragment.split("/?share=")[0]
     url_no_fragment = url_no_fragment.split("/?ical=")[0]
+    url_no_fragment = url_no_fragment.split("?do=")[0]
+    url_no_fragment = url_no_fragment.split("?action=")[0]
+    url_no_fragment = url_no_fragment.split("?version=")[0]
+    url_no_fragment = url_no_fragment.split("?afg")[0]
     if url_no_fragment and url_no_fragment[-1] == "/":
         url_no_fragment = url_no_fragment[:-1]
 
