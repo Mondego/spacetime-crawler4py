@@ -144,20 +144,9 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     # lxml is the recommended page parser from assignment spec -> faster than html.parser
     page_soup = BeautifulSoup(resp.raw_response.content, "lxml")
-    urlparts = urlparse(url)
-    next_links = []
-
     # for all links (identifiable by the <a> tag), get the link and add to frontier
-    for atag in page_soup.find_all("a"):
-        new_link = atag.get("href")
-        if new_link and len(new_link) > 1 and new_link[0] == '/':
-            if new_link[1] == '/':
-                new_link = 'https:' + new_link
-            else:
-                new_link = urlparts.scheme + "://" + urlparts.netloc + new_link
-
-        if is_valid(new_link):
-            next_links.append(new_link)
+    next_links = [link.get('href') for link in page_soup.find_all('a')]
+    
     return next_links
 
 def is_valid(url) -> bool:
