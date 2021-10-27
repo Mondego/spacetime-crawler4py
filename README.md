@@ -41,7 +41,7 @@ hitting our cache.
 
 **HOST**: This is the host name of our caching server. Please set it as per spec.
 
-**PORT**: THis is the port number of our caching server. Please set it as per spec.
+**PORT**: This is the port number of our caching server. Please set it as per spec.
 
 **SEEDURL**: The starting url that a crawler first starts downloading.
 
@@ -91,7 +91,7 @@ class Response:
             server (600-606) that define caching specific errors.
         error:
             If the status codes are between 600 and 606, the reason for
-            the error is provided in this attrbiute. Note that for status codes
+            the error is provided in this attribute. Note that for status codes
             (400-599), the error message is not put in this error attribute; instead it
             must picked up from the raw_response (if any, and if useful).
         raw_response:
@@ -123,7 +123,7 @@ You can restart the crawler from the seed url
 (all current progress will be deleted) using the command
 ```python3 launch.py --restart```
 
-You can specifiy a different config file to use by using the command with the option
+You can specify a different config file to use by using the command with the option
 ```python3 launch.py --config_file path/to/config```
 
 ARCHITECTURE
@@ -215,6 +215,6 @@ THINGS TO KEEP IN MIND
 4. It is important to set the user agent in the config.ini correctly to get
    credit for hitting the cache servers.
 5. Launching multiple instances of the crawler will download the same urls in
-   both. Mecahnisms can be used to avoid that, however the politeness limits
+   both. Mechanisms can be used to avoid that, however the politeness limits
    still apply and will be checked.
 6. Do not attempt to download the links directly from ics servers.
