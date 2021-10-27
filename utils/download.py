@@ -9,8 +9,11 @@ def download(url, config, logger=None):
     resp = requests.get(
         f"http://{host}:{port}/",
         params=[("q", f"{url}"), ("u", f"{config.user_agent}")])
-    if resp:
-        return Response(cbor.loads(resp.content))
+    try:
+        if resp and resp.content:
+            return Response(cbor.loads(resp.content))
+    except EOFError:
+        pass
     logger.error(f"Spacetime Response error {resp} with url {url}.")
     return Response({
         "error": f"Spacetime Response error {resp} with url {url}.",
