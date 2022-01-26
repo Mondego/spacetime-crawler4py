@@ -44,7 +44,8 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
         #or parsed.hostname not in set(["www.ics.uci.edu","www.cs.uci.edu/","www.informatics.uci.edu/", "www.stat.uci.edu/" ])
-        if parsed.scheme not in set(["http", "https"]) or parsed.hostname not in set(["www.ics.uci.edu","www.cs.uci.edu","www.informatics.uci.edu", "www.stat.uci.edu" ]):
+        #looks throught to make sure the domain is one of the ones we are supposed to be in. Will also filter out comment sections so that they are not valid urls to look at. 
+        if parsed.scheme not in set(["http", "https"]) or not re.search('ics.uci.edu|cs.uci.edu|informatics.uci.edu|stat.uci.edu', parsed.netloc) or re.match('comment|respond', parsed.fragment):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
