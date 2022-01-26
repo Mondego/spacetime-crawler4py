@@ -1,11 +1,15 @@
 from threading import Thread
 
 from inspect import getsource
+
+from bs4 import BeautifulSoup
 from utils.download import download
 from utils import get_logger
 import scraper
 import time
 
+# added class to store information needed for the report questions
+from report import Report
 
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier):
@@ -17,16 +21,21 @@ class Worker(Thread):
         super().__init__(daemon=True)
         
     def run(self):
+        report = Report()
         while True:
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
+
+                # once crawling has ended, print the report
+                print(report)
+                
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
-            scraped_urls = scraper.scraper(tbd_url, resp)
+            scraped_urls = scraper.scraper(tbd_url, resp, report)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
