@@ -1,12 +1,19 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup as BS
+from report import Report
+from utils.response import Response
 
-def scraper(url, resp):
+def scraper(url, resp, report: Report):
     links = extract_next_links(url, resp)
+
+    # count the total number of words in this page and save the total if it's
+    # higher than the previous max
+    report.count_total_page_words(url, resp)
+
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp: Response):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
