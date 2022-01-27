@@ -2,9 +2,14 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup as BS
 
+page_set = set()
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    valid_links = [link for link in links if is_valid(link)]
+    uniqe_page_count(valid_links)
+    return valid_links
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -17,18 +22,16 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     found_urls = []
-    #status 404 going in. 
-    if(resp.status == 200):
+    if 200 <= resp.status <= 206:
         info = BS(resp.raw_response.content, 'html.parser')
-        all_urls = info.find_all('a')
+        all_urls = info.find_all('a')                   # get all <a> tags
         for found_url in all_urls:
-            url_to_add = found_url.get('href')
+            url_to_add = found_url.get('href')          # get the actual link
             if(url_to_add != url):
                 found_urls.append(url_to_add)
         return found_urls
-        
-
     return list()
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -52,3 +55,14 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+
+def uniqe_page_count(valid_links):
+    for raw_url in valid_links:
+        raw_url = str(raw_url)                  # conver to string
+        unique_url = raw_url.split('#',1)[0]    # split from the first #, only taking the left part
+        page_set.add(unique_url)                # add to page_set
+
+
+def print_unique_page_count():
+    print("Number of unique pages: " + str(len(page_set)))
