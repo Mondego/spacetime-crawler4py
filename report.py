@@ -128,11 +128,11 @@ class Report():
         return three[0:-2] + '\n'
 
 
-     def uniqe_page_count(valid_links):
+    def uniqe_page_count(valid_links):
        for raw_url in valid_links:
-        raw_url = str(raw_url)                  # conver to string
-        unique_url = raw_url.split('#',1)[0]    # split from the first #, only taking the left part
-        page_set.add(unique_url)                # add to page_set
+            raw_url = str(raw_url)                  # conver to string
+            unique_url = raw_url.split('#',1)[0]    # split from the first #, only taking the left part
+            page_set.add(unique_url)                # add to page_set
 
 
     def print_unique_page_count():
