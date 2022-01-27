@@ -1,17 +1,28 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup as BS
+from report import Report
+from utils.response import Response
 
-page_set = set()
-
-def scraper(url, resp):
+def scraper(url, resp, report: Report):
     links = extract_next_links(url, resp)
+
+    # count the total number of words in this page and save the total if it's
+    # higher than the previous max
+    report.count_total_page_words(url, resp)
+
+    # count the frequency of each word in every page and add it to a dictionary
+    # for reporting the 50 most common words in the entire set of pages
+    report.count_each_page_word(url, resp)
+
+    # Count the number of unique pages
+    # A unique page is defined by removing # and all subsequent characters from a link
     valid_links = [link for link in links if is_valid(link)]
-    uniqe_page_count(valid_links)
+    report.uniqe_page_count(valid_links)
+
     return valid_links
 
-
-def extract_next_links(url, resp):
+def extract_next_links(url, resp: Response):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -40,7 +51,8 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
         #or parsed.hostname not in set(["www.ics.uci.edu","www.cs.uci.edu/","www.informatics.uci.edu/", "www.stat.uci.edu/" ])
-        if parsed.scheme not in set(["http", "https"]) or parsed.hostname not in set(["www.ics.uci.edu","www.cs.uci.edu","www.informatics.uci.edu", "www.stat.uci.edu" ]):
+        #looks throught to make sure the domain is one of the ones we are supposed to be in. Will also filter out comment sections so that they are not valid urls to look at. 
+        if parsed.scheme not in set(["http", "https"]) or not re.search('ics.uci.edu|cs.uci.edu|informatics.uci.edu|stat.uci.edu', parsed.netloc) or re.match('comment|respond', parsed.fragment):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -55,14 +67,3 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
-
-
-def uniqe_page_count(valid_links):
-    for raw_url in valid_links:
-        raw_url = str(raw_url)                  # conver to string
-        unique_url = raw_url.split('#',1)[0]    # split from the first #, only taking the left part
-        page_set.add(unique_url)                # add to page_set
-
-
-def print_unique_page_count():
-    print("Number of unique pages: " + str(len(page_set)))
