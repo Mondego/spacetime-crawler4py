@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 from argparse import ArgumentParser
-from scraper import print_unique_page_count, uniqe_page_count
 
 from utils.server_registration import get_cache_server
 from utils.config import Config
@@ -14,7 +13,6 @@ def main(config_file, restart):
     config.cache_server = get_cache_server(config, restart)
     crawler = Crawler(config, restart)
     crawler.start()
-    print_unique_page_count()           # Query 1
 
 if __name__ == "__main__":
     parser = ArgumentParser()
