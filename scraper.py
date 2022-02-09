@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 from utils.config import Config
 import nltk
 import pickle
-
+from bs4 import BeautifulSoup
 nltk.download('punkt')
 
 def scraper(url, resp, config):
@@ -41,6 +41,30 @@ def extract_next_links(url, resp, config):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+
+    if not is_valid_page(resp):
+        return []
+
+    #html_text = resp.raw_response.content
+    #soup = BeautifulSoup(html_text, "html.parser").find_all("a")
+    #links = clean_and_filter_urls([link.get("href") for link in soup], url)
+    #return links 
+    # commenting text due to merge conflicts
+
+    def clean_and_filter_urls(urls, curUrl):
+        list = []
+        for url in urls:
+            url = url.split('#')[0]
+            if(len(url) == 0):
+                continue
+            list.append(url)
+        return list
+
+    def is_valid_page(resp):
+        if(resp.status>400):
+            return False
+        return True
+
 
     if resp.status != 200:
         print("Incorrect response")
