@@ -3,7 +3,8 @@ import shelve
 
 from threading import Thread, RLock
 from queue import Queue, Empty
-
+from urllib.parse import urlparse
+from urllib.parse import urljoin
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 
@@ -39,8 +40,12 @@ class Frontier(object):
         ''' This function can be overridden for alternate saving techniques. '''
         total_count = len(self.save)
         tbd_count = 0
+        list_domains = set()
+        for seed_url in self.config.seed_urls:
+            parsed_url = urlparse(seed_url)
+            list_domains.add(parsed_url.netloc)
         for url, completed in self.save.values():
-            if not completed and is_valid(url):
+            if not completed and is_valid(url,list_domains):
                 self.to_be_downloaded.append(url)
                 tbd_count += 1
         self.logger.info(

@@ -1,2 +1,4 @@
 cbor
 requests
+nltk
+pickle
