@@ -20,12 +20,28 @@ def extract_next_links(url, resp):
 
     if resp.status != 200:
         print(f"ERROR {resp.status} downloading {resp.url}")
+        return []
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-    links = soup.find_all('a', href=True)
+    found_links = soup.find_all('a', href=True)
+    links = []
 
-    # TODO: do not return URLS that dont belong to the 5 domains we're supposed to crawl
-    return [link["href"] for link in links]
+    for link in found_links:
+        l = link["href"]
+
+        # probably ineficient way to find fragments, but should work?
+        # removing the stuff after the fragment means:
+        # https://domain.com/path
+        # https://domain.com/path#1 --> https://domain.com/path
+        # but since frontier doesn't add duplicate URLs, we won't add the 2nd URL
+        
+        ind = l.find('#')
+        if ind != -1:
+            links.append(l[:ind])
+        else:
+            links.append(l)
+
+    return links
 
 
 def is_valid(url):
@@ -34,8 +50,19 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+
         if parsed.scheme not in set(["http", "https"]):
             return False
+
+        if parsed.hostname not in {"www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", 
+            "www.stat.uci.edu", "www.today.uci.edu"}:
+            return False
+
+        # might be better way to do this
+        if parsed.hostname == "www.today.uci.edu" and not \
+            re.match(r"/department/information_computer_sciences/", parsed.path):
+            return False
+       
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
