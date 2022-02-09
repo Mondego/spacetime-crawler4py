@@ -51,16 +51,16 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
 
-        if parsed.scheme not in set(["http", "https"]):
+        if parsed.scheme not in {"http", "https"}:
             return False
 
-        if parsed.hostname not in {"www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", 
-            "www.stat.uci.edu", "www.today.uci.edu"}:
+        if not re.match(r".*\.(ics|cs|informatics|stat|today)\.uci\.edu$", parsed.hostname):
             return False
 
-        # might be better way to do this
+        # note that today.uci.edu is an exact match for the hostname, while the other hostnames can be different 
+        # ie: "vision.ics.edu" and "hello.ics.edu" are both valid vs just "today.uci.edu"
         if parsed.hostname == "www.today.uci.edu" and not \
-            re.match(r"/department/information_computer_sciences/", parsed.path):
+            re.match(r"^/department/information_computer_sciences/", parsed.path):
             return False
        
         return not re.match(
