@@ -69,6 +69,7 @@ def is_valid(url, oldUrl = None):
         if oldUrl != None:
             if "=" in oldUrl and "=" in url:
                 if oldUrl.split("=")[1] == url.split("=")[1]:
+                    print("page duplicate: ", url, " ", oldUrl)
                     return False
        
         return not re.match(
