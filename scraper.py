@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    return [link for link in links if is_valid(link, url)]
 
 
 def extract_next_links(url, resp):
@@ -44,7 +44,7 @@ def extract_next_links(url, resp):
     return links
 
 
-def is_valid(url):
+def is_valid(url, oldUrl = None):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
@@ -62,6 +62,13 @@ def is_valid(url):
         if parsed.hostname == "www.today.uci.edu" and not \
             re.match(r"^/department/information_computer_sciences/", parsed.path):
             return False
+
+        # this clause makes sure that the new url is not exactly the same except for a different query parameter
+        # note that oldUrl has a default value None and so this check will not be run if no oldUrl value is passed in
+        if oldUrl != None:
+            if "=" in oldUrl and "=" in url:
+                if oldUrl.split("=")[1] == url.split("=")[1]:
+                    return False
        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
