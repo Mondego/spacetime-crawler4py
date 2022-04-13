@@ -20,7 +20,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    nextLinks = []
+    nextLinks = set()
     global Blacklist
     global Visited
 
@@ -31,7 +31,7 @@ def extract_next_links(url, resp):
     # If status is bad or link already visited add it to a blacklist to avoid
     if resp.status != 200 or url in Blacklist or url in Visited:
         Blacklist.add(url)
-        return []
+        return set()
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link in soup.find_all('a'):
@@ -48,7 +48,7 @@ def extract_next_links(url, resp):
         href = href.split('?')[0]
 
         if is_valid(href):
-            nextLinks.append(href)
+            nextLinks.add(href)
 
     # Add current url to list of visited urls so we don't end up visiting already visited links
     parsed = urlparse(url)
