@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 Blacklist = set()
 Visited = set()
 
-def scraper(url, resp):
+def scraper(url, resp) -> list:
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
@@ -20,18 +20,18 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    nextLinks = set()
+    nextLinks = []
     global Blacklist
     global Visited
 
     #temporary
     #if resp.status != 200:
     #    print(resp.error)
-    
+
     # If status is bad or link already visited add it to a blacklist to avoid
-    if(resp.status != 200 or url in Blacklist or url in Visited):
+    if resp.status != 200 or url in Blacklist or url in Visited:
         Blacklist.add(url)
-        return ()
+        return []
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link in soup.find_all('a'):
@@ -40,7 +40,7 @@ def extract_next_links(url, resp):
         # If link is relative make it absolute
         if bool(urlparse(url).netloc):
             href = urljoin(url, href)
-        
+
         # Stop duplicates of same link by splitting 
         # (ex #ref40, #ref45 etc of same link)
         # not sure if including '?' is necessary, neef further testing
@@ -48,7 +48,7 @@ def extract_next_links(url, resp):
         href = href.split('?')[0]
 
         if is_valid(href):
-            nextLinks.add(href)
+            nextLinks.append(href)
 
     # Add current url to list of visited urls so we don't end up visiting already visited links
     parsed = urlparse(url)
@@ -78,7 +78,7 @@ def is_valid(url):
         # Seems to work better with 'r' than without (or work in general, not sure)
         if re.match(r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
             return False
-        
+
         if re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -88,7 +88,7 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz"
-            # Added 
+            # Added
             + r"img|sql)$", parsed.path.lower()):
             return False
 
@@ -96,8 +96,7 @@ def is_valid(url):
             return False
 
         return True
-        
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print("TypeError for ", parsed)
         raise
