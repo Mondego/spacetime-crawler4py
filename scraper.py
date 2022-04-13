@@ -25,8 +25,8 @@ def extract_next_links(url, resp):
     global Visited
 
     #temporary
-    if resp.status != 200:
-        print(resp.error)
+    #if resp.status != 200:
+    #    print(resp.error)
     
     # If status is bad or link already visited add it to a blacklist to avoid
     if(resp.status != 200 or url in Blacklist or url in Visited):
@@ -40,6 +40,12 @@ def extract_next_links(url, resp):
         # If link is relative make it absolute
         if bool(urlparse(url).netloc):
             href = urljoin(url, href)
+        
+        # Stop duplicates of same link by splitting 
+        # (ex #ref40, #ref45 etc of same link)
+        # not sure if including '?' is necessary, neef further testing
+        href = href.split('#')[0]
+        href = href.split('?')[0]
 
         if is_valid(href):
             nextLinks.add(href)
@@ -68,7 +74,9 @@ def is_valid(url):
 
         # Regex expression to not allow repeating directories
         # Source: https://support.archive-it.org/hc/en-us/articles/208332963-Modify-crawl-scope-with-a-Regular-Expression
-        if re.match("^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
+        # Note: Not yet sure if this is working or not, will need more testing
+        # Seems to work better with 'r' than without (or work in general, not sure)
+        if re.match(r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
             return False
         
         if re.match(
@@ -79,10 +87,12 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz"
+            # Added 
+            + r"img|sql)$", parsed.path.lower()):
             return False
 
-        if url in Visited:
+        if url in Visited or url in Blacklist:
             return False
 
         return True
