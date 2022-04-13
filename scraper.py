@@ -24,9 +24,11 @@ def extract_next_links(url, resp):
     global Blacklist
     global Visited
 
+    #temporary
     if resp.status != 200:
         print(resp.error)
     
+    # If status is bad or link already visited add it to a blacklist to avoid
     if(resp.status != 200 or url in Blacklist or url in Visited):
         Blacklist.add(url)
         return ()
@@ -35,14 +37,14 @@ def extract_next_links(url, resp):
     for link in soup.find_all('a'):
         href = link.attrs.get('href')
 
-        # If link is relative make absolute link
+        # If link is relative make it absolute
         if bool(urlparse(url).netloc):
             href = urljoin(url, href)
 
         if is_valid(href):
             nextLinks.add(href)
-    # Add current url to list of visited urls so we don't end up visiting already visited links
 
+    # Add current url to list of visited urls so we don't end up visiting already visited links
     parsed = urlparse(url)
     Visited.add(parsed.scheme + '://' + parsed.netloc + parsed.path)
     return nextLinks
@@ -57,9 +59,16 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+
+        # Make sure link is in provided domain constraints
         if parsed.netloc not in set(["www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", "www.stat.uci.edu", "www.today.uci.edu"]):
             return False
         if parsed.netloc == "www.today.uci.edu" and parsed.path != "/department/information_computer_sciences/":
+            return False
+
+        # Regex expression to not allow repeating directories
+        # Source: https://support.archive-it.org/hc/en-us/articles/208332963-Modify-crawl-scope-with-a-Regular-Expression
+        if re.match("^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
             return False
         
         if re.match(
