@@ -36,7 +36,7 @@ def extract_next_links(url, resp):
         href = link.attrs.get('href')
 
         # If link is relative make absolute link
-        if urlparse(href).netloc == "":
+        if not bool(urlparse(url).netloc):
             href = urljoin(url, href)
 
         if is_valid(href):
