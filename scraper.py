@@ -27,7 +27,7 @@ def extract_next_links(url, resp):
     if resp.status != 200:
         print(resp.error)
     
-    if(resp.status != 200 or url in BlackList or url in Visited):
+    if(resp.status != 200 or url in Blacklist or url in Visited):
         Blacklist.add(url)
         return ()
 
@@ -44,7 +44,7 @@ def extract_next_links(url, resp):
     # Add current url to list of visited urls so we don't end up visiting already visited links
 
     parsed = urlparse(url)
-    Visited.add(parsed.scheme + '://' + parse.netloc + parsed.path)
+    Visited.add(parsed.scheme + '://' + parsed.netloc + parsed.path)
     return nextLinks
 
 def is_valid(url):
