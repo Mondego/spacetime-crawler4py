@@ -63,11 +63,11 @@ def is_valid(url):
 
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
+        if parsed.scheme not in {"http", "https"}:
             return False
 
         # Make sure link is in provided domain constraints
-        if parsed.netloc not in set(["www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", "www.stat.uci.edu", "www.today.uci.edu"]):
+        if parsed.netloc not in {"www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", "www.stat.uci.edu", "www.today.uci.edu"}:
             return False
         if parsed.netloc == "www.today.uci.edu" and parsed.path != "/department/information_computer_sciences/":
             return False
