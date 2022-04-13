@@ -60,26 +60,35 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     global Visited
+    global Blacklist
+
+    if url in Visited or url in Blacklist:
+        return False
 
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"}:
-            return False
+    except TypeError:
+        print(f'TypeError for {url}')
+        raise
 
-        # Make sure link is in provided domain constraints
-        if parsed.netloc not in {"www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", "www.stat.uci.edu", "www.today.uci.edu"}:
-            return False
-        if parsed.netloc == "www.today.uci.edu" and parsed.path != "/department/information_computer_sciences/":
-            return False
+    if parsed.scheme not in {"http", "https"}:
+        return False
 
-        # Regex expression to not allow repeating directories
-        # Source: https://support.archive-it.org/hc/en-us/articles/208332963-Modify-crawl-scope-with-a-Regular-Expression
-        # Note: Not yet sure if this is working or not, will need more testing
-        # Seems to work better with 'r' than without (or work in general, not sure)
-        if re.match(r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
-            return False
+    # Make sure link is in provided domain constraints
+    if parsed.netloc not in {"www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu", "www.stat.uci.edu", "www.today.uci.edu"}:
+        return False
 
-        if re.match(
+    if parsed.netloc == "www.today.uci.edu" and parsed.path != "/department/information_computer_sciences/":
+        return False
+
+    # Regex expression to not allow repeating directories
+    # Source: https://support.archive-it.org/hc/en-us/articles/208332963-Modify-crawl-scope-with-a-Regular-Expression
+    # Note: Not yet sure if this is working or not, will need more testing
+    # Seems to work better with 'r' than without (or work in general, not sure)
+    if re.match(r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", parsed.path):
+        return False
+
+    if re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -90,13 +99,5 @@ def is_valid(url):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz"
             # Added
             + r"img|sql)$", parsed.path.lower()):
-            return False
-
-        if url in Visited or url in Blacklist:
-            return False
-
-        return True
-
-    except TypeError:
-        print("TypeError for ", parsed)
-        raise
+        return False
+    return True
