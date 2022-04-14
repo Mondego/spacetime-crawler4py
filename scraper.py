@@ -1,4 +1,5 @@
 import re
+import requests
 from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
@@ -81,6 +82,11 @@ def is_valid(url):
     if parsed.netloc == "www.today.uci.edu" and parsed.path != "/department/information_computer_sciences/":
         return False
 
+    # Check url has a worthwhile amount of words to check
+    # Should hopefully remove thousads ~Eppstein files
+    if text_length(url) < 200:
+        return False
+
     # Regex expression to not allow repeating directories
     # Source: https://support.archive-it.org/hc/en-us/articles/208332963-Modify-crawl-scope-with-a-Regular-Expression
     # Note: Not yet sure if this is working or not, will need more testing
@@ -101,3 +107,11 @@ def is_valid(url):
             + r"img|sql)$", parsed.path.lower()):
         return False
     return True
+
+def text_length(url):
+    resp = requests.get(url)
+    soup = BeautifulSoup(resp.content, 'html.parser')
+    text = soup.get_text()
+    textList = text.split()
+    return len(textList)
+
