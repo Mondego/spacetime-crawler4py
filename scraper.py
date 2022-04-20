@@ -78,3 +78,4 @@ if __name__ == "__main__":
     frontier = Frontier(c, False)
     frontier.add_url("https://www.ics.uci.edu")
     print("Frontier size:", len(frontier.to_be_downloaded))
+    print(frontier.to_be_downloaded)
