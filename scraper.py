@@ -1,11 +1,19 @@
 import re
+import requests
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+from crawler.frontier import *
+import configparser
+from utils.config import *
 
-def scraper(url, resp):
+# from Queue import Queue
+from utils.response import Response
+
+def scraper(url: str, resp: Response) -> list:
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp):
+def extract_next_links(url: str, resp: Response):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -15,6 +23,30 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+
+    # 1. need to take care of web traps
+    #   -i.e runs infinite (calendars)
+    #       -Web server responds with ever changing URLs and content. dynamic pages
+    #   -avoid pages with low information value. have to set value ourselves. explain in interview
+    #   -duplicates
+    #   -Some webadmins can create traps to penalize impolite crawlers
+    #   -dynamic pages
+    #   -data noise
+    #       Web pages have content not directly related to the page
+    #           –Ads, templates, etc
+    #           –Noise negatively impacts information retrieval
+    # 2. check for politeness. how many times visited per time unit
+    # 3. Does it exist in Prof. Lopes' Web cache server logs?
+    # 4. Did you crawl ALL domains and paths mentioned in the spec?
+    #                    !!!!   AND   !!!! 
+    #      Did it crawl ONLY the domains and paths mentioned in the spec?
+
+    # q = Queue(maxsize = 0)
+    # q.put(resp.url)
+    # while(!q.empty()):    
+
+        
+            
     return list()
 
 def is_valid(url):
@@ -37,4 +69,12 @@ def is_valid(url):
 
     except TypeError:
         print ("TypeError for ", parsed)
-        raise
+        # raise
+
+if __name__ == "__main__":
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    c = Config(config)
+    frontier = Frontier(c, False)
+    frontier.add_url("https://www.ics.uci.edu")
+    print("Frontier size:", len(frontier.to_be_downloaded))

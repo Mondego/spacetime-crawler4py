@@ -1,6 +1,5 @@
 import re
 
-
 class Config(object):
     def __init__(self, config):
         self.user_agent = config["IDENTIFICATION"]["USERAGENT"].strip()
