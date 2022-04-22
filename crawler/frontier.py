@@ -23,6 +23,7 @@ class Frontier(object):
             self.logger.info(
                 f"Found save file {self.config.save_file}, deleting it.")
             os.remove(self.config.save_file)
+            
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.save_file)
         if restart:
