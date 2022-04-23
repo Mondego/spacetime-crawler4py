@@ -4,17 +4,18 @@ from urllib.robotparser import RobotFileParser
 from bs4 import BeautifulSoup
 from utils.response import Response
 
-# TODO: make sure to defragment the URLs, i.e. remove the fragment part. (COMPLETE??)
+
 # TODO: filter out urls that are not with the following domains .ics.uci.edu/, .cs.uci.edu/, .informatics.uci.edu/,
                     # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/  (COMPLETE???)
 
-
+# TODO: make sure to defragment the URLs, i.e. remove the fragment part.
 # TODO: crawl all pages with high textual information content - lecture 12
 # TODO: detect and avoid infinite traps - lecture 7
 # TODO: detect and avoid sets of similar pages with no information - lecture 12
 # TODO: store UNIQUE urls in frontier.py - lecture 11
 # TODO: Detect and avoid crawling very large files, especially if they have low information value - lecture 12
 # TODO: implement robotparser for robots.txt in extract_next_links (EC)
+# Do we utilize sitemaps????
 
 
 def scraper(url: str, resp: Response) -> list:
@@ -51,7 +52,14 @@ def extract_next_links(url: str, resp: Response):
             for anchor in soup.find_all("a"):
                 if anchor.has_attr("href"):
                     parse_href = urlparse(anchor["href"])
-                    hyperlinks.append(str(parse_href[0:5])) # defragments hyperlink reference
+
+                    # fix this
+                    link = parse_href.scheme + "://" + parse_href.netloc + "/" + parse_href.path 
+                    if len(parse_href.query) != 0: # if there is a query in URL
+                        link += "?" + parse_href.query
+
+
+                    hyperlinks.append(link) # notice: link does not include fragmnet
 
     print(hyperlinks)   # DELETE THIS
 
@@ -96,4 +104,8 @@ def is_valid(url):
 
 if __name__ == "__main__":
     url_test = "https://www.ics.uci.edu/.pdf"
-    print(is_valid(url_test))
+    parse_href = urlparse(url_test)
+    link = parse_href.scheme + "://" + parse_href.netloc + parse_href.path 
+    if len(parse_href.query) != 0: # if there is a query in URL
+        link += "?" + parse_href.query
+    print(link)
