@@ -5,10 +5,10 @@ from bs4 import BeautifulSoup
 from utils.response import Response
 
 
-# TODO: filter out urls that are not with the following domains .ics.uci.edu/, .cs.uci.edu/, .informatics.uci.edu/,
-                    # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/  (COMPLETE???)
+# COMPLETE: filter out urls that are not with the following domains .ics.uci.edu/, .cs.uci.edu/, .informatics.uci.edu/,
+                    # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/
+# COMPLETE: make sure to defragment the URLs, i.e. remove the fragment part.
 
-# TODO: make sure to defragment the URLs, i.e. remove the fragment part.
 # TODO: crawl all pages with high textual information content - lecture 12
 # TODO: detect and avoid infinite traps - lecture 7
 # TODO: detect and avoid sets of similar pages with no information - lecture 12
@@ -46,24 +46,21 @@ def extract_next_links(url: str, resp: Response):
     #crawler traps
     #avoid calendars bc it causes infinite loop. other traps.
 
-    if resp.status == 200:
-        if resp.raw_response.content != None:
-            soup = BeautifulSoup(resp.raw_response.content, "lxml")
-            for anchor in soup.find_all("a"):
-                if anchor.has_attr("href"):
-                    parse_href = urlparse(anchor["href"])
+    if resp.status == 200 and resp.raw_response.content != None:
+        soup = BeautifulSoup(resp.raw_response.content, "lxml")
+        for anchor in soup.find_all("a"):
+            if anchor.has_attr("href"):
+                parse_href = urlparse(anchor["href"])
 
-                    # fix this
-                    link = parse_href.scheme + "://" + parse_href.netloc + "/" + parse_href.path 
-                    if len(parse_href.query) != 0: # if there is a query in URL
-                        link += "?" + parse_href.query
+                # fix this
+                link = parse_href.scheme + "://" + parse_href.netloc + parse_href.path 
+                if parse_href.query != "": # if there is a query in URL
+                    link += "?" + parse_href.query
 
-
+                if parse_href.scheme != "" and parse_href.netloc != "":
                     hyperlinks.append(link) # notice: link does not include fragmnet
 
-    print(hyperlinks)   # DELETE THIS
-
-    return hyperlinks
+    return list(set(hyperlinks))
 
 def is_valid(url):
     """
@@ -93,6 +90,7 @@ def is_valid(url):
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
         
+        # url is valid (set to True) if the domain matches with the domain patterns below
         valid_domain = re.match(r".*\.ics\.uci\.edu|\.cs\.uci\.edu|\.informatics\.uci\.edu|\.stat\.uci\.edu|"
             + r"today\.uci\.edu\/department\/information_computer_sciences", parsed.netloc.lower()) is not None
         
@@ -103,9 +101,5 @@ def is_valid(url):
         raise
 
 if __name__ == "__main__":
-    url_test = "https://www.ics.uci.edu/.pdf"
-    parse_href = urlparse(url_test)
-    link = parse_href.scheme + "://" + parse_href.netloc + parse_href.path 
-    if len(parse_href.query) != 0: # if there is a query in URL
-        link += "?" + parse_href.query
-    print(link)
+    url_test = "http://sli.ics.uci.edu/Classes/2015W-273a.pdf?action=download&upname=06-vcdim.pdf"
+    print(is_valid(url_test))
