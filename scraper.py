@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 from bs4 import BeautifulSoup
 from utils.response import Response
@@ -8,24 +8,23 @@ from utils.response import Response
 # COMPLETE: filter out urls that are not with the following domains .ics.uci.edu/, .cs.uci.edu/, .informatics.uci.edu/,
                     # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/
 # COMPLETE: make sure to defragment the URLs, i.e. remove the fragment part.
+# COMPLETE: crawl all pages with high textual information content - lecture 12
+# COMPLETE:  detect and avoid sets of similar pages with no information - lecture 12
+# COMPLETE: store UNIQUE urls (based on content) in frontier.py - lecture 11
+
 
 # TODO: detect and avoid infinite traps - lecture 7
-# TODO: detect and avoid sets of similar pages with no information - lecture 12 (COMPLETED???)
-
-# TODO: crawl all pages with high textual information content - lecture 12 (completed??)
-# TODO: store UNIQUE urls in frontier.py - lecture 11
-
+# TODO: transform relative path URLS to absolute path URLS
+# TODO: add more file extensions to is_valid function
 # TODO: Detect and avoid crawling very large files, especially if they have low information value - lecture 12
 # TODO: implement robotparser for robots.txt in extract_next_links (EC)
-
 # TODO: make comments throughout utils.py, frontier.py and scraper.py
 
 # Do we utilize sitemaps????
 
 
 def scraper(url: str, resp: Response) -> list:
-    links = extract_next_links(url, resp)
-    scraped = [link for link in links if is_valid(link)]
+    scraped = extract_next_links(url, resp)
     return scraped
 
 def extract_next_links(url: str, resp: Response):
@@ -42,27 +41,23 @@ def extract_next_links(url: str, resp: Response):
     """
     hyperlinks = list()
 
-    #which website to add to frontier and list
-    # check if the website has any data. if not then we skip
-    # check if website is similar to another website. if it is then we skip
-    # check if website has a lot of data and low information. if it is then skip. ***** how do we check this? *****
-
-    #crawler traps
-    #avoid calendars bc it causes infinite loop. other traps.
-
-    if resp.status == 200 and resp.raw_response != None:
+    if resp.status == 200 and resp.raw_response is not None:
         soup = BeautifulSoup(resp.raw_response.content, "lxml")
         for anchor in soup.find_all("a"):
             if anchor.has_attr("href"):
                 parse_href = urlparse(anchor["href"])
 
-                # fix this
-                link = parse_href.scheme + "://" + parse_href.netloc + parse_href.path 
+                if parse_href != "":
+                    link = urljoin(url, anchor["href"]) # transforms relative path to absolute path
+                else:
+                    link = parse_href.scheme + "://" + parse_href.netloc + parse_href.path 
+
                 if parse_href.query != "": # if there is a query in URL
                     link += "?" + parse_href.query
 
-                if parse_href.scheme != "" and parse_href.netloc != "":
+                if is_valid(link):
                     hyperlinks.append(link) # notice: link does not include fragmnet
+
     elif resp.status == 200:
         print("Status is not 200 for a URL.")
     elif resp.raw_response is None:

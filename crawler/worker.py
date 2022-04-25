@@ -21,6 +21,7 @@ class Worker(Thread):
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
+                self.get_project_answers()
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
@@ -31,3 +32,8 @@ class Worker(Thread):
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)
+    
+    def get_project_answers(self):
+        print("Unique URLS:", len(self.frontier.save))
+        print("Longest text:", self.frontier.longest_text_num)
+        print("Most common words:", self.frontier.most_common_words)

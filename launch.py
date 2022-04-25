@@ -6,7 +6,6 @@ from utils.config import Config
 from crawler import Crawler
 import nltk # possibly delete this
 
-
 def main(config_file, restart):
     cparser = ConfigParser()
     cparser.read(config_file)
