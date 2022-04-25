@@ -4,8 +4,9 @@ import shelve
 from threading import Thread, RLock
 from queue import Queue, Empty
 
-from utils import get_logger, get_urlhash, normalize
+from utils import get_logger, get_urlhash, normalize, get_contenthash # possibly remove get_contenthash
 from scraper import is_valid
+from collections import defaultdict # possibly delete this
 
 class Frontier(object):
     def __init__(self, config, restart):
@@ -26,6 +27,7 @@ class Frontier(object):
             
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.save_file)
+        self.content_hash_table = defaultdict(str) # possibly remove this
         if restart:
             for url in self.config.seed_urls:
                 self.add_url(url)
@@ -57,10 +59,15 @@ class Frontier(object):
     def add_url(self, url):
         url = normalize(url)
         urlhash = get_urlhash(url)
-        if urlhash not in self.save:
+        contenthash = get_contenthash(url)
+        if urlhash not in self.save and contenthash not in self.content_hash_table.keys():
+            self.content_hash_table[contenthash] = url
             self.save[urlhash] = (url, False)
             self.save.sync()
             self.to_be_downloaded.append(url)
+        elif contenthash in self.content_hash_table.keys():
+            print("Found duplicate pages:")
+            print(url, "|||", self.content_hash_table[contenthash])
     
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)

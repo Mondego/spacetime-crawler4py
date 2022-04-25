@@ -9,19 +9,23 @@ from utils.response import Response
                     # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/
 # COMPLETE: make sure to defragment the URLs, i.e. remove the fragment part.
 
-# TODO: crawl all pages with high textual information content - lecture 12
 # TODO: detect and avoid infinite traps - lecture 7
-# TODO: detect and avoid sets of similar pages with no information - lecture 12
+# TODO: detect and avoid sets of similar pages with no information - lecture 12 (COMPLETED???)
+
+# TODO: crawl all pages with high textual information content - lecture 12 (completed??)
 # TODO: store UNIQUE urls in frontier.py - lecture 11
+
 # TODO: Detect and avoid crawling very large files, especially if they have low information value - lecture 12
 # TODO: implement robotparser for robots.txt in extract_next_links (EC)
+
+# TODO: make comments throughout utils.py, frontier.py and scraper.py
+
 # Do we utilize sitemaps????
 
 
 def scraper(url: str, resp: Response) -> list:
     links = extract_next_links(url, resp)
     scraped = [link for link in links if is_valid(link)]
-    print(scraped)
     return scraped
 
 def extract_next_links(url: str, resp: Response):
@@ -46,7 +50,7 @@ def extract_next_links(url: str, resp: Response):
     #crawler traps
     #avoid calendars bc it causes infinite loop. other traps.
 
-    if resp.status == 200 and resp.raw_response.content != None:
+    if resp.status == 200 and resp.raw_response != None:
         soup = BeautifulSoup(resp.raw_response.content, "lxml")
         for anchor in soup.find_all("a"):
             if anchor.has_attr("href"):
@@ -59,6 +63,10 @@ def extract_next_links(url: str, resp: Response):
 
                 if parse_href.scheme != "" and parse_href.netloc != "":
                     hyperlinks.append(link) # notice: link does not include fragmnet
+    elif resp.status == 200:
+        print("Status is not 200 for a URL.")
+    elif resp.raw_response is None:
+        print("There is no content in found in a URL.")
 
     return list(set(hyperlinks))
 
