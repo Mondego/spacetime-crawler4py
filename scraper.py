@@ -102,7 +102,26 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+    
+
+
 
 if __name__ == "__main__":
     url_test = "http://sli.ics.uci.edu/Classes/2015W-273a.pdf?action=download&upname=06-vcdim.pdf"
     print(is_valid(url_test))
+
+
+#ROBOTS
+def checkrobot(url, parsed)
+    try:
+        urlrobot = "http://" + parsed.netloc + "/robots.txt"
+        site = requests.get(urlrobot)
+        if site.status.code != 200
+            return False
+        robotparser = urllib.robotparser.RobotFileParser()
+        robotparser.set_url(urlrobot)
+        robotparser.read()
+        return robotparser.can_fetch("*", url)
+    except:
+        # if there are no robots.txt for the website, return false
+        return false
