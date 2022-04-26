@@ -1,6 +1,8 @@
 import re
+import requests
 from urllib.parse import urljoin, urlparse
-from urllib.robotparser import RobotFileParser
+import urllib.robotparser
+#from urllib.robotparser import RobotFileParser
 from bs4 import BeautifulSoup
 from utils.response import Response
 
@@ -118,6 +120,15 @@ if __name__ == "__main__":
 
 #ROBOTS
 def checkrobot(url, parsed):
+    """
+    Checks if a url's robot.txt allows for crawling or not.
+
+
+    
+    Creates the location to the robots.txt for each site and names it urlrobot,
+    then requests to access it and if no error then it reads the robot.txt
+    If allowed to fetch, returns true, else false
+    """
     try:
         urlrobot = "http://" + parsed.netloc + "/robots.txt"
         site = requests.get(urlrobot)
