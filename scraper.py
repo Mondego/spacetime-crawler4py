@@ -82,6 +82,10 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]): # if scheme does  not have http or https, the url is invalid (return False)
             return False 
 
+        # check robots.txt if permission to parse
+        if not checkrobot(url, parsed):
+            return False
+
         # url is valid (set to True) if it doesn't have any of below file extensions in the path 
         does_not_include_file_extension = not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -111,12 +115,13 @@ if __name__ == "__main__":
     print(is_valid(url_test))
 
 
+
 #ROBOTS
-def checkrobot(url, parsed)
+def checkrobot(url, parsed):
     try:
         urlrobot = "http://" + parsed.netloc + "/robots.txt"
         site = requests.get(urlrobot)
-        if site.status.code != 200
+        if site.status.code != 200:
             return False
         robotparser = urllib.robotparser.RobotFileParser()
         robotparser.set_url(urlrobot)
@@ -124,4 +129,4 @@ def checkrobot(url, parsed)
         return robotparser.can_fetch("*", url)
     except:
         # if there are no robots.txt for the website, return false
-        return false
+        return False
