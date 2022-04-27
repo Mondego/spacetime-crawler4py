@@ -13,13 +13,15 @@ from utils.response import Response
 # COMPLETE: crawl all pages with high textual information content - lecture 12
 # COMPLETE:  detect and avoid sets of similar pages with no information - lecture 12
 # COMPLETE: store UNIQUE urls (based on content) in frontier.py - lecture 11
+# COMPLETE: implement robotparser for robots.txt in extract_next_links (EC)
+# COMPLETE: transform relative path URLS to absolute path URLS
+
+
 
 
 # TODO: detect and avoid infinite traps - lecture 7
-# TODO: transform relative path URLS to absolute path URLS
 # TODO: add more file extensions to is_valid function
 # TODO: Detect and avoid crawling very large files, especially if they have low information value - lecture 12
-# TODO: implement robotparser for robots.txt in extract_next_links (EC)
 # TODO: make comments throughout utils.py, frontier.py and scraper.py
 
 # Do we utilize sitemaps????
@@ -88,6 +90,11 @@ def is_valid(url):
         if not checkrobot(url, parsed):
             return False
 
+
+        # found regex expressions here: https://support.archive-it.org/hc/en-us/articles/208332943-Identify-and-avoid-crawler-traps-
+        traps = not re.match(r"^.*/[^/]{300,}$" # should remove long invalid URLs
+                + r"^.*calendar.*$", parsed.path.lower())  # removes calendars
+
         # url is valid (set to True) if it doesn't have any of below file extensions in the path 
         does_not_include_file_extension = not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -103,7 +110,7 @@ def is_valid(url):
         valid_domain = re.match(r".*\.ics\.uci\.edu|\.cs\.uci\.edu|\.informatics\.uci\.edu|\.stat\.uci\.edu|"
             + r"today\.uci\.edu\/department\/information_computer_sciences", parsed.netloc.lower()) is not None
         
-        return does_not_include_file_extension and valid_domain
+        return does_not_include_file_extension and valid_domain and traps
 
     except TypeError:
         print ("TypeError for ", parsed)
