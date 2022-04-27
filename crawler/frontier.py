@@ -4,7 +4,7 @@ import shelve
 from threading import Thread, RLock
 from queue import Queue, Empty
 
-from utils import get_logger, get_urlhash, normalize, get_contenthash, get_longest_text, update_most_common_words, get_content_info # possibly remove new functions
+from utils import get_logger, get_urlhash, normalize, get_contenthash, get_longest_text, update_most_common_words, how_many_subdomains, get_content_info  # possibly remove new functions
 from scraper import is_valid
 from collections import defaultdict # possibly delete this
 
@@ -15,6 +15,8 @@ class Frontier(object):
         self.to_be_downloaded = list()
         self.longest_text_num = 0   # potentially delete this
         self.most_common_words = dict()
+        self.subdomain_count = dict()
+        
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -65,7 +67,7 @@ class Frontier(object):
         # self.longest_text_num = get_longest_text(url, self.longest_text_num)
         # self.most_common_words = update_most_common_words(url, self.most_common_words)
 
-        contenthash, self.longest_text_num, self.most_common_words = get_content_info(url, self.longest_text_num, self.most_common_words)
+        contenthash, self.longest_text_num, self.subdomain_count, self.most_common_words = get_content_info(url, self.longest_text_num, self.subdomain_count, self.most_common_words)
 
         if urlhash not in self.save and contenthash not in self.content_hash_table.keys():
             self.content_hash_table[contenthash] = url

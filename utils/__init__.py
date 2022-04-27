@@ -99,7 +99,14 @@ def update_most_common_words(url, current_most_common_words, top_words=50):
     
     return result
 
-def get_content_info(url, current_longest, current_most_common_words, top_words=50):
+def how_many_subdomains(url, sub_domains):
+    """Finds how many subdomains in ics.uci.edu"""
+    parsed = urlparse(url)
+    page = parsed.scheme + "://" + parsed.netloc + parsed.path
+    if url.find('ics.uci.edu') > 0:
+        sub_domains[page] += 1
+
+def get_content_info(url, current_longest, current_most_common_words, current_subdomain_count, top_words=50):
     LOW_INFORMATION_VALUE = 100    
     text_list = tokenize_n_preprocess(url)
     text = " ".join(text_list)
@@ -128,7 +135,10 @@ def get_content_info(url, current_longest, current_most_common_words, top_words=
         result[cur_pair[0]] += cur_pair[1]
         count += 1
     
-    return hash, current_longest, result
+    # update subdomain dict
+    how_many_subdomains(url, current_subdomain_count)
+    
+    return hash, current_longest, current_subdomain_count, result
 
 
 
