@@ -93,7 +93,10 @@ def is_valid(url):
 
         # found regex expressions here: https://support.archive-it.org/hc/en-us/articles/208332943-Identify-and-avoid-crawler-traps-
         traps = not re.match(r"^.*/[^/]{300,}$" # should remove long invalid URLs
-                + r"^.*calendar.*$", parsed.path.lower())  # removes calendars
+                + r"^.*calendar.*$",# removes calendars
+                + r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", #repeating directories
+                + r"^.*(/misc|/sites|/all|/themes|/modules|/profiles|/css|/field|/node|/theme){3}.*$", #extra directories
+                + r".*\/20\d\d-\d\d*", parsed.path.lower())  # removes monthly archives
 
         # url is valid (set to True) if it doesn't have any of below file extensions in the path 
         does_not_include_file_extension = not re.match(
