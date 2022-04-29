@@ -1,8 +1,6 @@
 import re
-import requests
 from urllib.parse import urljoin, urlparse
 import urllib.robotparser
-#from urllib.robotparser import RobotFileParser
 from bs4 import BeautifulSoup
 from utils.response import Response
 
@@ -86,16 +84,21 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]): # if scheme does  not have http or https, the url is invalid (return False)
             return False 
 
-        # check robots.txt if permission to parse
-        if not checkrobot(url, parsed):
+        # check robots.txt if permission to parse, continues if so
+        if checkrobot(url, parsed) == False:
+            print("Cannot crawl according to robot.txt")
             return False
-
+        
+        # Updated: 4/29/2022, 9:50 am
+        # check if the url length is long, if it is its likely a trap
+        if '#' in parsed.geturl() or len(str(parsed.geturl()))> 200:
+            return False
 
         # found regex expressions here: https://support.archive-it.org/hc/en-us/articles/208332943-Identify-and-avoid-crawler-traps-
         traps = not re.match(r"^.*/[^/]{300,}$" # should remove long invalid URLs
-                + r"^.*calendar.*$",# removes calendars
-                + r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$", #repeating directories
-                + r"^.*(/misc|/sites|/all|/themes|/modules|/profiles|/css|/field|/node|/theme){3}.*$", #extra directories
+                + r"^.*calendar.*$"# removes calendars
+                + r"^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$" #repeating directories
+                + r"^.*(/misc|/sites|/all|/themes|/modules|/profiles|/css|/field|/node|/theme){3}.*$" #extra directories
                 + r".*\/20\d\d-\d\d*", parsed.path.lower())  # removes monthly archives
 
         # url is valid (set to True) if it doesn't have any of below file extensions in the path 
@@ -119,35 +122,26 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
     
-
-
-
-if __name__ == "__main__":
-    url_test = "http://sli.ics.uci.edu/Classes/2015W-273a.pdf?action=download&upname=06-vcdim.pdf"
-    print(is_valid(url_test))
-
-
-
-#ROBOTS
 def checkrobot(url, parsed):
     """
     Checks if a url's robot.txt allows for crawling or not.
 
-
-    
     Creates the location to the robots.txt for each site and names it urlrobot,
     then requests to access it and if no error then it reads the robot.txt
     If allowed to fetch, returns true, else false
     """
     try:
         urlrobot = "http://" + parsed.netloc + "/robots.txt"
-        site = requests.get(urlrobot)
-        if site.status.code != 200:
-            return False
         robotparser = urllib.robotparser.RobotFileParser()
         robotparser.set_url(urlrobot)
         robotparser.read()
-        return robotparser.can_fetch("*", url)
+        if not robotparser.can_fetch("*", url):
+            return False
     except:
         # if there are no robots.txt for the website, return false
-        return False
+        pass
+
+
+if __name__ == "__main__":
+    url_test = "http://sli.ics.uci.edu/Classes/2015W-273a.pdf?action=download&upname=06-vcdim.pdf"
+    print(is_valid(url_test))

@@ -17,6 +17,7 @@ class Worker(Thread):
         super().__init__(daemon=True)
         
     def run(self):
+        count = 0
         while True:
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
@@ -31,9 +32,14 @@ class Worker(Thread):
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
+            count += 1
+            if count % 10 == 0:
+                self.get_project_answers()
             time.sleep(self.config.time_delay)
     
     def get_project_answers(self):
         print("Unique URLS:", len(self.frontier.save))
         print("Longest text:", self.frontier.longest_text_num)
         print("Most common words:", self.frontier.most_common_words)
+        print("Subdomains:", sorted(self.frontier.subdomain_count.items(), key=lambda x: x[1]))
+        print()
