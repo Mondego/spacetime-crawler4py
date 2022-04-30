@@ -5,26 +5,6 @@ from bs4 import BeautifulSoup
 from utils.response import Response
 
 
-# COMPLETE: filter out urls that are not with the following domains .ics.uci.edu/, .cs.uci.edu/, .informatics.uci.edu/,
-                    # .stat.uci.edu/,today.uci.edu/department/information_computer_sciences/
-# COMPLETE: make sure to defragment the URLs, i.e. remove the fragment part.
-# COMPLETE: crawl all pages with high textual information content - lecture 12
-# COMPLETE:  detect and avoid sets of similar pages with no information - lecture 12
-# COMPLETE: store UNIQUE urls (based on content) in frontier.py - lecture 11
-# COMPLETE: implement robotparser for robots.txt in extract_next_links (EC)
-# COMPLETE: transform relative path URLS to absolute path URLS
-
-
-
-
-# TODO: detect and avoid infinite traps - lecture 7
-# TODO: add more file extensions to is_valid function
-# TODO: Detect and avoid crawling very large files, especially if they have low information value - lecture 12
-# TODO: make comments throughout utils.py, frontier.py and scraper.py
-
-# Do we utilize sitemaps????
-
-
 def scraper(url: str, resp: Response) -> list:
     scraped = extract_next_links(url, resp)
     return scraped
