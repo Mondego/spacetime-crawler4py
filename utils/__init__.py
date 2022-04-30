@@ -2,11 +2,13 @@ import os
 import logging
 from hashlib import sha256
 from urllib.parse import urlparse
+from nltk.probability import FreqDist
+import copy
+
 
 import requests                             # possibly delete this
 from bs4 import BeautifulSoup               # delete this?
 from math import floor                      # delete this?
-from collections import defaultdict         # delete this
 import re
 
 stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as",
@@ -65,16 +67,15 @@ def tokenize_n_preprocess(url):
     retList = re.sub(r'[a-zA-Z0-9]+', ' ', words)
 
     retList = set(words.split())
-    for word in retList:
-        if len(word) < 3 or word in stopwords:
+    for word in retList.copy():
+        if word in stopwords:
             retList.remove(word)
     return retList
 
 def get_text_freq(text):
     """Returns a dictionary where each key is a token and its respective value is its frequency in argument text"""
-    freq_list = defaultdict(int)
-    freq_list = sorted(freq_list.items(), key=lambda x:x[1], reverse=True)
-    result = defaultdict(int)
+    freq_list = sorted(FreqDist(text).items(), key=lambda x:x[1], reverse=True)
+    result = dict()
     for pair in freq_list:
         result[pair[0]] = pair[1]
     return result
@@ -113,7 +114,7 @@ def get_content_info(url, current_longest,  current_subdomain_count, current_mos
 
     # updates most common words
     new_most_common = get_text_freq(text)
-    result = defaultdict(int)
+    result = dict(int)
     count = 0
     for new_pair, cur_pair in zip(new_most_common.items(), current_most_common_words.items()):
         if count >= top_words:
