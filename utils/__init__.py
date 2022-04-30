@@ -3,7 +3,8 @@ import logging
 from hashlib import sha256
 from urllib.parse import urlparse
 from nltk.probability import FreqDist
-import copy
+from collections import defaultdict # possibly delete this
+
 
 
 import requests                             # possibly delete this
@@ -67,7 +68,8 @@ def tokenize_n_preprocess(url):
     retList = re.sub(r'[a-zA-Z0-9]+', ' ', words)
 
     retList = set(words.split())
-    for word in retList.copy():
+    retListTemp=retList.copy()
+    for word in retListTemp:
         if word in stopwords:
             retList.remove(word)
     return retList
@@ -75,7 +77,7 @@ def tokenize_n_preprocess(url):
 def get_text_freq(text):
     """Returns a dictionary where each key is a token and its respective value is its frequency in argument text"""
     freq_list = sorted(FreqDist(text).items(), key=lambda x:x[1], reverse=True)
-    result = dict()
+    result = defaultdict()
     for pair in freq_list:
         result[pair[0]] = pair[1]
     return result
@@ -114,7 +116,7 @@ def get_content_info(url, current_longest,  current_subdomain_count, current_mos
 
     # updates most common words
     new_most_common = get_text_freq(text)
-    result = dict(int)
+    result = defaultdict(int)
     count = 0
     for new_pair, cur_pair in zip(new_most_common.items(), current_most_common_words.items()):
         if count >= top_words:
