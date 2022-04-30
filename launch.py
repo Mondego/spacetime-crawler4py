@@ -16,10 +16,6 @@ def main(config_file, restart):
 
 
 if __name__ == "__main__":
-    nltk.download('corpus')
-    nltk.download('stem')
-    nltk.download('tokenize')
-    nltk.download('stopwords')
     parser = ArgumentParser()
     parser.add_argument("--restart", action="store_true", default=False)
     parser.add_argument("--config_file", type=str, default="config.ini")
