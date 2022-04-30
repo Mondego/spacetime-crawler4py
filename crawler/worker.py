@@ -42,4 +42,3 @@ class Worker(Thread):
         print("Longest text:", self.frontier.longest_text_num)
         print("Most common words:", self.frontier.most_common_words[0])
         print("Subdomains:", sorted(self.frontier.subdomain_count.items(), key=lambda x: x[1]))
-        print()

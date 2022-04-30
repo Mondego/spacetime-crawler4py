@@ -6,7 +6,7 @@ from queue import Queue, Empty
 
 from utils import *
 from scraper import is_valid
-from collections import defaultdict # possibly delete this
+#from collections import defaultdict # possibly delete this
 
 class Frontier(object):
     def __init__(self, config, restart):
@@ -15,7 +15,7 @@ class Frontier(object):
         self.to_be_downloaded = list()
         self.longest_text_num = 0   # potentially delete this
         self.most_common_words = dict()
-        self.subdomain_count = defaultdict(int)
+        self.subdomain_count = dict(int)
         
         
         if not os.path.exists(self.config.save_file) and not restart:
@@ -31,7 +31,7 @@ class Frontier(object):
             
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.save_file)
-        self.content_hash_table = defaultdict(str) # possibly remove this
+        self.content_hash_table = dict(str) # possibly remove this
         if restart:
             for url in self.config.seed_urls:
                 self.add_url(url)
