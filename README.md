@@ -3,7 +3,7 @@ ABOUT
 This is the base implementation of a full crawler that uses a spacetime
 cache server to receive requests.
 
-CONFIGURATION
+CONFIGURATION 
 -------------------------
 
 ### Step 1: Install dependencies
