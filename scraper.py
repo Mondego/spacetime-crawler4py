@@ -11,7 +11,7 @@ def extract_next_links(url, resp):
     if(resp.status == 200):
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')    
         for scrapedURL in soup.find_all('a'):
-            if(scrapedURL != None):
+            if(is_valid(scrapedURL.get('href'))):
                 validURLs.append(scrapedURL.get('href'))
 
     # Implementation required.
@@ -31,6 +31,7 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+        # print(parsed.hostname)
         if parsed.scheme not in set(["http", "https"]):
             return False
         return not re.match(
