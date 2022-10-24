@@ -7,6 +7,7 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    # testing
     validURLs = [] 
     if(resp.status == 200):
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')    
