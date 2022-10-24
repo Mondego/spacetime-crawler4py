@@ -10,17 +10,14 @@ def extract_next_links(url, resp):
     # testing
     validURLs = [] 
     if(resp.status == 200):
-        print('starting')
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')    
-        print('ending')
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 validURLs.append(scrapedURL.get('href'))
-        print('endingforreal')
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
-                file.writelines(str(resp.status) + resp.error)
+                file.writelines(str(resp.status) + resp.error + '\n')
         else:
             pass
             # with open('./Logs/Error.log','a') as file:
@@ -44,14 +41,13 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
-        if url == None or len(url)==0:
-            return False
-
         parsed = urlparse(url)
-
+        if parsed.hostname == None or len(parsed.hostname)==0:
+            return False
+       
         acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu','today.uci.edu/department/information_computer_sciences/']
         for acceptedDomain in acceptedDomains:
-            if(acceptedDomain in url):
+            if(acceptedDomain in parsed.hostname):
                 break
         else:
             return False
