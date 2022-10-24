@@ -1,11 +1,19 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    validURLs = [] 
+    if(resp.status == 200):
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')    
+        for scrapedURL in soup.find_all('a'):
+            if(scrapedURL != None):
+                validURLs.append(scrapedURL.get('href'))
+
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -15,7 +23,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    return validURLs
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -26,7 +34,7 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            r".*\.(css|js|bmp|gif|jpe?g|ico|html"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
