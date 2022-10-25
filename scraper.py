@@ -52,10 +52,13 @@ def extract_next_links(url, resp):
         href = urldefrag(href)[0] # assume we want to remove fragments
         href = urljoin(url, href) #join for relative URLS
         parse = urlparse(href)
-        if is_valid(href) == True:
+        if is_valid(href) == True and href not in pages:
             #print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
             #ret.append(link_url)
+            pages.add(href)
             print(end="")
+        elif href in pages:
+            print('Repeated URL:', href)
         else:
             print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
 
