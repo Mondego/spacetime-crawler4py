@@ -10,20 +10,18 @@ def extract_next_links(url, resp):
     # testing
     validURLs = [] 
     if(resp.status == 200):
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')    
+        soup = BeautifulSoup(resp.raw_response.content, 'lxml')    
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
-                validURLs.append(scrapedURL.get('href'))
+                validURLs.append(scrapedURL.get('href').split('#')[0])
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
-                file.writelines(str(resp.status) + resp.error + '\n')
+                file.writelines(str(resp.status)+ " " + resp.error + '\n')
         else:
-            pass
             # with open('./Logs/Error.log','a') as file:
-            #     file.writelines("--------------------\n")
-            #     file.writeLine(str(resp.status) + resp.raw_response.content)
-            #     file.writelines("--------------------\n")
+            #     file.writelines(str(resp.status)+ " " + str(resp.raw_response.content)+ '\n')
+            pass
             
     # Implementation required.
     # url: the URL that was used to get the page
@@ -42,9 +40,11 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+        
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
-       
+        if 'pdf' in parsed.path:
+            return False
         acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu','today.uci.edu/department/information_computer_sciences/']
         for acceptedDomain in acceptedDomains:
             if(acceptedDomain in parsed.hostname):
@@ -55,7 +55,7 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico|html|sql"
+            r".*\.(css|js|bmp|gif|jpe?g|ico|html|sql|ppsx"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
