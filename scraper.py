@@ -55,7 +55,7 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico|html"
+            r".*\.(css|js|bmp|gif|jpe?g|ico|html|sql"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
