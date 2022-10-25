@@ -1,6 +1,8 @@
 import re
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+from urllib.parse import urljoin
+from urllib.parse import urldefrag
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -20,12 +22,22 @@ def extract_next_links(url, resp):
         print("Error in getting url, code:", resp.status)
         return list()
 
-    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-    for x in soup.findAll("a"):
-        print(x)
-
-
     ret = list()
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+    links =  soup.findAll("a")
+    for link in links:
+        href = link.get('href')
+        href = urldefrag(href)[0] # assume we want to remove fragments
+        href = urljoin(url, href) #join for relative URLS
+        parse = urlparse(href)
+        if is_valid(href) == True:
+            #print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
+            #ret.append(link_url)
+            print(end="")
+        else:
+            print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
+
+    
       
     return ret
 
@@ -34,9 +46,14 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
+        # https://docs.python.org/3/library/urllib.parse.html
+        # scheme://netloc/path;parameters?query#fragment
         parsed = urlparse(url)
+        if isBadDomain(parsed.hostname):
+            return False
         if parsed.scheme not in set(["http", "https"]):
             return False
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -50,3 +67,10 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def isBadDomain(domain):
+    domains = ["www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu" ,"www.stat.uci.edu"]
+    if domain in domains:
+        return False
+    #print("Wrong domain:", domain)
+    return True
