@@ -29,10 +29,11 @@ def extract_next_links(url, resp):
         href = link.get('href')
         href = urldefrag(href)[0] # assume we want to remove fragments
         href = urljoin(url, href) #join for relative URLS
-        if is_valid(href):
-            parse = urlparse(href)
-            print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
+        parse = urlparse(href)
+        if is_valid(href) == True:
+            #print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
             #ret.append(link_url)
+            print(end="")
         else:
             print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
 
@@ -48,7 +49,7 @@ def is_valid(url):
         # https://docs.python.org/3/library/urllib.parse.html
         # scheme://netloc/path;parameters?query#fragment
         parsed = urlparse(url)
-        if isValidDomain(parsed.hostname):
+        if isBadDomain(parsed.hostname):
             return False
         if parsed.scheme not in set(["http", "https"]):
             return False
@@ -67,8 +68,9 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
-def isValidDomain(domain):
-    domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
-    if domain not in domains:
+def isBadDomain(domain):
+    domains = ["www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu" ,"www.stat.uci.edu"]
+    if domain in domains:
         return False
+    #print("Wrong domain:", domain)
     return True
