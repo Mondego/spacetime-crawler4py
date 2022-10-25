@@ -22,6 +22,7 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
+    dumpAnswers()
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -40,6 +41,11 @@ def extract_next_links(url, resp):
 
     ret = list()
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+
+    #update answers
+    addTokens(soup)
+    #finish updating answers
+
     links =  soup.findAll("a")
     for link in links:
         href = link.get('href')
@@ -84,6 +90,8 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
+#Helper Functions
+
 def isBadDomain(domain):
     domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
     # we want to be able to check against subdomains: hentai.ics.uci.edu
@@ -94,3 +102,30 @@ def isBadDomain(domain):
             return False
     print("Wrong domain:", domain)
     return True
+
+def addTokens(soup):
+    tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
+    # remove empty strings and stopWords
+    tokenList = list(filter(lambda str: str != "" and str not in stopWords, tokenList))
+    for i in range(len(tokenList)):
+        token = tokenList[i]
+        wordCount[token] = wordCount.get(token, 0) + 1
+
+def dumpAnswers():
+    try:
+        file = open("answers.txt", "w")
+        file.write(f"Q1: Number of unique URLs: {len(pages)}\n")
+        file.write(f"Q2: Longest Page and the number of words\n")
+
+        #q3 - 50 most common words, sort by occurence
+        file.write("Q3: Top 50 words:\n")
+        for k, v in sorted(wordCount.items(), key=lambda x: -x[1])[:50]:
+            file.write(f"{k} : {v}\n")
+
+        #q4 - how many subdomains, list in alphabetical order as well as unique pages per subdomain
+        file.write("\nQ4: List of subdomain and page per subdomain\n")
+        for k,v in sorted(subDomainCount.items(), key=lambda x: x[0]):
+            file.write(f"{k} : {v}\n")
+
+    except Exception as e:
+        print(f"Error writing output: {e}\n")
