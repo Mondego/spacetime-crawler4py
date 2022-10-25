@@ -69,8 +69,12 @@ def is_valid(url):
         raise
 
 def isBadDomain(domain):
-    domains = ["www.ics.uci.edu", "www.cs.uci.edu", "www.informatics.uci.edu" ,"www.stat.uci.edu"]
-    if domain in domains:
-        return False
-    #print("Wrong domain:", domain)
+    domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
+    # we want to be able to check against subdomains: hentai.ics.uci.edu
+    if domain is None:
+        return True
+    for d in domains:
+        if d in domain:
+            return False
+    print("Wrong domain:", domain)
     return True
