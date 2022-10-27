@@ -79,6 +79,15 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
+        #check if the path is a calendar because they are traps
+
+        if re.match(r'\/calendar\/.+ | \/events\/.+', parsed.path.lower()):
+            return False
+
+        #check if there are duplicate folder paths
+        if re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*'. parsed.path.lower()) or re.match(r'.*\..+\/', pared.path.lower()):
+            return False
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
