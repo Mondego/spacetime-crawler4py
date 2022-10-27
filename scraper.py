@@ -16,16 +16,18 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     validURLs = [] 
+    # if repsonse is 200, we crawl the website
     if(resp.status == 200):
+        global unique_pages
+        unique_pages += 1
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
         tokenize(soup.get_text())
-        printingFrequencies(token_dictionary)
+        # printingFrequencies(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
-                global unique_pages
-                unique_pages += 1
+    # reponses that are either in the 600s or 400s
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
@@ -68,9 +70,13 @@ def tokenize(soupText):
     return
     
 def printingFrequencies(hashmap) -> None:
-    sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=False))
+    sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=True))
+    counter = 0
     for mapping in sortedHashmap:
+        if counter == 50:
+            break
         print(mapping, "->", sortedHashmap[mapping]) 
+        counter += 1
     return
 
 def is_valid(url): 
@@ -79,14 +85,21 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        
+        # check if host even exists
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
+        # if pdf is in the parsed path
         if 'pdf' in parsed.path:
             return False
+        # check if hostname is in not allowed domains
+        notacceptedDomains = ['cecs.uci.edu', 'eecs.uci.edu', 'nacs.uci.edu']
+        for invalidDomain in notacceptedDomains:
+            if invalidDomain in parsed.hostname:
+                return False
+        # check if hostname is in allowed domains
         acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu','today.uci.edu/department/information_computer_sciences/']
-        for acceptedDomain in acceptedDomains:
-            if(acceptedDomain in parsed.hostname):
+        for validDomain in acceptedDomains:
+            if(validDomain in parsed.hostname):
                 break
         else:
             return False
