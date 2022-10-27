@@ -9,8 +9,7 @@ from urllib.parse import urldefrag
 pages = set()
 
 #q2 - longest page for number of words
-longestPageURL = ""
-longestPageWords = 0
+longestPages = ["", 0]
 
 #q3 - 50 most common words
 wordCount = dict()
@@ -45,6 +44,7 @@ def extract_next_links(url, resp):
     #update answers
     addTokens(soup)
     #finish updating answers
+    longestPage(soup, url)
 
     links =  soup.findAll("a")
     for link in links:
@@ -114,11 +114,20 @@ def addTokens(soup):
         token = tokenList[i]
         wordCount[token] = wordCount.get(token, 0) + 1
 
+def longestPage(soup, url):
+    tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
+    tokenList = list(filter(lambda str: str != "" and str not in stopWords, tokenList))
+    if len(tokenList) > longestPages[1]:
+        longestPages[0], longestPages[1] = url, len(tokenList)
+
+
 def dumpAnswers():
     try:
         file = open("answers.txt", "w")
         file.write(f"Q1: Number of unique URLs: {len(pages)}\n")
+
         file.write(f"Q2: Longest Page and the number of words\n")
+        file.write(f'{longestPages[0]} => {longestPages[1]}\n')
 
         #q3 - 50 most common words, sort by occurence
         file.write("Q3: Top 50 words:\n")
