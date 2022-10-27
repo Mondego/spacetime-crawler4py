@@ -3,11 +3,11 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import sys
 
-# keep track of unique_pages
+# Represents num of unique pages
 unique_pages = 0
-# keep track of all tokens
+# Dict that tracks num of tokens
 token_dictionary = {}
-# English stop words
+# English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 stop_words_set = set()
 
 def scraper(url, resp):
@@ -18,11 +18,15 @@ def extract_next_links(url, resp):
     validURLs = [] 
     # if repsonse is 200, we crawl the website
     if(resp.status == 200):
+        # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
+
+        # Beautiful Soup
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
+        # Tokenize the website soup.get_text (which returns a string of raw text from html)
         tokenize(soup.get_text())
-        # printingFrequencies(token_dictionary)
+        # For each URL found in <a> tags
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
@@ -48,6 +52,9 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     return validURLs
 
+# Function : Tokenize
+# Use : Given a string of raw text from HTML file, 
+#       tokenizes it and adds it to token_dictionary
 def tokenize(soupText):
     lines = soupText
     for word in lines.split():
@@ -68,8 +75,10 @@ def tokenize(soupText):
             else:
                 token_dictionary[correct] = 1
     return
-    
-def printingFrequencies(hashmap) -> None:
+
+# Function : printFreq
+# Use : Given a dictionary, prints it in sorted order of value
+def printFreq(hashmap) -> None:
     sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=True))
     counter = 0
     for mapping in sortedHashmap:
