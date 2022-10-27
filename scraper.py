@@ -1,19 +1,31 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+import sys
+
+# keep track of unique_pages
+unique_pages = 0
+# keep track of all tokens
+token_dictionary = {}
+# English stop words
+stop_words_set = set()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    # testing
     validURLs = [] 
     if(resp.status == 200):
-        soup = BeautifulSoup(resp.raw_response.content, 'lxml')    
+        soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
+        tokenize(soup.get_text())
+        printingFrequencies(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
+                #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
+                global unique_pages
+                unique_pages += 1
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
@@ -33,6 +45,33 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     return validURLs
+
+def tokenize(soupText):
+    lines = soupText
+    for word in lines.split():
+        correct = ''
+        for letter in word.lower():
+            if letter.isalnum() and letter.isascii():
+                correct = ''.join([correct,letter])
+            else:
+                if(correct != ''):
+                    if correct in token_dictionary:
+                        token_dictionary[correct] += 1
+                    else:
+                        token_dictionary[correct] = 1
+                    correct = ''
+        if correct != '':
+            if correct in token_dictionary:
+                token_dictionary[correct] += 1
+            else:
+                token_dictionary[correct] = 1
+    return
+    
+def printingFrequencies(hashmap) -> None:
+    sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=False))
+    for mapping in sortedHashmap:
+        print(mapping, "->", sortedHashmap[mapping]) 
+    return
 
 def is_valid(url): 
     # Decide whether to crawl this url or not. 
