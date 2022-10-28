@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 from urllib.parse import urldefrag
 
 #q1 - unique pages
-pages = set()
+visitedPages = set()
 
 #q2 - longest page for number of words
 longestPages = ["", 0]
@@ -54,12 +54,12 @@ def extract_next_links(url, resp):
         href = urldefrag(href)[0] # assume we want to remove fragments
         href = urljoin(url, href) #join for relative URLS
         parse = urlparse(href)
-        if is_valid(href) == True and href not in pages:
+        if is_valid(href) == True and href not in visitedPages:
             print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
             ret.append(href)
-            pages.add(href)
+            visitedPages.add(href)
             print(end="")
-        elif href in pages:
+        elif href in visitedPages:
             print('Repeated URL:', href)
         else:
             print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
@@ -123,7 +123,7 @@ def isBadDomain(domain):
     if domain is None:
         return True
     for d in domains:
-        if d in domain:
+        if re.match(r'.*'+d+'$', domain):
             return False
     print("Wrong domain:", domain)
     return True
@@ -146,7 +146,7 @@ def longestPage(soup, url):
 def dumpAnswers():
     try:
         file = open("answers.txt", "w")
-        file.write(f"Q1: Number of unique URLs: {len(pages)}\n")
+        file.write(f"Q1: Number of unique URLs: {len(visitedPages)}\n")
 
         file.write(f"Q2: Longest Page and the number of words\n")
         file.write(f'{longestPages[0]} => {longestPages[1]}\n')
