@@ -11,6 +11,8 @@ token_dictionary = {}
 stop_words_set = set()
 # Longest URL
 longest_URL = ''
+# Counter of Longest URL
+counter_longest_URL = 0
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -23,11 +25,10 @@ def extract_next_links(url, resp):
         # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
-
         # Beautiful Soup
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
         # Tokenize the website soup.get_text (which returns a string of raw text from html)
-        tokenize(soup.get_text())
+        tokenize(soup.get_text(), url)
         # printingFrequencies(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
@@ -57,7 +58,8 @@ def extract_next_links(url, resp):
 # Function : Tokenize
 # Use : Given a string of raw text from HTML file, 
 #       tokenizes it and adds it to token_dictionary
-def tokenize(soupText):
+def tokenize(soupText, url):
+    currentPageCount = 0
     lines = soupText
     for word in lines.split():
         correct = ''
@@ -70,12 +72,19 @@ def tokenize(soupText):
                         token_dictionary[correct] += 1
                     else:
                         token_dictionary[correct] = 1
+                    currentPageCount += 1
                     correct = ''
         if correct != '':
             if correct in token_dictionary:
                 token_dictionary[correct] += 1
             else:
                 token_dictionary[correct] = 1
+            currentPageCount += 1
+    global counter_longest_URL
+    if currentPageCount > counter_longest_URL:
+        counter_longest_URL = currentPageCount
+        global longest_URL
+        longest_URL = url
     return
 
 # Function : printFreq
