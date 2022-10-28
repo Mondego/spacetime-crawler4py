@@ -53,8 +53,8 @@ def extract_next_links(url, resp):
         href = urljoin(url, href) #join for relative URLS
         parse = urlparse(href)
         if is_valid(href) == True and href not in pages:
-            #print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
-            #ret.append(link_url)
+            print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
+            ret.append(href)
             pages.add(href)
             print(end="")
         elif href in pages:
@@ -99,12 +99,11 @@ def is_valid(url):
 
 #Helper Functions
 def isTrap(path):
-    if re.match(r'\/calendar\/.+ | \/events\/.+', path):
-        return False
-
     #check if there are duplicate folder paths
-    if re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
-        return False
+    if re.match(r'\/calendar\/.+ | \/events\/.+', path) or re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
+        print('Path is trap:', path)
+        return True
+    return False
 
 
 def isBadDomain(domain):
