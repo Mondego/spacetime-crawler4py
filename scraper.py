@@ -95,20 +95,21 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
         # check if host even exists
+        # startingDomains = ['https://www.ics.uci.edu', 'https://www.cs.uci.edu', 'https://www.informatics.uci.edu', 'https://www.stat.uci.edu']
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
         # if pdf is in the parsed path
         if 'pdf' in parsed.path:
             return False
         # check if hostname is in not allowed domains
-        notacceptedDomains = ['cecs.uci.edu', 'eecs.uci.edu', 'nacs.uci.edu']
-        for invalidDomain in notacceptedDomains:
-            if invalidDomain in parsed.hostname:
-                return False
+        # notacceptedDomains = ['cecs.uci.edu', 'eecs.uci.edu', 'nacs.uci.edu']
+        # for invalidDomain in notacceptedDomains:
+        #     if invalidDomain in parsed.hostname:
+        #         return False
         # check if hostname is in allowed domains
-        acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu','today.uci.edu/department/information_computer_sciences/']
+        acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
         for validDomain in acceptedDomains:
-            if(validDomain in parsed.hostname):
+            if '.'+validDomain in parsed.hostname or '/'+validDomain in parsed.hostname:
                 break
         else:
             return False
