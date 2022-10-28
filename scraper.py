@@ -1,9 +1,6 @@
-from enum import unique
 import re
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from urllib.parse import urljoin
-from urllib.parse import urldefrag
+from urllib.parse import urlparse, urljoin, urldefrag
 
 #q1 - unique pages
 visitedPages = set()
@@ -36,17 +33,24 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    ret = list()
+    if resp.url in visitedPages:
+        return ret
     if resp.status != 200:
         print("Error in getting url, code:", resp.status)
-        return list()
+        return ret
+    if not resp.raw_response:
+        return ret
 
-    ret = list()
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
     #update answers
+    visitedPages.add(resp.url)
     addTokens(soup)
-    #finish updating answers
+    domain = urlparse(resp.url).hostname
+    subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
     longestPage(soup, url)
+    #finish updating answers
 
     links =  soup.findAll("a")
     for link in links:
@@ -55,16 +59,7 @@ def extract_next_links(url, resp):
         href = urljoin(url, href) #join for relative URLS
         parse = urlparse(href)
         if is_valid(href) == True and href not in visitedPages:
-            print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
             ret.append(href)
-            visitedPages.add(href)
-            print(end="")
-        elif href in visitedPages:
-            print('Repeated URL:', href)
-        else:
-            print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
-
-    
       
     return ret
 
@@ -125,7 +120,6 @@ def isBadDomain(domain):
     for d in domains:
         if re.match(r'.*'+d+'$', domain):
             return False
-    print("Wrong domain:", domain)
     return True
 
 def addTokens(soup):
