@@ -9,6 +9,8 @@ unique_pages = 0
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 stop_words_set = set()
+# Longest URL
+longest_URL = ''
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -26,7 +28,7 @@ def extract_next_links(url, resp):
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
         # Tokenize the website soup.get_text (which returns a string of raw text from html)
         tokenize(soup.get_text())
-        # For each URL found in <a> tags
+        # printingFrequencies(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
@@ -60,7 +62,7 @@ def tokenize(soupText):
     for word in lines.split():
         correct = ''
         for letter in word.lower():
-            if letter.isalnum() and letter.isascii():
+            if (letter.isalnum() and letter.isascii()) or letter == "'":
                 correct = ''.join([correct,letter])
             else:
                 if(correct != ''):
@@ -101,11 +103,6 @@ def is_valid(url):
         # if pdf is in the parsed path
         if 'pdf' in parsed.path:
             return False
-        # check if hostname is in not allowed domains
-        # notacceptedDomains = ['cecs.uci.edu', 'eecs.uci.edu', 'nacs.uci.edu']
-        # for invalidDomain in notacceptedDomains:
-        #     if invalidDomain in parsed.hostname:
-        #         return False
         # check if hostname is in allowed domains
         acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
         for validDomain in acceptedDomains:
