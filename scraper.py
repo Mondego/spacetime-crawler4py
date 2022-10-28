@@ -80,8 +80,8 @@ def is_valid(url):
             return False
 
         #check if the path is a calendar because they are traps
-        if isTrap(parsed.path.lower()):
-            return False
+        # if isTrap(parsed.path.lower()):
+        #     return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -99,10 +99,20 @@ def is_valid(url):
 
 #Helper Functions
 def isTrap(path):
-    #check if there are duplicate folder paths
-    if re.match(r'\/calendar\/.+ | \/events\/.+', path) or re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
-        print('Path is trap:', path)
+    #check if there is pdf in between
+    if '/pdf/' in path:
         return True
+
+    #check if it's in a calendar
+    if 'wics' in path and bool(re.search('/events/.*?/', path)):
+        return True
+
+    if 'today' in path and bool(re.search('/calendar/.*?/', path)):
+        return True
+
+    # if re.match(r'\/calendar\/.+ | \/events\/.+', path) or re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
+    #     print('Path is trap:', path)
+    #     return True
     return False
 
 
