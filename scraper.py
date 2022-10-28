@@ -80,8 +80,8 @@ def is_valid(url):
             return False
 
         #check if the path is a calendar because they are traps
-        # if isTrap(parsed.path.lower()):
-        #     return False
+        if isTrap(parsed.path.lower()):
+            return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
