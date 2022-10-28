@@ -29,7 +29,7 @@ def extract_next_links(url, resp):
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
         # Tokenize the website soup.get_text (which returns a string of raw text from html)
         tokenize(soup.get_text(), url)
-        # printingFrequencies(token_dictionary)
+        # printFreq(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
