@@ -6,16 +6,18 @@ from collections import defaultdict
 
 # Represents num of unique pages
 unique_pages = 0
-# Dict that tracks num of tokens
+# A dictionary that tracks total appearances of tokens amongst all scraped web pages
+# Example : "it" : 5 -> means it has occured 5 times so far out of all pages scraped
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 stop_words_set = set()
-# Longest URL
-longest_URL = ''
+# URL of the page that contains the most amount of tokens
+maxWordsURL = ''
 # Counter of Longest URL
 counter_longest_URL = 0
 # ics.edu.domain info
 ics_domains_info = defaultdict(lambda: set())
+maxWordsCount = 0
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -28,12 +30,16 @@ def extract_next_links(url, resp):
         # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
+
         # Beautiful Soup
-        soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
-        # Tokenize the website soup.get_text (which returns a string of raw text from html)
-        tokenize(soup.get_text(), url)
-        # printFreq(token_dictionary)
-        for scrapedURL in soup.find_all('a'):
+        currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
+
+        # Tokenize the website currURLSoup.get_text 
+        # (which returns a string of raw text from html)
+        tokenize(currURLSoup.get_text(), url)
+
+        # For every URL found in the current URL's soup
+        for scrapedURL in currURLSoup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
@@ -45,6 +51,7 @@ def extract_next_links(url, resp):
             
         
     # reponses that are either in the 600s or 400s
+    # ELSE response != 200
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
@@ -99,9 +106,10 @@ def generate_report():
 # Use : Given a string of raw text from HTML file, 
 #       tokenizes it and adds it to token_dictionary
 def tokenize(soupText, url):
-    currentPageCount = 0
-    lines = soupText
-    for word in lines.split():
+    # Represents the number of tokens of the current page being tokenized
+    currTokenCount = 0
+    # Looping Start : 
+    for word in soupText.split():
         correct = ''
         for letter in word.lower():
             if (letter.isalnum() and letter.isascii()) or letter == "'":
@@ -112,48 +120,42 @@ def tokenize(soupText, url):
                         token_dictionary[correct] += 1
                     else:
                         token_dictionary[correct] = 1
-                    currentPageCount += 1
+                    # If we have detected a token, increment count
+                    currTokenCount += 1
                     correct = ''
         if correct != '':
             if correct in token_dictionary:
                 token_dictionary[correct] += 1
             else:
                 token_dictionary[correct] = 1
-            currentPageCount += 1
-    global counter_longest_URL
-    if currentPageCount > counter_longest_URL:
-        counter_longest_URL = currentPageCount
-        global longest_URL
-        longest_URL = url
-    return
+            # Edge case, same thing as above, increment count
+            currTokenCount += 1
 
-# Function : printFreq
-# Use : Given a dictionary, prints it in sorted order of value
-def printFreq(hashmap) -> None:
-    sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=True))
-    counter = 0
-    for mapping in sortedHashmap:
-        if counter == 50:
-            break
-        print(mapping, "->", sortedHashmap[mapping]) 
-        counter += 1
+    global maxWordsCount
+    # If the current page's word count > currMax
+    if currTokenCount > maxWordsCount:
+        # Then update current max & max url
+        maxWordsCount = currTokenCount
+        global maxWordsURL
+        maxWordsURL = url
     return
 
 def is_valid(url): 
+    # Pre initialized variables
+    acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
+    
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        # check if host even exists
-        # startingDomains = ['https://www.ics.uci.edu', 'https://www.cs.uci.edu', 'https://www.informatics.uci.edu', 'https://www.stat.uci.edu']
+        # Check if host exists
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
-        # if pdf is in the parsed path
+        # Check if url is PDF
         if 'pdf' in parsed.path:
             return False
         # check if hostname is in allowed domains
-        acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
         for validDomain in acceptedDomains:
             if '.'+validDomain in parsed.hostname or '/'+validDomain in parsed.hostname:
                 break
@@ -176,3 +178,15 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
+# [HELPER FUNCTIONS]
+# Function : printFreq
+# Use : Given a dictionary, prints it in sorted order of value
+def printFreq(hashmap) -> None:
+    sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=True))
+    counter = 0
+    for mapping in sortedHashmap:
+        if counter == 50:
+            break
+        print(mapping, "->", sortedHashmap[mapping]) 
+        counter += 1
+    return
