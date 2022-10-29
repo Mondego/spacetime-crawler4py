@@ -18,7 +18,7 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 
 domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu", "cbcl.ics.uci.edu"]
 
-disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu"]
+disallowQueriesDomains = {"swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu"}
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -51,7 +51,7 @@ def extract_next_links(url, resp):
     addTokens(soup)
 
     domain = urlparse(resp.url).hostname
-    if re.match(r'.*.ics.uci.edu$', domain):
+    if re.match(r'.*\.ics.uci.edu$', domain):
         subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
 
     longestPage(soup, url)
@@ -69,7 +69,7 @@ def extract_next_links(url, resp):
             parsed = parsed._replace(query='') #remove query string
             href = urlunparse(parsed)
 
-        if is_valid(href) == True and href not in visitedPages:
+        if href not in visitedPages:
             ret.append(href)
       
     return ret
