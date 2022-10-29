@@ -69,8 +69,7 @@ def extract_next_links(url, resp):
             parsed = parsed._replace(query='') #remove query string
             href = urlunparse(parsed)
 
-        if href not in visitedPages:
-            ret.append(href)
+        ret.append(href)
       
     return ret
 
