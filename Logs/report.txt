@@ -1,0 +1,8 @@
+Unique pages: 150
+ICS domain number: 6
+futurehealth.ics.uci.edu: {'http://futurehealth.ics.uci.edu/about', 'http://futurehealth.ics.uci.edu/health'}
+tippersweb.ics.uci.edu: {'https://tippersweb.ics.uci.edu/covid19/d/oKgkWMDGk/cs-dashboard-mobile?refresh=30s&orgId=1', 'https://tippersweb.ics.uci.edu/covid19/d/jb22mkvMk/cs-dashboard?refresh=30s&orgId=1'}
+swiki.ics.uci.edu: {'https://swiki.ics.uci.edu/doku.php/hardware:laptops'}
+support.ics.uci.edu: {'https://support.ics.uci.edu/laptops'}
+keys.ics.uci.edu: {'http://keys.ics.uci.edu'}
+intranet.ics.uci.edu: {'https://intranet.ics.uci.edu'}
