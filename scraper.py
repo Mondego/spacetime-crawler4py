@@ -92,7 +92,7 @@ def is_valid(url):
             return False
         
         #case sensitive matches
-        if re.search(r"\.java", parsed):
+        if re.search(r"\.java", parsed.geturl()):
             return False
         
         return not re.match(
