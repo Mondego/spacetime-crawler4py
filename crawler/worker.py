@@ -6,7 +6,7 @@ from utils import get_logger
 import scraper
 import time
 
-
+# changes only add generate report stuff after frontier is empty
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
@@ -21,6 +21,7 @@ class Worker(Thread):
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
+                scraper.generate_report()
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(

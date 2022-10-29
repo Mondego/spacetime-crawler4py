@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import sys
+from collections import defaultdict
 
 # Represents num of unique pages
 unique_pages = 0
@@ -13,6 +14,8 @@ stop_words_set = set()
 longest_URL = ''
 # Counter of Longest URL
 counter_longest_URL = 0
+# ics.edu.domain info
+ics_domains_info = defaultdict(lambda: set())
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -34,6 +37,13 @@ def extract_next_links(url, resp):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
+        
+        # if ics domains, then records down info
+        ics_domains = 'ics.uci.edu'
+        if '.'+ics_domains in url or '/'+ics_domains in url:
+            record_ics_domains(url, validURLs)
+            
+        
     # reponses that are either in the 600s or 400s
     else:
         if(resp.status >= 600):
@@ -54,6 +64,36 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     return validURLs
+
+
+
+def record_ics_domains(url: str, validURLs: [str]) -> None:
+    global ics_domains_info
+    parsed = urlparse(url)
+    hostname = parsed.hostname 
+    
+    if hostname != None and len(hostname) >= 3 and hostname[0:4] == "www.":
+        hostname = hostname[4::]
+
+    if hostname != None and hostname != "ics.uci.edu":
+        for validUrl in validURLs:
+            ics_domains_info[hostname].add(validUrl)
+    
+    generate_report()
+
+
+def generate_report():
+    global ics_domains_info
+    with open('./Logs/report.txt', 'w') as file:
+        unique_pages_str = "Unique pages: {count}\n".format(count=unique_pages)
+        ics_str = "ICS domain number: {count}\n".format(count = len(ics_domains_info))
+        
+        file.writelines(unique_pages_str)
+        file.writelines(ics_str)
+
+        for key, value in ics_domains_info.items():
+            file.writelines("{key}: {info}".format(key=key, info=value))
+
 
 # Function : Tokenize
 # Use : Given a string of raw text from HTML file, 
