@@ -9,6 +9,10 @@ unique_pages = 0
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 stop_words_set = set()
+# Longest URL
+longest_URL = ''
+# Counter of Longest URL
+counter_longest_URL = 0
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -21,12 +25,11 @@ def extract_next_links(url, resp):
         # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
-
         # Beautiful Soup
         soup = BeautifulSoup(resp.raw_response.content, 'lxml') 
         # Tokenize the website soup.get_text (which returns a string of raw text from html)
-        tokenize(soup.get_text())
-        # For each URL found in <a> tags
+        tokenize(soup.get_text(), url)
+        # printFreq(token_dictionary)
         for scrapedURL in soup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
@@ -55,12 +58,13 @@ def extract_next_links(url, resp):
 # Function : Tokenize
 # Use : Given a string of raw text from HTML file, 
 #       tokenizes it and adds it to token_dictionary
-def tokenize(soupText):
+def tokenize(soupText, url):
+    currentPageCount = 0
     lines = soupText
     for word in lines.split():
         correct = ''
         for letter in word.lower():
-            if letter.isalnum() and letter.isascii():
+            if (letter.isalnum() and letter.isascii()) or letter == "'":
                 correct = ''.join([correct,letter])
             else:
                 if(correct != ''):
@@ -68,12 +72,19 @@ def tokenize(soupText):
                         token_dictionary[correct] += 1
                     else:
                         token_dictionary[correct] = 1
+                    currentPageCount += 1
                     correct = ''
         if correct != '':
             if correct in token_dictionary:
                 token_dictionary[correct] += 1
             else:
                 token_dictionary[correct] = 1
+            currentPageCount += 1
+    global counter_longest_URL
+    if currentPageCount > counter_longest_URL:
+        counter_longest_URL = currentPageCount
+        global longest_URL
+        longest_URL = url
     return
 
 # Function : printFreq
@@ -101,11 +112,6 @@ def is_valid(url):
         # if pdf is in the parsed path
         if 'pdf' in parsed.path:
             return False
-        # check if hostname is in not allowed domains
-        # notacceptedDomains = ['cecs.uci.edu', 'eecs.uci.edu', 'nacs.uci.edu']
-        # for invalidDomain in notacceptedDomains:
-        #     if invalidDomain in parsed.hostname:
-        #         return False
         # check if hostname is in allowed domains
         acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
         for validDomain in acceptedDomains:
