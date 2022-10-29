@@ -18,7 +18,7 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 
 domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
 
-disallowQueriesDomains = ["swiki.ics.uci.edu"]
+disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu"]
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
