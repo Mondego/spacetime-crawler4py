@@ -19,6 +19,7 @@ counter_longest_URL = 0
 ics_domains_info = defaultdict(lambda: set())
 maxWordsCount = 0
 
+### CHANGE TO TEST FOR INVALID URLS
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -43,6 +44,10 @@ def extract_next_links(url, resp):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
+            
+            # TODO: delete once finish finish testing
+            else:
+                record_invalid_urls(scrapedURL.get('href'))
         
         # if ics domains, then records down info
         ics_domains = 'ics.uci.edu'
@@ -73,6 +78,10 @@ def extract_next_links(url, resp):
     return validURLs
 
 
+def record_invalid_urls(url: str) -> None:
+    with open("./Logs/invalid.txt", "a") as file:
+        file.writelines("{url}\n".format(url=url))
+
 
 def record_ics_domains(url: str, validURLs: [str]) -> None:
     global ics_domains_info
@@ -87,9 +96,9 @@ def record_ics_domains(url: str, validURLs: [str]) -> None:
             ics_domains_info[hostname].add(validUrl)
     
     generate_report()
+    
 
-
-def generate_report():
+def generate_report() -> None:
     global ics_domains_info
     with open('./Logs/report.txt', 'w') as file:
         unique_pages_str = "Unique pages: {count}\n".format(count=unique_pages)
@@ -99,7 +108,7 @@ def generate_report():
         file.writelines(ics_str)
 
         for key, value in ics_domains_info.items():
-            file.writelines("{key}: {info}".format(key=key, info=value))
+            file.writelines("{key}: {info}\n".format(key=key, info=value))
 
 
 # Function : Tokenize
