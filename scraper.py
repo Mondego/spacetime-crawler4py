@@ -1,9 +1,6 @@
-from enum import unique
 import re
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from urllib.parse import urljoin
-from urllib.parse import urldefrag
+from urllib.parse import urlparse, urljoin, urldefrag, urlunparse
 
 #q1 - unique pages
 visitedPages = set()
@@ -21,6 +18,8 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 
 domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
 
+disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu"]
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     dumpAnswers()
@@ -36,35 +35,41 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    ret = list()
+    if resp.url in visitedPages:
+        return ret
     if resp.status != 200:
         print("Error in getting url, code:", resp.status)
-        return list()
+        return ret
+    if not resp.raw_response:
+        return ret
 
-    ret = list()
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
     #update answers
+    visitedPages.add(resp.url)
     addTokens(soup)
-    #finish updating answers
+
+    domain = urlparse(resp.url).hostname
+    if re.match(r'.*.ics.uci.edu$', domain):
+        subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
+
     longestPage(soup, url)
+    #finish updating answers
 
     links =  soup.findAll("a")
     for link in links:
         href = link.get('href')
         href = urldefrag(href)[0] # assume we want to remove fragments
         href = urljoin(url, href) #join for relative URLS
-        parse = urlparse(href)
-        if is_valid(href) == True and href not in visitedPages:
-            print("Valid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
-            ret.append(href)
-            visitedPages.add(href)
-            print(end="")
-        elif href in visitedPages:
-            print('Repeated URL:', href)
-        else:
-            print("Invalid url:",href, "domain:", parse.hostname, "protocol:", parse.scheme)
 
-    
+        # if URL is blacklisted for queries, remove query string
+        parsed = urlparse(href)
+        if parsed.hostname in disallowQueriesDomains:
+            parsed = parsed._replace(query='') #remove query string
+            href = urlunparse(parsed)
+
+        ret.append(href)
       
     return ret
 
@@ -72,27 +77,36 @@ def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+
+    global visitedPages
+
     try:
         # https://docs.python.org/3/library/urllib.parse.html
         # scheme://netloc/path;parameters?query#fragment
         parsed = urlparse(url)
-        if isBadDomain(parsed.hostname):
+        if isBadDomain(str(parsed.hostname)):
             return False
         if parsed.scheme not in set(["http", "https"]):
             return False
 
+        if url in visitedPages:
+            return False
+
+        visitedPages.add(url)
         #check if the path is a calendar because they are traps
-        if isTrap(parsed.path.lower()):
+        if isTrap(parsed):
             return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+            + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|apk|war|img|txt"
+            + r"|shar|h|cpp|c|cp|makefile|py"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
     except TypeError:
@@ -100,21 +114,29 @@ def is_valid(url):
         raise
 
 #Helper Functions
-def isTrap(path):
+def isTrap(parsed):
+    if re.match(r'.*swiki.ics.uci.edu', parsed.hostname):
+        return True
+
+    path = parsed.path.lower()
     #check if there is pdf in between
-    if '/pdf/' in path:
+    if any(x in path for x in ['?replytocom=', '/pdf/', "#comment-", "events"]):
         return True
 
     #check if it's in a calendar
-    if 'wics' in path and bool(re.search('/events/.*?/', path)):
-        return True
+    # if 'wics' in path and bool(re.search('/events/.*?/', path)):
+    #     return True
 
-    if 'today' in path and bool(re.search('/calendar/.*?/', path)):
-        return True
+    # if 'today' in path and bool(re.search('/calendar/.*?/', path)):
+    #     return True
 
     # if re.match(r'\/calendar\/.+ | \/events\/.+', path) or re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
     #     print('Path is trap:', path)
     #     return True
+
+    #https://support.archive-it.org/hc/en-us/articles/208332963-Modify-your-crawl-scope-with-a-Regular-Expression
+    if re.match(r'^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$', path):
+        return True
     return False
 
 
@@ -125,13 +147,12 @@ def isBadDomain(domain):
     for d in domains:
         if re.match(r'.*'+d+'$', domain):
             return False
-    print("Wrong domain:", domain)
     return True
 
 def addTokens(soup):
     tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
     # remove empty strings and stopWords
-    tokenList = list(filter(lambda str: str != "" and str not in stopWords, tokenList))
+    tokenList = list(filter(lambda str: len(str) > 1 and str not in stopWords, tokenList))
     for i in range(len(tokenList)):
         token = tokenList[i]
         wordCount[token] = wordCount.get(token, 0) + 1
