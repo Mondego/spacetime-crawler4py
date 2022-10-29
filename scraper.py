@@ -52,7 +52,7 @@ def extract_next_links(url, resp):
         # if ics domains, then records down info
         ics_domains = 'ics.uci.edu'
         if '.'+ics_domains in url or '/'+ics_domains in url:
-            record_ics_domains(url, validURLs)
+            record_ics_domains(url)
             
         
     # reponses that are either in the 600s or 400s
@@ -83,7 +83,7 @@ def record_invalid_urls(url: str) -> None:
         file.writelines("{url}\n".format(url=url))
 
 
-def record_ics_domains(url: str, validURLs: [str]) -> None:
+def record_ics_domains(url: str) -> None:
     global ics_domains_info
     parsed = urlparse(url)
     hostname = parsed.hostname 
@@ -92,8 +92,7 @@ def record_ics_domains(url: str, validURLs: [str]) -> None:
         hostname = hostname[4::]
 
     if hostname != None and hostname != "ics.uci.edu":
-        for validUrl in validURLs:
-            ics_domains_info[hostname].add(validUrl)
+        ics_domains_info[hostname].add(url)
     
     generate_report()
     
