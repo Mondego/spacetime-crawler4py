@@ -91,6 +91,10 @@ def is_valid(url):
         if isTrap(parsed):
             return False
         
+        #case sensitive matches
+        if re.search(r"\.java", parsed):
+            return False
+        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -100,7 +104,7 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|apk|war|img|txt"
-            + r"|shar|h|cpp|c|cp|makefile"
+            + r"|shar|h|cpp|c|cp|makefile|py"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
     except TypeError:
@@ -123,7 +127,7 @@ def isTrap(parsed):
 
     if 'today' in path and bool(re.search('/calendar/.*?/', path)):
         return True
-        
+
     #avoid any directory named pix
     if (re.search('pix', path)):
         return True
