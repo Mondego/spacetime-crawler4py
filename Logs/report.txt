@@ -1,8 +1,53 @@
-Unique pages: 150
-ICS domain number: 6
-futurehealth.ics.uci.edu: {'http://futurehealth.ics.uci.edu/about', 'http://futurehealth.ics.uci.edu/health'}
-tippersweb.ics.uci.edu: {'https://tippersweb.ics.uci.edu/covid19/d/oKgkWMDGk/cs-dashboard-mobile?refresh=30s&orgId=1', 'https://tippersweb.ics.uci.edu/covid19/d/jb22mkvMk/cs-dashboard?refresh=30s&orgId=1'}
-swiki.ics.uci.edu: {'https://swiki.ics.uci.edu/doku.php/hardware:laptops'}
-support.ics.uci.edu: {'https://support.ics.uci.edu/laptops'}
-keys.ics.uci.edu: {'http://keys.ics.uci.edu'}
-intranet.ics.uci.edu: {'https://intranet.ics.uci.edu'}
+Unique pages: 12
+Longest Page: https://www.ics.uci.edu/~emilyo Total Words: 2450
+ICS domain number: 0
+software
+engineering
+research
+process
+student
+b
+informatics
+undergraduate
+students
+graduate
+design
+profiles
+ph
+department
+game
+information
+simse
+computer
+simulation
+educational
+courses
+course
+projects
+ms
+alumni
+support
+books
+degrees
+application
+master
+upcoming
+education
+policies
+groups
+schedule
+spotlights
+people
+emily
+learning
+navarro
+faculty
+interactive
+teaching
+seminar
+series
+science
+project
+interaction
+says
+pdf
