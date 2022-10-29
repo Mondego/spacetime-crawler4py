@@ -51,7 +51,7 @@ def extract_next_links(url, resp):
     addTokens(soup)
 
     domain = urlparse(resp.url).hostname
-    if re.match(r'.*ics.uci.edu$', domain):
+    if re.match(r'.*.ics.uci.edu$', domain):
         subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
 
     longestPage(soup, url)
@@ -99,7 +99,7 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|apk|war|img"
+            + r"|apk|war|img|txt"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
     except TypeError:
@@ -126,6 +126,10 @@ def isTrap(parsed):
     # if re.match(r'\/calendar\/.+ | \/events\/.+', path) or re.match(r'.*?\/(.+?)\/.?\1.* | .*?\/(.+?)\/.?\2.*', path) or re.match(r'.*\..+\/', path):
     #     print('Path is trap:', path)
     #     return True
+
+    #https://support.archive-it.org/hc/en-us/articles/208332963-Modify-your-crawl-scope-with-a-Regular-Expression
+    if re.match(r'^.*?(/.+?/).*?\1.*$|^.*?/(.+?/)\2.*$', path):
+        return True
     return False
 
 
@@ -141,7 +145,7 @@ def isBadDomain(domain):
 def addTokens(soup):
     tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
     # remove empty strings and stopWords
-    tokenList = list(filter(lambda str: str != "" and str not in stopWords, tokenList))
+    tokenList = list(filter(lambda str: len(str) > 1 and str not in stopWords, tokenList))
     for i in range(len(tokenList)):
         token = tokenList[i]
         wordCount[token] = wordCount.get(token, 0) + 1
