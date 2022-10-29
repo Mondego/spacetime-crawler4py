@@ -47,8 +47,11 @@ def extract_next_links(url, resp):
     #update answers
     visitedPages.add(resp.url)
     addTokens(soup)
+
     domain = urlparse(resp.url).hostname
-    subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
+    if re.match(r'.*ics.uci.edu$', domain):
+        subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
+
     longestPage(soup, url)
     #finish updating answers
 
@@ -77,7 +80,7 @@ def is_valid(url):
             return False
 
         #check if the path is a calendar because they are traps
-        if isTrap(parsed.path.lower()):
+        if isTrap(parsed):
             return False
         
         return not re.match(
@@ -95,7 +98,11 @@ def is_valid(url):
         raise
 
 #Helper Functions
-def isTrap(path):
+def isTrap(parsed):
+    if re.match(r'.*swiki.ics.uci.edu', parsed.hostname):
+        return True
+
+    path = parsed.path.lower()
     #check if there is pdf in between
     if '/pdf/' in path:
         return True
