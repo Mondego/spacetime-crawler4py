@@ -98,7 +98,7 @@ def is_valid(url):
         if isTrap(parsed):
             return False
         
-        invalidPattern = r".*\.(css|js|bmp|gif|jpe?g|ico"
+        invalidPattern = re.compile(r".*\.(css|js|bmp|gif|jpe?g|ico"
         + r"|png|tiff?|mid|mp2|mp3|mp4"
         + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
         + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
@@ -107,7 +107,7 @@ def is_valid(url):
         + r"|thmx|mso|arff|rtf|jar|csv"
         + r"|apk|war|img|txt"
         + r"|shar|h|cpp|c|cp|makefile|py"
-        + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$"
+        + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$")
         
         return not re.match(invalidPattern, parsed.path.lower()) and not any(re.match(invalidPattern, x) for x in parsed.query.lower().split('&'))
         
