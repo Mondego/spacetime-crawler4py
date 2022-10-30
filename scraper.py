@@ -7,29 +7,24 @@ from collections import defaultdict
 from utils.download import download 
 from hashlib import blake2b
 
-
-
-
-# Represents num of unique pages
+# [GLOBAL VARIABLES]
+# Num of Unique Pages
 unique_pages = 0
-# A dictionary that tracks total appearances of tokens amongst all scraped web pages
-# Example : "it" : 5 -> means it has occured 5 times so far out of all pages scraped
+# Tracks total appearances of tokens amongst all scraped web pages
+# Example : "it" : 5 -> means "it" has occured 5 times so far out of all pages scraped
 token_dictionary = {}
-# English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
-
+# Set of Stop Words
 stop_words_set = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than"}
 # URL of the page that contains the most amount of tokens
 maxWordsURL = ''
-# Counter of Longest URL
-counter_longest_URL = 0
+# Num of words in maxWordsUrl
 maxWordsCount = 0
-# for keeping track of ics subdomains
+# Set to keep track of ics subdomains
 ics_domains_info = defaultdict(lambda: set())
-# near detection
-subdomain_simhashes= defaultdict(lambda: set()) # {subdomain: set(all simhashes within this subdomain)}
-url_simhash = {}
+# {subdomain: set(all simhashes within this subdomain)}
+subdomain_simhashes= defaultdict(lambda: set()) 
 
-### CHANGE TO TEST FOR INVALID URLS
+# [MAIN FUNCTIONS]
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -49,34 +44,44 @@ def extract_next_links(url, resp):
         # (which returns a non html text)
         text = currURLSoup.get_text()
         tokenize(text, url)
-        hash = getSimHash(tokenize_feature(text))
 
-        # simhash----
-        subdomain = extract_subdomain(url)
-        found = find_similar(hash, subdomain_simhashes[subdomain])
-        if not found:
-            subdomain_simhashes[subdomain].add(hash)
-        
-        if found:
+        # [SIM HASH]
+        # 1. Get the simhash of the text of beautiful soup
+        hash = getSimHash(tokenize_feature(text))
+        # 2. Extract the domain of the current URL
+        domain = extract_domain(url)
+        # 3. Check if there is similarity between the hashed 
+        #    text of the current webpage and any other URLs
+        #    of the same "domain family"
+        #    EG : If current URL is youtube.com/hi, then we check youtube.com/hello, etc.
+        similar = find_similar(hash, subdomain_simhashes[domain])
+        # 4. IF no similarity is found, add the current hashed text
+        #    to the data structure
+        if not similar:
+            subdomain_simhashes[domain].add(hash)
+        # 5. Otherwise, if the two ARE similar, we return 
+        #    since we do not want to parse this url or its children
+        #    since it is low info / too similar to one of the subdomains
+        elif similar:
             return []
 
-        # For every URL found in the current URL's soup
+        # [ADDING VALID URLS TO LIST]
+        # For every link within <a></a>
         for scrapedURL in currURLSoup.find_all('a'):
-                # appends defragmented url
             defragmented = urldefrag(scrapedURL.get('href'))[0]
             validURLs.append(defragmented)
-            # TODO: delete once finish finish testing
+            # todo: delete once finish finish testing
             # else:
             #     record_invalid_urls(scrapedURL.get('href'))
         
-        # if ics domains, then records down info
+        # [ICS DOMAIN HANDLING]
+        # If the url's domain is ics.uci.edu, record it
         ics_domains = 'ics.uci.edu'
         if '.'+ics_domains in url or '/'+ics_domains in url:
             record_ics_domains(url)
         generate_report()
         
-    # reponses that are either in the 600s or 400s
-    # ELSE response != 200
+    # For reponses that are NOT 200
     else:
         if(resp.status >= 600):
             with open('./Logs/Error.log','a') as file:
@@ -86,15 +91,6 @@ def extract_next_links(url, resp):
             #     file.writelines(str(resp.status)+ " " + str(resp.raw_response.content)+ '\n')
             pass
             
-    # Implementation required.
-    # url: the URL that was used to get the page
-    # resp.url: the actual url of the page
-    # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
-    # resp.error: when status is not 200, you can check the error here, if needed.
-    # resp.raw_response: this is where the page actually is. More specifically, the raw_response has two parts:
-    #         resp.raw_response.url: the url, again
-    #         resp.raw_response.content: the content of the page!
-    # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     return validURLs
 
 
@@ -180,7 +176,7 @@ def is_valid(url):
 # [HELPER FUNCTIONS]
 # Function : printFreq
 # Use : Given a dictionary, prints it in sorted order of value
-def printFreq(hashmap) -> None:
+def printFreq(hashmap: dict) -> None:
     sortedHashmap = dict(sorted(hashmap.items(), key= lambda item: item[1],reverse=True))
     counter = 0
     for mapping in sortedHashmap:
@@ -190,15 +186,16 @@ def printFreq(hashmap) -> None:
         counter += 1
     return
 
-
+# Function : Record Invalid URLs
+# Use : Test function that logs any urls that are invalid 
 def record_invalid_urls(url: str) -> None:
     """For Testing Purposes"""
     with open("./Logs/invalid.txt", "a") as file:
         file.writelines("{url}\n".format(url=url))
 
-
+# Function : Record ICS Domains
+# Use : Processes the URL and adds it to ics_domains_info
 def record_ics_domains(url: str) -> None:
-    """Record down information for ics subdomains"""
     global ics_domains_info
     parsed = urlparse(url)
     hostname = parsed.hostname 
@@ -209,7 +206,12 @@ def record_ics_domains(url: str) -> None:
     if hostname != None and hostname != "ics.uci.edu":
         ics_domains_info[hostname].add(url)
     
-
+# Function : Generate Report
+# Use : Creates report.txt which has the following :
+#       1. Unique Pages Found
+#       2. URL with the most amount of words
+#       3. Subdomains found under ICS domain
+#       4. Other statistics
 def generate_report() -> None:
     """Generate the Final Report"""
     global ics_domains_info
@@ -218,8 +220,8 @@ def generate_report() -> None:
         longest_page = "Longest Page: {url} Total Words: {word_count}\n".format\
                      (url=maxWordsURL, word_count=maxWordsCount)
         
-        ics_str = "ICS domain number: {count}\n".format(count = len(ics_domains_info))
-        common_words = common_words_str()
+        ics_str = "Number of Subdomains found under ICS domain: {count}\n".format(count = len(ics_domains_info))
+        common_words = get_most_common_words()
 
         file.writelines(unique_pages_str)
         file.writelines(longest_page)
@@ -229,9 +231,11 @@ def generate_report() -> None:
         for key, value in ics_domains_info.items():
             file.writelines("{key}: {info}\n".format(key=key, info=value))
 
-
-def common_words_str() -> str:
-    """return a string for 50 common words"""
+# Function : Get Most Common Words
+# Use : Used in report generation
+#       gets the 50 most common words of
+#       all parsed pages
+def get_most_common_words() -> str:
     sortedToken = sorted(token_dictionary.items(), key= lambda item: item[1],reverse=True)  
     i = 0;
     string = ""
@@ -241,9 +245,11 @@ def common_words_str() -> str:
 
     return string
 
-
-# added after simhash
-def tokenize_feature(soupText):
+# Function : Tokenize Feature
+# Use : Used in simhashing, returns a dictionary
+#       of a text's tokens and their frequency
+#       [Token:str] -> [Frequency:int]
+def tokenize_feature(soupText: str) -> defaultdict(int):
     # Represents the number of tokens of the current page being tokenized
     token_list = defaultdict(int)
 
@@ -263,8 +269,9 @@ def tokenize_feature(soupText):
             # Edge case, same thing as above, increment count
     return token_list
 
-
-def extract_subdomain(url: str) -> str:
+# Function : Extract Domain
+# Use : Given a url, extracts its domain
+def extract_domain(url: str) -> str:
     """return the subdomain of the url"""
     parsed = urlparse(url)
     hostname = parsed.hostname 
@@ -277,12 +284,17 @@ def extract_subdomain(url: str) -> str:
     else:
         return hostname
     
-
+# Given a counter, returns the string representation of a simhash
 def getSimHash(myCounter):
+    # Hash function
     hashFunction = blake2b
+    # list that is initialized with 512 zeros, each will represent a binary value
     myVector = [0]*512
+    # For [Str] -> [Frequency]
     for mystr, freq in myCounter.items():
+        # Get the hexvalue of the string using the hash function
         hexValue = hashFunction(mystr.encode('utf-8')).hexdigest()
+        # Conver the hex value into binary
         binValue = bin(int(hexValue,16))[2::]
         binValue = "0"*(512-len(binValue))+binValue
         for index, let in enumerate(binValue):
