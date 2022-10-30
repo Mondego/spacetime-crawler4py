@@ -109,7 +109,7 @@ def is_valid(url):
         + r"|shar|h|cpp|c|cp|makefile|py"
         + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$"
         
-        return not re.match(invalidPattern, parsed.path.lower()) and not any(re.match(invalidPattern, x) for x in parsed.query.split('&'))
+        return not re.match(invalidPattern, parsed.path.lower()) and not any(re.match(invalidPattern, x) for x in parsed.query.lower().split('&'))
         
 
     except TypeError:
