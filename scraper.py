@@ -4,7 +4,10 @@ from bs4 import BeautifulSoup
 import sys
 from collections import defaultdict
 from utils.download import download 
+
+# download to use
 from nltk.corpus import stopwords
+from simhash import Simhash
 
 # Represents num of unique pages
 unique_pages = 0
@@ -18,9 +21,12 @@ stop_words_set = set(stopwords.words('english'))
 maxWordsURL = ''
 # Counter of Longest URL
 counter_longest_URL = 0
-# ics.edu.domain info
-ics_domains_info = defaultdict(lambda: set())
 maxWordsCount = 0
+# for keeping track of ics subdomains
+ics_domains_info = defaultdict(lambda: set())
+# near detection
+subdomain_simhashes= defaultdict(lambda: set()) # {subdomain: set(all simhashes within this subdomain)}
+url_simhash = {}
 
 ### CHANGE TO TEST FOR INVALID URLS
 def scraper(url, resp):
@@ -41,8 +47,17 @@ def extract_next_links(url, resp):
 
         # Tokenize the website currURLSoup.get_text 
         # (which returns a string of raw text from html)
-        tokenize(currURLSoup.get_text(), url)
+        text = currURLSoup.get_text()
+        tokenize(text, url)
 
+        # simhash----
+        features = tokenize_feature(text)
+        hash = '%x' % Simhash(features).value
+        subdomain = extract_subdomain(url)
+
+        if not find_similar(hash, subdomain_simhashes[subdomain]):
+            subdomain_simhashes[subdomain].add(hash)
+        
         # For every URL found in the current URL's soup
         for scrapedURL in currURLSoup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
@@ -188,7 +203,6 @@ def record_ics_domains(url: str) -> None:
     if hostname != None and hostname != "ics.uci.edu":
         ics_domains_info[hostname].add(url)
     
-    
 
 def generate_report() -> None:
     """Generate the Final Report"""
@@ -220,3 +234,45 @@ def common_words_str() -> str:
         i += 1
 
     return string
+
+
+# added after simhash
+def tokenize_feature(soupText):
+    # Represents the number of tokens of the current page being tokenized
+    token_list = []
+
+    # Looping Start : 
+    for word in soupText.split():
+        correct = ''
+        for letter in word.lower():
+            if (letter.isalnum() and letter.isascii()) or letter == "'":
+                correct = ''.join([correct,letter])
+            else:
+                if(correct != '' and correct not in stop_words_set):
+                    # If we have detected a token, increment count
+                    token_list.append(correct)
+                    correct = ''
+        if correct != '' and correct not in stop_words_set:
+            token_list.append(correct)
+            # Edge case, same thing as above, increment count
+    return token_list
+
+
+def extract_subdomain(url: str) -> str:
+    """return the subdomain of the url"""
+    parsed = urlparse(url)
+    hostname = parsed.hostname 
+    
+    if hostname != None and len(hostname) >= 3 and hostname[0:4] == "www.":
+        hostname = hostname[4::]
+    
+    if hostname is None:
+        return ""
+    else:
+        return hostname
+    
+
+def find_similar(hash1, hash_set) -> bool:
+    for hash in hash_set:
+        continue
+    return False
