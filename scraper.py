@@ -26,6 +26,7 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    global visitedPages
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -51,7 +52,7 @@ def extract_next_links(url, resp):
     addTokens(soup)
 
     domain = urlparse(resp.url).hostname
-    if re.match(r'.*.ics.uci.edu$', domain):
+    if re.match(r'.*\.ics.uci.edu$', domain):
         subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
 
     longestPage(soup, url)
@@ -115,7 +116,8 @@ def is_valid(url):
 
 #Helper Functions
 def isTrap(parsed):
-    if re.match(r'.*swiki.ics.uci.edu', parsed.hostname):
+    query = parsed.query
+    if any(x in query for x in ["zip", "pdf", "csv"]): #may need to add more
         return True
 
     path = parsed.path.lower()
