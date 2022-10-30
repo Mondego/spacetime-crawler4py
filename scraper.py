@@ -93,7 +93,6 @@ def is_valid(url):
         if url in visitedPages:
             return False
 
-        visitedPages.add(url)
         #check if the path is a calendar because they are traps
         if isTrap(parsed):
             return False
