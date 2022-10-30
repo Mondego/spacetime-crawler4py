@@ -3,6 +3,11 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import sys
 from collections import defaultdict
+from utils.download import download 
+
+# download to use
+from nltk.corpus import stopwords
+from simhash import Simhash
 
 # Represents num of unique pages
 unique_pages = 0
@@ -10,14 +15,18 @@ unique_pages = 0
 # Example : "it" : 5 -> means it has occured 5 times so far out of all pages scraped
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
-stop_words_set = set()
+
+stop_words_set = set(stopwords.words('english'))
 # URL of the page that contains the most amount of tokens
 maxWordsURL = ''
 # Counter of Longest URL
 counter_longest_URL = 0
-# ics.edu.domain info
-ics_domains_info = defaultdict(lambda: set())
 maxWordsCount = 0
+# for keeping track of ics subdomains
+ics_domains_info = defaultdict(lambda: set())
+# near detection
+subdomain_simhashes= defaultdict(lambda: set()) # {subdomain: set(all simhashes within this subdomain)}
+url_simhash = {}
 
 ### CHANGE TO TEST FOR INVALID URLS
 def scraper(url, resp):
@@ -32,19 +41,28 @@ def extract_next_links(url, resp):
         global unique_pages
         unique_pages += 1
 
+    
         # Beautiful Soup
         currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
 
         # Tokenize the website currURLSoup.get_text 
         # (which returns a string of raw text from html)
-        tokenize(currURLSoup.get_text(), url)
+        text = currURLSoup.get_text()
+        tokenize(text, url)
 
+        # simhash----
+        features = tokenize_feature(text)
+        hash = '%x' % Simhash(features).value
+        subdomain = extract_subdomain(url)
+
+        if not find_similar(hash, subdomain_simhashes[subdomain]):
+            subdomain_simhashes[subdomain].add(hash)
+        
         # For every URL found in the current URL's soup
         for scrapedURL in currURLSoup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
                 #appends defragmented url
                 validURLs.append(scrapedURL.get('href').split('#')[0])
-            
             # TODO: delete once finish finish testing
             else:
                 record_invalid_urls(scrapedURL.get('href'))
@@ -53,7 +71,7 @@ def extract_next_links(url, resp):
         ics_domains = 'ics.uci.edu'
         if '.'+ics_domains in url or '/'+ics_domains in url:
             record_ics_domains(url)
-            
+        generate_report()
         
     # reponses that are either in the 600s or 400s
     # ELSE response != 200
@@ -78,38 +96,6 @@ def extract_next_links(url, resp):
     return validURLs
 
 
-def record_invalid_urls(url: str) -> None:
-    with open("./Logs/invalid.txt", "a") as file:
-        file.writelines("{url}\n".format(url=url))
-
-
-def record_ics_domains(url: str) -> None:
-    global ics_domains_info
-    parsed = urlparse(url)
-    hostname = parsed.hostname 
-    
-    if hostname != None and len(hostname) >= 3 and hostname[0:4] == "www.":
-        hostname = hostname[4::]
-
-    if hostname != None and hostname != "ics.uci.edu":
-        ics_domains_info[hostname].add(url)
-    
-    generate_report()
-    
-
-def generate_report() -> None:
-    global ics_domains_info
-    with open('./Logs/report.txt', 'w') as file:
-        unique_pages_str = "Unique pages: {count}\n".format(count=unique_pages)
-        ics_str = "ICS domain number: {count}\n".format(count = len(ics_domains_info))
-        
-        file.writelines(unique_pages_str)
-        file.writelines(ics_str)
-
-        for key, value in ics_domains_info.items():
-            file.writelines("{key}: {info}\n".format(key=key, info=value))
-
-
 # Function : Tokenize
 # Use : Given a string of raw text from HTML file, 
 #       tokenizes it and adds it to token_dictionary
@@ -123,7 +109,7 @@ def tokenize(soupText, url):
             if (letter.isalnum() and letter.isascii()) or letter == "'":
                 correct = ''.join([correct,letter])
             else:
-                if(correct != ''):
+                if(correct != '' and correct not in stop_words_set):
                     if correct in token_dictionary:
                         token_dictionary[correct] += 1
                     else:
@@ -131,7 +117,7 @@ def tokenize(soupText, url):
                     # If we have detected a token, increment count
                     currTokenCount += 1
                     correct = ''
-        if correct != '':
+        if correct != '' and correct not in stop_words_set:
             if correct in token_dictionary:
                 token_dictionary[correct] += 1
             else:
@@ -151,17 +137,16 @@ def tokenize(soupText, url):
 def is_valid(url): 
     # Pre initialized variables
     acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
-    
+    parsed = urlparse(url)
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
-        parsed = urlparse(url)
         # Check if host exists
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
         # Check if url is PDF
-        if 'pdf' in parsed.path:
+        if 'pdf' in parsed.path or '/wp-content/' in parsed.path:
             return False
         # check if hostname is in allowed domains
         for validDomain in acceptedDomains:
@@ -198,3 +183,96 @@ def printFreq(hashmap) -> None:
         print(mapping, "->", sortedHashmap[mapping]) 
         counter += 1
     return
+
+
+def record_invalid_urls(url: str) -> None:
+    """For Testing Purposes"""
+    with open("./Logs/invalid.txt", "a") as file:
+        file.writelines("{url}\n".format(url=url))
+
+
+def record_ics_domains(url: str) -> None:
+    """Record down information for ics subdomains"""
+    global ics_domains_info
+    parsed = urlparse(url)
+    hostname = parsed.hostname 
+    
+    if hostname != None and len(hostname) >= 3 and hostname[0:4] == "www.":
+        hostname = hostname[4::]
+
+    if hostname != None and hostname != "ics.uci.edu":
+        ics_domains_info[hostname].add(url)
+    
+
+def generate_report() -> None:
+    """Generate the Final Report"""
+    global ics_domains_info
+    with open('./Logs/report.txt', 'w') as file:
+        unique_pages_str = "Unique pages: {count}\n".format(count=unique_pages)
+        longest_page = "Longest Page: {url} Total Words: {word_count}\n".format\
+                     (url=maxWordsURL, word_count=maxWordsCount)
+        
+        ics_str = "ICS domain number: {count}\n".format(count = len(ics_domains_info))
+        common_words = common_words_str()
+
+        file.writelines(unique_pages_str)
+        file.writelines(longest_page)
+        file.writelines(ics_str)
+        file.writelines(common_words)
+
+        for key, value in ics_domains_info.items():
+            file.writelines("{key}: {info}\n".format(key=key, info=value))
+
+
+def common_words_str() -> str:
+    """return a string for 50 common words"""
+    sortedToken = sorted(token_dictionary.items(), key= lambda item: item[1],reverse=True)  
+    i = 0;
+    string = ""
+    while i < len(sortedToken) and i < 50:
+        string += str(sortedToken[i][0]) + '\n'
+        i += 1
+
+    return string
+
+
+# added after simhash
+def tokenize_feature(soupText):
+    # Represents the number of tokens of the current page being tokenized
+    token_list = []
+
+    # Looping Start : 
+    for word in soupText.split():
+        correct = ''
+        for letter in word.lower():
+            if (letter.isalnum() and letter.isascii()) or letter == "'":
+                correct = ''.join([correct,letter])
+            else:
+                if(correct != '' and correct not in stop_words_set):
+                    # If we have detected a token, increment count
+                    token_list.append(correct)
+                    correct = ''
+        if correct != '' and correct not in stop_words_set:
+            token_list.append(correct)
+            # Edge case, same thing as above, increment count
+    return token_list
+
+
+def extract_subdomain(url: str) -> str:
+    """return the subdomain of the url"""
+    parsed = urlparse(url)
+    hostname = parsed.hostname 
+    
+    if hostname != None and len(hostname) >= 3 and hostname[0:4] == "www.":
+        hostname = hostname[4::]
+    
+    if hostname is None:
+        return ""
+    else:
+        return hostname
+    
+
+def find_similar(hash1, hash_set) -> bool:
+    for hash in hash_set:
+        continue
+    return False
