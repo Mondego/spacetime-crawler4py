@@ -41,9 +41,7 @@ def extract_next_links(url, resp):
         # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
-        
 
-    
         # Beautiful Soup
         currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
 
@@ -54,7 +52,6 @@ def extract_next_links(url, resp):
         hash = getSimHash(tokenize_feature(text))
 
         # simhash----
-        
         subdomain = extract_subdomain(url)
         found = find_similar(hash, subdomain_simhashes[subdomain])
         if not found:
@@ -63,14 +60,11 @@ def extract_next_links(url, resp):
         if found:
             return []
 
-
-
         # For every URL found in the current URL's soup
         for scrapedURL in currURLSoup.find_all('a'):
-            if(is_valid(scrapedURL.get('href'))):
                 # appends defragmented url
-                defragmented = urldefrag(scrapedURL.get('href'))[0]
-                validURLs.append(defragmented)
+            defragmented = urldefrag(scrapedURL.get('href'))[0]
+            validURLs.append(defragmented)
             # TODO: delete once finish finish testing
             # else:
             #     record_invalid_urls(scrapedURL.get('href'))
