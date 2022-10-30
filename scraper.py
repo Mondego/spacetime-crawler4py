@@ -1,4 +1,6 @@
 import re
+import shelve
+import os
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag, urlunparse
 
@@ -19,6 +21,7 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
 
 disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu"]
+shelveName = 'ans.shelve'
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -26,6 +29,8 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    if not is_valid(url):   #this is useful if the frontier was corrupted
+        return list()       #with invalid urls
     global visitedPages
     # Implementation required.
     # url: the URL that was used to get the page
@@ -48,6 +53,7 @@ def extract_next_links(url, resp):
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
     #update answers
+    loadGlobals(shelveName)
     visitedPages.add(resp.url)
     addTokens(soup)
 
@@ -93,10 +99,15 @@ def is_valid(url):
         #check if the path is a calendar because they are traps
         if isTrap(parsed):
             return False
+
+        #avoid any directory named pix in path
+        if (re.search('pix', parsed.path)):
+            return False
         
         invalidPattern = re.compile(r".*\.(css|js|bmp|gif|jpe?g|ico"
         + r"|png|tiff?|mid|mp2|mp3|mp4"
         + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+        + r"|mpg"
         + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
         + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
         + r"|epub|dll|cnf|tgz|sha1"
@@ -177,5 +188,24 @@ def dumpAnswers():
         for k,v in sorted(subDomainCount.items(), key=lambda x: x[0]):
             file.write(f"{k} : {v}\n")
 
+        d = shelve.open(shelveName)
+        d['longestPages'] = longestPages
+        d['wordCount'] = wordCount
+        d['subDomainCount'] = subDomainCount
+        d['visitedPages'] = visitedPages
+        d.close()
+
     except Exception as e:
         print(f"Error writing output: {e}\n")
+
+def loadGlobals(name):
+    if os.path.exists(name):
+        global longestPages, wordCount, subDomainCount, visitedPages
+        try:
+            d = shelve.open(name)
+            longestPages = d['longestPages']
+            wordCount = d['wordCount']
+            subDomainCount =  d['subDomainCount']
+            visitedPages = d['visitedPages']
+        finally:
+            d.close()
