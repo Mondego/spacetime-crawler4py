@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse
+from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
 import sys
 from collections import defaultdict
@@ -16,7 +17,7 @@ unique_pages = 0
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 
-stop_words_set = {"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than"}
+stop_words_set = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than"}
 # URL of the page that contains the most amount of tokens
 maxWordsURL = ''
 # Counter of Longest URL
@@ -67,11 +68,12 @@ def extract_next_links(url, resp):
         # For every URL found in the current URL's soup
         for scrapedURL in currURLSoup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
-                #appends defragmented url
-                validURLs.append(scrapedURL.get('href').split('#')[0])
+                # appends defragmented url
+                defragmented = urldefrag(scrapedURL.get('href'))[0]
+                validURLs.append(defragmented)
             # TODO: delete once finish finish testing
-            else:
-                record_invalid_urls(scrapedURL.get('href'))
+            # else:
+            #     record_invalid_urls(scrapedURL.get('href'))
         
         # if ics domains, then records down info
         ics_domains = 'ics.uci.edu'
@@ -143,6 +145,7 @@ def tokenize(soupText, url):
 def is_valid(url): 
     # Pre initialized variables
     acceptedDomains = ['ics.uci.edu','cs.uci.edu','informatics.uci.edu','stat.uci.edu']
+    invalidFiles = ['.tex','.zip','.pdf','.csv','.ps','.gz','.ppt','.m','mat']
     parsed = urlparse(url)
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
@@ -152,9 +155,12 @@ def is_valid(url):
         if parsed.hostname == None or len(parsed.hostname)==0:
             return False
         # Check if url is PDF
-        if 'pdf' in parsed.path or '/wp-content/' in parsed.path:
+        if 'pdf' in parsed.path or '/wp-content/' in parsed.path or "~cs224" in parsed.path:
             return False
         # check if hostname is in allowed domains
+        for invalidQuery in invalidFiles:
+            if invalidQuery in parsed.query:
+                return False
         for validDomain in acceptedDomains:
             if '.'+validDomain in parsed.hostname or '/'+validDomain in parsed.hostname:
                 break
@@ -165,7 +171,7 @@ def is_valid(url):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico|html|sql|ppsx"
-            + r"|png|tiff?|mid|mp2|mp3|mp4|bib"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|bib|nb|r|m|c"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
