@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 import sys
 from collections import defaultdict
 from utils.download import download 
+from hashlib import blake2b
 
-# download to use
-from nltk.corpus import stopwords
-from simhash import Simhash
+
+
 
 # Represents num of unique pages
 unique_pages = 0
@@ -16,7 +16,7 @@ unique_pages = 0
 token_dictionary = {}
 # English stop words (NOT IMPLEMENTED YET, WAITING FOR EDSTEM THREAD ABOUT NTLK)
 
-stop_words_set = set(stopwords.words('english'))
+stop_words_set = {"ourselves", "hers", "between", "yourself", "but", "again", "there", "about", "once", "during", "out", "very", "having", "with", "they", "own", "an", "be", "some", "for", "do", "its", "yours", "such", "into", "of", "most", "itself", "other", "off", "is", "s", "am", "or", "who", "as", "from", "him", "each", "the", "themselves", "until", "below", "are", "we", "these", "your", "his", "through", "don", "nor", "me", "were", "her", "more", "himself", "this", "down", "should", "our", "their", "while", "above", "both", "up", "to", "ours", "had", "she", "all", "no", "when", "at", "any", "before", "them", "same", "and", "been", "have", "in", "will", "on", "does", "yourselves", "then", "that", "because", "what", "over", "why", "so", "can", "did", "not", "now", "under", "he", "you", "herself", "has", "just", "where", "too", "only", "myself", "which", "those", "i", "after", "few", "whom", "t", "being", "if", "theirs", "my", "against", "a", "by", "doing", "it", "how", "further", "was", "here", "than"}
 # URL of the page that contains the most amount of tokens
 maxWordsURL = ''
 # Counter of Longest URL
@@ -40,24 +40,30 @@ def extract_next_links(url, resp):
         # Access unique_pages & update it
         global unique_pages
         unique_pages += 1
+        
 
     
         # Beautiful Soup
         currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
 
         # Tokenize the website currURLSoup.get_text 
-        # (which returns a string of raw text from html)
+        # (which returns a non html text)
         text = currURLSoup.get_text()
         tokenize(text, url)
+        hash = getSimHash(tokenize_feature(text))
 
         # simhash----
-        features = tokenize_feature(text)
-        hash = '%x' % Simhash(features).value
+        
         subdomain = extract_subdomain(url)
-
-        if not find_similar(hash, subdomain_simhashes[subdomain]):
+        found = find_similar(hash, subdomain_simhashes[subdomain])
+        if not found:
             subdomain_simhashes[subdomain].add(hash)
         
+        if found:
+            return []
+
+
+
         # For every URL found in the current URL's soup
         for scrapedURL in currURLSoup.find_all('a'):
             if(is_valid(scrapedURL.get('href'))):
@@ -159,7 +165,7 @@ def is_valid(url):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico|html|sql|ppsx"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|bib"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
@@ -239,7 +245,7 @@ def common_words_str() -> str:
 # added after simhash
 def tokenize_feature(soupText):
     # Represents the number of tokens of the current page being tokenized
-    token_list = []
+    token_list = defaultdict(int)
 
     # Looping Start : 
     for word in soupText.split():
@@ -250,10 +256,10 @@ def tokenize_feature(soupText):
             else:
                 if(correct != '' and correct not in stop_words_set):
                     # If we have detected a token, increment count
-                    token_list.append(correct)
+                    token_list[correct] += 1
                     correct = ''
         if correct != '' and correct not in stop_words_set:
-            token_list.append(correct)
+            token_list[correct] += 1
             # Edge case, same thing as above, increment count
     return token_list
 
@@ -272,7 +278,29 @@ def extract_subdomain(url: str) -> str:
         return hostname
     
 
-def find_similar(hash1, hash_set) -> bool:
-    for hash in hash_set:
-        continue
+def getSimHash(myCounter):
+    hashFunction = blake2b
+    myVector = [0]*512
+    for mystr, freq in myCounter.items():
+        hexValue = hashFunction(mystr.encode('utf-8')).hexdigest()
+        binValue = bin(int(hexValue,16))[2::]
+        binValue = "0"*(512-len(binValue))+binValue
+        for index, let in enumerate(binValue):
+            mult = 1 if int(let) == 1 else -1 
+            myVector[index] += mult*freq
+    return ''.join(['0' if x<= 0 else '1' for x in myVector])
+    
+
+def similar(arr1,arr2) -> bool:
+    total = 0
+    for a,b in zip(arr1,arr2):
+        if a == b:
+            total += 1
+    return (total/512) >= .75
+
+
+def find_similar(myHash,mySet):
+    for aHash in mySet:
+        if similar(aHash,myHash):
+            return True
     return False
