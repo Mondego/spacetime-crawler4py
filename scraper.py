@@ -52,7 +52,7 @@ def extract_next_links(url, resp):
     addTokens(soup)
 
     domain = urlparse(resp.url).hostname
-    if re.match(r'.*\.ics.uci.edu$', domain):
+    if re.match(r'.*\.ics\.uci\.edu$', domain):
         subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
 
     longestPage(soup, url)
@@ -78,9 +78,6 @@ def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
-
-    global visitedPages
-
     try:
         # https://docs.python.org/3/library/urllib.parse.html
         # scheme://netloc/path;parameters?query#fragment
@@ -110,17 +107,12 @@ def is_valid(url):
         
         return not re.match(invalidPattern, parsed.path.lower()) and not any(re.match(invalidPattern, x) for x in parsed.query.lower().split('&'))
         
-
     except TypeError:
         print ("TypeError for ", parsed)
         raise
 
 #Helper Functions
 def isTrap(parsed):
-    query = parsed.query
-    if any(x in query for x in ["zip", "pdf", "csv"]): #may need to add more
-        return True
-
     path = parsed.path.lower()
     #check if there is pdf in between
     if any(x in path for x in ['?replytocom=', '/pdf/', "#comment-", "events"]):
