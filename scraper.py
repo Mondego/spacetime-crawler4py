@@ -22,7 +22,7 @@ stopWords = {"a", "about", "above", "after", "again", "against", "all", "am", "a
 
 domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu" ,"stat.uci.edu"]
 
-disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu"]
+disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu", "cbcl.ics.uci.edu"]
 shelveName = 'ans.shelve'
 
 def scraper(url, resp):
@@ -91,7 +91,11 @@ def is_valid(url):
             return False
         if parsed.scheme not in set(["http", "https"]):
             return False
-
+        
+        #temp for debugging
+        if parsed.hostname in disallowQueriesDomains and parsed.query != '':
+            return False
+        #end temp for debugging
         if url in visitedPages:
             return False
 
