@@ -227,11 +227,11 @@ def generate_report() -> None:
 
         file.writelines(unique_pages_str)
         file.writelines(longest_page)
-        file.writelines(ics_str)
         file.writelines(common_words)
+        file.writelines(ics_str)
 
-        for key, value in ics_domains_info.items():
-            file.writelines("{key}: {info}\n".format(key=key, info=value))
+        for key, value in sorted(ics_domains_info.items(), key=lambda item : item[0]):
+            file.writelines("{key}: {info}\n".format(key=key, info=len(value)))
 
 # Function : Get Most Common Words
 # Use : Used in report generation
@@ -240,12 +240,12 @@ def generate_report() -> None:
 def get_most_common_words() -> str:
     sortedToken = sorted(token_dictionary.items(), key= lambda item: item[1],reverse=True)  
     i = 0
-    string = ""
+    string = "------------\n50 Most Common Words\n"
     while i < len(sortedToken) and i < 50:
-        string += str(sortedToken[i][0]) + '\n'
+        string += str(sortedToken[i][0]) + ": " + str(sortedToken[i][1]) + '\n'
         i += 1
 
-    return string
+    return string + "------------\n"
 
 # Function : Tokenize Feature
 # Use : Used in simhashing, returns a dictionary
