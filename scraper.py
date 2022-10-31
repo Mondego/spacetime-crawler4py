@@ -35,10 +35,6 @@ def extract_next_links(url, resp):
         validURLs = [] 
         # if repsonse is 200, we crawl the website
         if(resp.status == 200):
-            
-            # Access unique_pages & update it
-            global unique_pages
-            unique_pages += 1
 
             # Beautiful Soup
             currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
@@ -70,11 +66,24 @@ def extract_next_links(url, resp):
             #    since it is low info / too similar to one of the subdomains
             elif similar:
                 return []
-
+            
+            # Access unique_pages & update it
+            global unique_pages
+            unique_pages += 1
             # [ADDING VALID URLS TO LIST]
             # For every link within <a></a>
             for scrapedURL in currURLSoup.find_all('a'):
                 defragmented = urldefrag(scrapedURL.get('href'))[0]
+                
+                # Check if scrapedURL is relative path
+                if not ('://' in defragmented or '//' in defragmented):
+                    parsed = urlparse(url)
+                    if parsed.hostname != None:
+                        defragmented = parsed.scheme + "://" + parsed.hostname + defragmented
+                    else:
+                        defragmented = ""
+                
+                
                 validURLs.append(defragmented)
                 # todo: delete once finish finish testing
                 # else:
