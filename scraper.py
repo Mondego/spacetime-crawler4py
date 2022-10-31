@@ -2,6 +2,7 @@ from logging import LoggerAdapter
 import re
 import shelve
 import os
+import sys
 from utils import get_logger
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag, urlunparse
@@ -192,13 +193,15 @@ def dumpAnswers():
         file.write("\nQ4: List of subdomain and page per subdomain\n")
         for k,v in sorted(subDomainCount.items(), key=lambda x: x[0]):
             file.write(f"{k} : {v}\n")
-
+        # JANK AF FIX
+        # https://stackoverflow.com/questions/71617038/python-shelf-file-grows-when-trying-to-overwrite-data    
+        
         d = shelve.open(shelveName)
+        print("List of keys", list(d.keys()))
         d['longestPages'] = longestPages
         d['wordCount'] = wordCount
         d['subDomainCount'] = subDomainCount
         d['visitedPages'] = visitedPages
-        
         logger.info(f"Saving answers shelve with visited pages of length {len(visitedPages)}")
         d.close()
 
@@ -216,7 +219,9 @@ def loadGlobals(name):
             wordCount = d['wordCount']
             subDomainCount =  d['subDomainCount']
             visitedPages = d['visitedPages']
+            os.remove(name)
             logger.info(f"Shelve file found, visited Page len = {len(visitedPages)}") 
+            logger.info(f"Size of 4 objects: \nLongestPages:{sys.getsizeof(longestPages)}\nWordCount:{sys.getsizeof(wordCount)}\nSubDomainCount:{sys.getsizeof(subDomainCount)}\nvisitedPages:{sys.getsizeof(visitedPages)} ")
         finally:
             d.close()
     else:
