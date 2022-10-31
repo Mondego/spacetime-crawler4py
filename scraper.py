@@ -151,7 +151,7 @@ def isBadDomain(domain):
     if domain is None:
         return True
     for d in domains:
-        if re.match(r'.*'+d+'$', domain):
+        if re.match(r'.*\.'+d+'$', domain):
             return False
     return True
 
