@@ -74,7 +74,8 @@ def extract_next_links(url, resp):
             # For every link within <a></a>
             for scrapedURL in currURLSoup.find_all('a'):
                 defragmented = urldefrag(scrapedURL.get('href'))[0]
-                
+                if scrapedURL.get('href') is None:
+                    continue
                 # Check if scrapedURL is relative path
                 if not ('://' in defragmented or '//' in defragmented):
                     parsed = urlparse(url)
@@ -82,7 +83,6 @@ def extract_next_links(url, resp):
                         defragmented = parsed.scheme + "://" + parsed.hostname + defragmented
                     else:
                         defragmented = ""
-                
                 
                 validURLs.append(defragmented)
                 # todo: delete once finish finish testing
@@ -323,7 +323,7 @@ def similar(arr1,arr2) -> bool:
     for a,b in zip(arr1,arr2):
         if a == b:
             total += 1
-    return (total/512) >= .90
+    return (total/512) >= .8
 
 # Traverses subdomain set to determine if a duplicate exists
 def find_similar(myHash,mySet):
