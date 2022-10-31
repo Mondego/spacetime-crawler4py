@@ -4,9 +4,8 @@ from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
 import sys
 from collections import defaultdict
-from utils.download import download 
 from hashlib import blake2b
-
+from threading import Lock
 # [GLOBAL VARIABLES]
 # Num of Unique Pages
 unique_pages = 0
@@ -23,6 +22,8 @@ maxWordsCount = 0
 ics_domains_info = defaultdict(lambda: set())
 # {subdomain: set(all simhashes within this subdomain)}
 subdomain_simhashes= defaultdict(lambda: set()) 
+myLock = Lock()
+
 
 # [MAIN FUNCTIONS]
 def scraper(url, resp):
@@ -30,68 +31,69 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    validURLs = [] 
-    # if repsonse is 200, we crawl the website
-    if(resp.status == 200):
-        # Access unique_pages & update it
-        global unique_pages
-        unique_pages += 1
+    with myLock:
+        validURLs = [] 
+        # if repsonse is 200, we crawl the website
+        if(resp.status == 200):
+            # Access unique_pages & update it
+            global unique_pages
+            unique_pages += 1
 
-        # Beautiful Soup
-        currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
+            # Beautiful Soup
+            currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
 
-        # Tokenize the website currURLSoup.get_text 
-        # (which returns a non html text)
-        text = currURLSoup.get_text()
-        tokenize(text, url)
+            # Tokenize the website currURLSoup.get_text 
+            # (which returns a non html text)
+            text = currURLSoup.get_text()
+            tokenize(text, url)
 
-        # [SIM HASH]
-        # 1. Get the simhash of the text of beautiful soup
-        hash = getSimHash(tokenize_feature(text))
-        # 2. Extract the domain of the current URL
-        domain = extract_domain(url)
-        # 3. Check if there is similarity between the hashed 
-        #    text of the current webpage and any other URLs
-        #    of the same "domain family"
-        #    EG : If current URL is youtube.com/hi, then we check youtube.com/hello, etc.
-        similar = find_similar(hash, subdomain_simhashes[domain])
-        # 4. IF no similarity is found, add the current hashed text
-        #    to the data structure
-        if not similar:
-            subdomain_simhashes[domain].add(hash)
-        # 5. Otherwise, if the two ARE similar, we return 
-        #    since we do not want to parse this url or its children
-        #    since it is low info / too similar to one of the subdomains
-        elif similar:
-            return []
+            # [SIM HASH]
+            # 1. Get the simhash of the text of beautiful soup
+            hash = getSimHash(tokenize_feature(text))
+            # 2. Extract the domain of the current URL
+            domain = extract_domain(url)
+            # 3. Check if there is similarity between the hashed 
+            #    text of the current webpage and any other URLs
+            #    of the same "domain family"
+            #    EG : If current URL is youtube.com/hi, then we check youtube.com/hello, etc.
+            similar = find_similar(hash, subdomain_simhashes[domain])
+            # 4. IF no similarity is found, add the current hashed text
+            #    to the data structure
+            if not similar:
+                subdomain_simhashes[domain].add(hash)
+            # 5. Otherwise, if the two ARE similar, we return 
+            #    since we do not want to parse this url or its children
+            #    since it is low info / too similar to one of the subdomains
+            elif similar:
+                return []
 
-        # [ADDING VALID URLS TO LIST]
-        # For every link within <a></a>
-        for scrapedURL in currURLSoup.find_all('a'):
-            defragmented = urldefrag(scrapedURL.get('href'))[0]
-            validURLs.append(defragmented)
-            # todo: delete once finish finish testing
-            # else:
-            #     record_invalid_urls(scrapedURL.get('href'))
-        
-        # [ICS DOMAIN HANDLING]
-        # If the url's domain is ics.uci.edu, record it
-        ics_domains = 'ics.uci.edu'
-        if '.'+ics_domains in url or '/'+ics_domains in url:
-            record_ics_domains(url)
-        generate_report()
-        
-    # For reponses that are NOT 200
-    else:
-        if(resp.status >= 600):
-            with open('./Logs/Error.log','a') as file:
-                file.writelines(str(resp.status)+ " " + resp.error + '\n')
-        else:
-            # with open('./Logs/Error.log','a') as file:
-            #     file.writelines(str(resp.status)+ " " + str(resp.raw_response.content)+ '\n')
-            pass
+            # [ADDING VALID URLS TO LIST]
+            # For every link within <a></a>
+            for scrapedURL in currURLSoup.find_all('a'):
+                defragmented = urldefrag(scrapedURL.get('href'))[0]
+                validURLs.append(defragmented)
+                # todo: delete once finish finish testing
+                # else:
+                #     record_invalid_urls(scrapedURL.get('href'))
             
-    return validURLs
+            # [ICS DOMAIN HANDLING]
+            # If the url's domain is ics.uci.edu, record it
+            ics_domains = 'ics.uci.edu'
+            if '.'+ics_domains in url or '/'+ics_domains in url:
+                record_ics_domains(url)
+            generate_report()
+            
+        # For reponses that are NOT 200
+        else:
+            if(resp.status >= 600):
+                with open('./Logs/Error.log','a') as file:
+                    file.writelines(str(resp.status)+ " " + resp.error + '\n')
+            else:
+                # with open('./Logs/Error.log','a') as file:
+                #     file.writelines(str(resp.status)+ " " + str(resp.raw_response.content)+ '\n')
+                pass
+                
+        return validURLs
 
 
 # Function : Tokenize
@@ -237,7 +239,7 @@ def generate_report() -> None:
 #       all parsed pages
 def get_most_common_words() -> str:
     sortedToken = sorted(token_dictionary.items(), key= lambda item: item[1],reverse=True)  
-    i = 0;
+    i = 0
     string = ""
     while i < len(sortedToken) and i < 50:
         string += str(sortedToken[i][0]) + '\n'

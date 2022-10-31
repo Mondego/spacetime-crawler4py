@@ -15,7 +15,10 @@ class Worker(Thread):
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests from scraper.py"
         super().__init__(daemon=True)
-        
+    
+
+    
+
     def run(self):
         while True:
             tbd_url = self.frontier.get_tbd_url()
@@ -24,6 +27,8 @@ class Worker(Thread):
                 scraper.generate_report()
                 break
             resp = download(tbd_url, self.config, self.logger)
+
+
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
