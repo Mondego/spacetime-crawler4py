@@ -8,17 +8,19 @@ def get_logger(name, filename=None):
     logger.setLevel(logging.INFO)
     if not os.path.exists("Logs"):
         os.makedirs("Logs")
-    fh = logging.FileHandler(f"Logs/{filename if filename else name}.log")
-    fh.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-       "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    logger.addHandler(ch)
+    # thread safety
+    if not logger.hasHandlers():
+        fh = logging.FileHandler(f"Logs/{filename if filename else name}.log")
+        fh.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        # add the handlers to the logger
+        logger.addHandler(fh)
+        logger.addHandler(ch)
     return logger
 
 
