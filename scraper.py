@@ -35,16 +35,20 @@ def extract_next_links(url, resp):
         validURLs = [] 
         # if repsonse is 200, we crawl the website
         if(resp.status == 200):
+            
             # Access unique_pages & update it
             global unique_pages
             unique_pages += 1
 
             # Beautiful Soup
             currURLSoup = BeautifulSoup(resp.raw_response.content, 'lxml') 
-
+            
             # Tokenize the website currURLSoup.get_text 
             # (which returns a non html text)
             text = currURLSoup.get_text()
+            # If textual information on website is below 500 words, avoid and do not crawl
+            if len(text) <= 500: return []
+            
             tokenize(text, url)
 
             # [SIM HASH]
@@ -304,15 +308,15 @@ def getSimHash(myCounter):
             myVector[index] += mult*freq
     return ''.join(['0' if x<= 0 else '1' for x in myVector])
     
-
+# Compares hashes to determine similarity
 def similar(arr1,arr2) -> bool:
     total = 0
     for a,b in zip(arr1,arr2):
         if a == b:
             total += 1
-    return (total/512) >= .75
+    return (total/512) >= .90
 
-
+# Traverses subdomain set to determine if a duplicate exists
 def find_similar(myHash,mySet):
     for aHash in mySet:
         if similar(aHash,myHash):
