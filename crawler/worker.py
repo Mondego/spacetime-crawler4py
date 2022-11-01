@@ -4,7 +4,6 @@ from inspect import getsource
 from utils.download import download
 from utils import get_logger
 import scraper
-import time
 
 
 class Worker(Thread):
@@ -30,4 +29,4 @@ class Worker(Thread):
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
-            time.sleep(self.config.time_delay)
+            #time.sleep(self.config.time_delay)

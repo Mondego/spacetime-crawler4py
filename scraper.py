@@ -1,11 +1,13 @@
-from logging import LoggerAdapter
+from cgitb import html
 import re
 import shelve
 import os
 import sys
-from utils import get_logger
+
+from utils import get_logger, get_urlhash
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin, urldefrag, urlunparse
+from threading import RLock
 
 #q1 - unique pages
 visitedPages = set()
@@ -25,6 +27,12 @@ domains = ["ics\.uci\.edu", "cs\.uci\.edu", "informatics\.uci\.edu" ,"stat\.uci\
 
 disallowQueriesDomains = ["swiki.ics.uci.edu", "wiki.ics.uci.edu", "archive.ics.uci.edu", "cbcl.ics.uci.edu"]
 shelveName = 'ans.shelve'
+sn1 = 'visitedPages.shelve'
+sn2 = 'longestPages.shelve'
+sn3 = 'wordCount.shelve'
+sn4 = 'subDomainCount.shelve'
+answerLock = RLock()
+noShelve = False
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -34,6 +42,11 @@ def extract_next_links(url, resp):
     if not is_valid(url):   #this is useful if the frontier was corrupted
         return list()       #with invalid urls
     global visitedPages
+    global save1
+    global save2
+    global save3
+    global save4
+    global noShelve
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -55,28 +68,53 @@ def extract_next_links(url, resp):
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
     #update answers
+    answerLock.acquire()
+    if noShelve:
+        save1 = shelve.open(sn1, writeback=True)
+        save2 = shelve.open(sn2, writeback=True)
+        save3 = shelve.open(sn3, writeback=True)
+        save4 = shelve.open(sn4, writeback=True)
+        noShelve = False
     visitedPages.add(resp.url)
+    urlhash = get_urlhash(resp.url)
+    save1[urlhash] = url
+    save1.sync()
+    
+    longestPage(soup, url)
+    save2[sn2] = longestPages
+    save2.sync()
+
     addTokens(soup)
+    #sync performed in function already
+
     domain = urlparse(resp.url).hostname
     if re.match(r'.*\.ics\.uci\.edu$', domain):
         subDomainCount[domain] = subDomainCount.get(domain, 0) + 1
-    longestPage(soup, url)
+        save4[domain] = subDomainCount[domain]
+        save4.sync()
+
     dumpAnswers()
+    answerLock.release()
     #finish updating answers
 
     links =  soup.findAll("a")
     for link in links:
         href = link.get('href')
         href = urldefrag(href)[0] # assume we want to remove fragments
-        href = urljoin(url, href) #join for relative URLS
 
+        href = urljoin(url, href) #join for relative URLS
         # if URL is blacklisted for queries, remove query string
         parsed = urlparse(href)
         if parsed.hostname in disallowQueriesDomains:
             parsed = parsed._replace(query='') #remove query string
             href = urlunparse(parsed)
-
+        # if a component was found that already exists, the whole page is likely a trap
+        # do not crawl further
+        #if isTrap(parsed):
+        #    print("Potential trap found")
+        #    return list()
         ret.append(href)
+        
       
     return ret
 
@@ -97,6 +135,7 @@ def is_valid(url):
         if parsed.hostname in disallowQueriesDomains and parsed.query != '':
             return False
         #end temp for debugging
+
         if url in visitedPages:
             return False
 
@@ -104,14 +143,24 @@ def is_valid(url):
         if isTrap(parsed):
             return False
 
-        #avoid any directory named pix in path
-        if (re.search('pix', parsed.path)):
+        #avoid any directory named pix or figs in path
+        if (re.search(r'(pix|figs)', parsed.path)):
             return False
         
+        #ignore ics trap computing
+        if re.search(r'ics\.uci\.edu\/+(grad|ugrad|honors)', url):
+            return False
+        #ignore ml
+        if re.search(r'archive\.ics\.uci\.edu\/ml', url):
+            return False
+        #ignore anything adding paths after index.php
+        if (re.search(r'index.php\/',url)):
+            return False
+            
         invalidPattern = re.compile(r".*\.(css|js|bmp|gif|jpe?g|ico"
         + r"|png|tiff?|mid|mp2|mp3|mp4"
         + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-        + r"|mpg"
+        + r"|mpg|bam"
         + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
         + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
         + r"|epub|dll|cnf|tgz|sha1"
@@ -161,12 +210,15 @@ def isBadDomain(domain):
     return True
 
 def addTokens(soup):
+    global save3
     tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
     # remove empty strings and stopWords
     tokenList = list(filter(lambda str: len(str) > 1 and str not in stopWords, tokenList))
     for i in range(len(tokenList)):
-        token = tokenList[i]
+        token = tokenList[i].lower()
         wordCount[token] = wordCount.get(token, 0) + 1
+        save3[token] = wordCount[token]
+        save3.sync()
 
 def longestPage(soup, url):
     tokenList = re.split("[^a-zA-Z0-9]",soup.get_text())
@@ -193,17 +245,8 @@ def dumpAnswers():
         file.write("\nQ4: List of subdomain and page per subdomain\n")
         for k,v in sorted(subDomainCount.items(), key=lambda x: x[0]):
             file.write(f"{k} : {v}\n")
-        # JANK AF FIX
-        # https://stackoverflow.com/questions/71617038/python-shelf-file-grows-when-trying-to-overwrite-data    
-        
-        d = shelve.open(shelveName)
-        print("List of keys", list(d.keys()))
-        d['longestPages'] = longestPages
-        d['wordCount'] = wordCount
-        d['subDomainCount'] = subDomainCount
-        d['visitedPages'] = visitedPages
+
         logger.info(f"Saving answers shelve with visited pages of length {len(visitedPages)}")
-        d.close()
 
     except Exception as e:
         print(f"Error writing output: {e}\n")
@@ -211,6 +254,11 @@ def dumpAnswers():
 def loadGlobals(name):
     logger = get_logger("SCRAPER")
     logger.info("Logger called for opening answers shelve") 
+    global save1
+    global save2
+    global save3
+    global save4
+    global noShelve
     if os.path.exists(name):
         global longestPages, wordCount, subDomainCount, visitedPages
         try:
@@ -219,11 +267,48 @@ def loadGlobals(name):
             wordCount = d['wordCount']
             subDomainCount =  d['subDomainCount']
             visitedPages = d['visitedPages']
-            os.remove(name)
             logger.info(f"Shelve file found, visited Page len = {len(visitedPages)}") 
             logger.info(f"Size of 4 objects: \nLongestPages:{sys.getsizeof(longestPages)}\nWordCount:{sys.getsizeof(wordCount)}\nSubDomainCount:{sys.getsizeof(subDomainCount)}\nvisitedPages:{sys.getsizeof(visitedPages)} ")
+            save1 = shelve.open(sn1, writeback=True)
+            save2 = shelve.open(sn2, writeback=True)
+            save3 = shelve.open(sn3, writeback=True)
+            save4 = shelve.open(sn4, writeback=True)
+            for url in visitedPages:
+                urlhash = get_urlhash(url)
+                save1[urlhash] = url
+            save1.sync()
+
+            save2[sn2]=longestPages
+            save2.sync()
+            
+            for k,v in wordCount.items():
+                save3[k]=v
+            save3.sync()
+            
+            for k,v in subDomainCount.items():
+                save4[k]=v
+            save4.sync()
+
+
         finally:
             d.close()
+            os.remove(name)
+            
     else:
-       logger.info("Shelve file not found; variables will be set to 0") 
-        
+        logger.info("Shelve file not found; checking for 2nd version")
+        if os.path.exists(sn1) and os.path.exists(sn2) and os.path.exists(sn3) and os.path.exists(sn4):
+            logger.info("Shelve file ver 2 found. Loading values")
+            save1 = shelve.open(sn1, writeback=True)
+            for v in save1.values():
+                visitedPages.add(v)
+            save2 = shelve.open(sn2, writeback=True)
+            longestPages = save2[sn2]
+            save3 = shelve.open(sn3, writeback=True)
+            for k,v in save3.items():
+                wordCount[k] = v 
+            save4 = shelve.open(sn4, writeback=True)
+            for k,v in save4.items():
+                subDomainCount[k] = v
+        else:
+            logger.info("No shelves found, globals init to 0")
+            noShelve = True

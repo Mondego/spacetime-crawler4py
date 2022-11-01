@@ -12,7 +12,7 @@ def main(config_file, restart):
     config = Config(cparser)
     config.cache_server = get_cache_server(config, restart)
     crawler = Crawler(config, restart)
-    scraper.loadGlobals(scraper.shelveName)
+    scraper.loadGlobals(scraper.shelveName) #load our save file for answers.txt
     crawler.start()
 
 
