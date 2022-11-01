@@ -67,7 +67,7 @@ def extract_next_links(url, resp):
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-    if isPdf(soup):
+    if resp.headers['Content-Type'] == 'application/pdf':
         return list()
 
     #update answers
@@ -120,13 +120,6 @@ def extract_next_links(url, resp):
         
       
     return ret
-
-def isPdf(soup):
-    embedContainer = soup.find('body').find('embed')
-    fileType = embedContainer.get('type')
-    if fileType == 'application/pdf':
-        return True
-    return False
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
