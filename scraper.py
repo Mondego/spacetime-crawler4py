@@ -67,7 +67,7 @@ def extract_next_links(url, resp):
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-    if isPdf(soup):
+    if isPdf(resp):
         return list()
 
     #update answers
@@ -121,10 +121,8 @@ def extract_next_links(url, resp):
       
     return ret
 
-def isPdf(soup):
-    embedContainer = soup.find('body').find('embed')
-    fileType = embedContainer.get('type')
-    if fileType == 'application/pdf':
+def isPdf(resp):
+    if resp.headers['Content-Type'] == 'application/pdf':
         return True
     return False
 
