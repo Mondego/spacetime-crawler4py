@@ -1,4 +1,6 @@
 import re
+import lxml
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 
