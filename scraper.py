@@ -20,7 +20,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return_link = []
+    return_link = [] #list to store all the parsed links
 
     if (resp.status != 200): #page returns an error so skip
         return list()
