@@ -25,6 +25,10 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        # additional url checks
+        elif all(_is_not_trap(url), _has_content(url), _is_similar(url),
+                _respects_robotstxt(url), _is_in_domains(url)):
+            return True
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -38,3 +42,25 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+
+def _is_not_trap(url):
+    pass
+
+
+def _has_content(url):
+    pass
+
+
+def  _is_similar(url):
+    pass
+
+
+# remember politeness
+def _respects_robotstxt(url):
+    pass
+
+
+def _is_in_domains(url):
+    pass
+
