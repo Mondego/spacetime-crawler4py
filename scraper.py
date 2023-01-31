@@ -52,7 +52,7 @@ def _has_content(url):
     pass
 
 
-def  _is_similar(url):
+def _is_similar(url):
     pass
 
 
