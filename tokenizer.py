@@ -20,6 +20,24 @@ def tokenize(text_file_path) -> [str]:
     # this is the size of the chunks which are taken into
     # memory at a time
     chunk_size = 1024
+    # These are all the stop words that I feel are relevant.
+    # '''This is here to test how it works with no stop words.
+    stopwords = {'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
+                 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can',
+                 'cannot', 'could', 'couldn', 'd', 'did', 'didn', 'do', 'does', 'doesn', 'doing', 'don', 'down',
+                 'during', 'each', 'few', 'for', 'from', 'further', 'had', 'hadn', 'has', 'hasn', 'have', 'haven',
+                 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in',
+                 'into', 'is', 'isn', 'it', 'its', 'itself', 'let', 'll', 'm', 'me', 'more', 'most', 'mustn', 'my',
+                 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours',
+                 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan', 'she', 'should', 'shouldn', 'so', 'some',
+                 'such', 't', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these',
+                 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 've', 'very', 'was', 'wasn',
+                 'we', 'were', 'weren', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'with', 'won',
+                 'would', 'wouldn', 'you', 'your', 'yours', 'yourself', 'yourselves'}
+
+    '''# This is here to test how it works with no stop words.
+    stopwords = {}
+    # '''
     try:
         with open(text_file_path, 'r', encoding='UTF-8') as all_values:
             read_text = all_values.read(chunk_size).lower()
@@ -34,7 +52,7 @@ def tokenize(text_file_path) -> [str]:
                 main_text = ('' if last_space == -1 else input_text[:last_space])
 
                 # This finds all the words in main_text.
-                token_list += re.findall(regex, main_text)
+                token_list += [token for token in re.findall(regex, main_text) if token not in stopwords]
                 read_text = all_values.read(chunk_size).lower()
                 # The part of the text which doesn't necessarily consist of whole words
                 # is added to the beginning to be parsed again.
@@ -65,19 +83,7 @@ def compute_word_frequencies(token_list: [str]) -> {str: int}:
     return frequencies
 
 
-def remove_stopwords(word_list: {str}):
-    # These are all the stop words that I feel are relevant.
-    stopwords = {'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
-                 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can',
-                 'cannot', 'could', 'couldn', 'd', 'did', 'didn', 'do', 'does', 'doesn', 'doing', 'don', 'down',
-                 'during', 'each', 'few', 'for', 'from', 'further', 'had', 'hadn', 'has', 'hasn', 'have', 'haven',
-                 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in',
-                 'into', 'is', 'isn', 'it', 'its', 'itself', 'let', 'll', 'm', 'me', 'more', 'most', 'mustn', 'my',
-                 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours',
-                 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan', 'she', 'should', 'shouldn', 'so', 'some',
-                 'such', 't', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these',
-                 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 've', 'very', 'was', 'wasn',
-                 'we', 'were', 'weren', 'what', 'when', 'where', 'which', 'while', 'who', 'whom', 'why', 'with',
-                 'would', 'wouldn', 'you', 'your', 'yours', 'yourself', 'yourselves'}
-    # This is the list which doesn't have stop words.
-    word_list = word_list - stopwords
+if __name__ == '__main__':
+    for key, value in sorted(compute_word_frequencies(tokenize('README.md')).items(),
+                             key=(lambda x: x[1])):
+        print(f'{key}: {value}')
