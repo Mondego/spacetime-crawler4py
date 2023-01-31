@@ -23,23 +23,32 @@ def tokenize(text_file_path) -> [str]:
     try:
         with open(text_file_path, 'r', encoding='UTF-8') as all_values:
             read_text = all_values.read(chunk_size).lower()
+            # This is where the text to be read will go in general.
             input_text = read_text
             while read_text:
+                # These variables exist in case the end of the bytes is in the middle of a word.
                 last_space = input_text.rfind(' ')
                 extra_text = input_text[last_space + 1:]
+
+                # This is the part of the text which consists of whole words
                 main_text = ('' if last_space == -1 else input_text[:last_space])
 
+                # This finds all the words in main_text.
                 token_list += re.findall(regex, main_text)
                 read_text = all_values.read(chunk_size).lower()
+                # The part of the text which doesn't necessarily consist of whole words
+                # is added to the beginning to be parsed again.
                 input_text = extra_text + read_text
                 if read_text == '':
                     token_list += re.findall(regex, input_text)
         return token_list
     except FileNotFoundError:
+        # This is what happens when the file can't be found.
         assert False, f"Error: File\n" \
                       f"{text_file_path}\n" \
                       f" was not found."
     except UnicodeDecodeError:
+        # This is what happens when you put a .jpg or something into this code.
         assert False, f'Error: File\n' \
                       f'{text_file_path}\n' \
                       f'is not considered a text file by this code\n' \
