@@ -20,7 +20,17 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    return_link = []
+
+    if (resp.status != 200): #page returns an error so skip
+        return list()
+
+    soup = BeautifulSoup(resp.raw_response.content, "lxml") #get all the link tags in the url's html
+    for link in soup.find_all('a'):
+        if (is_valid(link.get("href"))): #call valid to filter out unwanted links
+            return_link.append(link.get("href"))
+
+    return return_link #return a list of links
 
 
 def is_valid(url):
