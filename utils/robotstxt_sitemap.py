@@ -9,7 +9,7 @@ def get_sitemap_urls(seed_urls: list[str], config: Config, logger: Logger=None) 
     '''Return the sitemap urls from each seed url's robots.txt page'''
     sitemap_urls = list()
     for url in seed_urls:
-        response = download(url, config, logger)
+        response = download(url + '/robots.txt', config, logger)
         if response.status == 200:
             sitemap_urls += _extract_sitemap_urls(response)
         time.sleep(config.time_delay)
@@ -26,7 +26,7 @@ def _extract_sitemap_urls(resp: Response) -> list[str]:
         # shouldn't happen, but just in case
         return extracted_urls
 
-    for line in resp.raw_response.split():
+    for line in resp.raw_response.text.split('\n'):
         if line.startswith('Sitemap'):
             extracted_urls.append(line.split()[1])
     return extracted_urls
