@@ -1,8 +1,12 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+
+pages = set()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
+    # print(links)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -15,7 +19,19 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+
+    # Return empty list if 600+ error(maybe want to change for a more specific status code filtering mechanism)
+    # if resp.status > 600:
+    #     return list()
+
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+    new_links = list()
+    for link in soup.find_all('a'):
+        extracted_link = link.get('href')
+        if extracted_link not in pages:
+            new_links.append(extracted_link)
+            pages.add(extracted_link)
+    return new_links
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,7 +41,8 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
+        
+        if re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -33,7 +50,11 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+            return False
+        # print("Matching {} and the regex matching is {}".
+        #     format(parsed.netloc.lower(), re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower())))
+        return re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower())
 
     except TypeError:
         print ("TypeError for ", parsed)
