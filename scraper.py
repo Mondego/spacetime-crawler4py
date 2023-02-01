@@ -1,6 +1,10 @@
 import re
 from urllib.parse import urlparse
 
+# Import parse libraries.
+from bs4 import BeautifulSoup
+from lxml import html
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -15,7 +19,9 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    match resp.status:
+        case 200: return [link[2] for link in html.iterlinks(resp.raw_response.content)]
+        case _: return []
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,10 +31,6 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        # additional url checks
-        elif all(_is_not_trap(url), _has_content(url), _is_similar(url),
-                _respects_robotstxt(url), _is_in_domains(url)):
-            return True
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -42,25 +44,3 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
-
-
-def _is_not_trap(url):
-    pass
-
-
-def _has_content(url):
-    pass
-
-
-def _is_similar(url):
-    pass
-
-
-# remember politeness
-def _respects_robotstxt(url):
-    pass
-
-
-def _is_in_domains(url):
-    pass
-
