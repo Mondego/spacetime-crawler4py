@@ -4,6 +4,12 @@ from bs4 import BeautifulSoup
 
 pages = set()
 
+def filter_to_allow_subdomains(parsed):
+    return  re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower()) or (
+                re.match(r"today\.uci\.edu", parsed.netloc.lower()) and
+                re.match(r"department/information_computer_sciences/.*", parsed.path.lower())
+            )
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     # print(links)
@@ -23,14 +29,14 @@ def extract_next_links(url, resp):
     # Return empty list if 600+ error(maybe want to change for a more specific status code filtering mechanism)
     # if resp.status > 600:
     #     return list()
-
-    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
     new_links = list()
-    for link in soup.find_all('a'):
-        extracted_link = link.get('href')
-        if extracted_link not in pages:
-            new_links.append(extracted_link)
-            pages.add(extracted_link)
+    if resp.status == 200:
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+        for link in soup.find_all('a'):
+            extracted_link = link.get('href')
+            if extracted_link not in pages:
+                new_links.append(extracted_link)
+                pages.add(extracted_link)
     return new_links
 
 def is_valid(url):
@@ -54,7 +60,8 @@ def is_valid(url):
             return False
         # print("Matching {} and the regex matching is {}".
         #     format(parsed.netloc.lower(), re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower())))
-        return re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower())
+        # return re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower())
+        return filter_to_allow_subdomains(parsed)
 
     except TypeError:
         print ("TypeError for ", parsed)
