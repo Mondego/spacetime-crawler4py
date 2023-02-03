@@ -20,17 +20,31 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return_link = [] #list to store all the parsed links
-
-    if (resp.status != 200): #page returns an error so skip
-        return list()
-
-    soup = BeautifulSoup(resp.raw_response.content, "lxml") #get all the link tags in the url's html
-    for link in soup.find_all('a'):
-        if (is_valid(link.get("href"))): #call valid to filter out unwanted links
-            return_link.append(link.get("href"))
-
-    return return_link #return a list of links
+    if resp.status != 200:
+        print(f"Error: {resp.error}")
+        return None
+    links = []
+    trap_duration = 10  # Number of seconds to spend in redirects before breaking iterations
+    bad_count = 300  # Minimum number of words for "low textual content" pages
+    # Should use lxml by default as long as lxml is installed in environment.
+    soup_content = BeautifulSoup(resp.raw_response.content)
+    for hyperlink in soup_content.find_all('a'):
+        hyperlink_href = hyperlink.get('href')
+        if not is_valid(hyperlink_href):  # Skip invalid links based on rules set in is_valid()
+            continue
+        if hyperlink_href == resp.url:  # Skip duplicate links
+            continue
+        # Check for redirection traps, break loop after trap_duration seconds of redirects.
+        # Can change depending on crawler log file output
+        try:
+            r = requests.head(hyperlink_href, allow_redirects=True, timeout=trap_duration)
+            # Skips low content pages
+            if r.url == hyperlink_href and len(soup_content.text.strip().split() > bad_count):
+                links.append(hyperlink_href)
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
+            continue
+    return links
 
 
 def is_valid(url):
