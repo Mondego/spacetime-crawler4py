@@ -27,14 +27,23 @@ def extract_next_links(url, resp):
     
     if(resp.status == 200 and resp.raw_response.content != None): #Check if we got onto the page and if it has content
         _soupHtml = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        _urlTokenList = nltk.tokenize(_soupHtml.getText())
+        _urlTokenList = tokenize(_soupHtml.getText())
     else:
         print("resp.status code: ", resp.status, "\nError of: ", resp.error)
         return list()
-
+    
+    _urlList =  list()
+    #TODO Fill the List and update any deliverable vars
 
     
-    return list()
+    return _urlList
+
+def tokenize(resp):
+    #Tokenize urls
+    _urlTokens = list()
+    tokenizer = re('TODO')
+    _urlTokens.extend( [_reObject.lower() for _reObject in re.split(r'\W+', resp) if _reObject.isalnum()])
+    return _urlTokens
 
 def is_valid(url):
     global UniqueUrlSet
