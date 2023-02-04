@@ -1,5 +1,8 @@
 import re
+import urllib.request
 import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
@@ -24,25 +27,33 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    
+    _urlList =  list()
     if(resp.status == 200 and resp.raw_response.content != None): #Check if we got onto the page and if it has content
         _soupHtml = BeautifulSoup(resp.raw_response.content, 'html.parser')
         _urlTokenList = tokenize(_soupHtml.getText())
-    else:
-        print("resp.status code: ", resp.status, "\nError of: ", resp.error)
-        return list()
-    
-    _urlList =  list()
-    #TODO Fill the List and update any deliverable vars
+        #TODO Fill the List and update any deliverable vars
+        for _link in _soupHtml.find_all("a"):
+            _linkHref = _link.get("href")
+            if _linkHref != None:
+                if _linkHref.find('#'):
+                    _linkHref = _linkHref.split("#")[0] 
+                if _linkHref.find("?replytocom="):
+                    _linkHref = _linkHref.split("?")[0]
 
-    
+
+
+    else:
+        print("resp.status code: ", resp.status, "\nError of: ", resp.error) #Print Error code and name
     return _urlList
 
 def tokenize(resp):
     #Tokenize urls
     _urlTokens = list()
-    tokenizer = re('TODO')
-    _urlTokens.extend( [_reObject.lower() for _reObject in re.split(r'\W+', resp) if _reObject.isalnum()])
+    #Ignore the following words:
+    _stopwords = stopwords.words('english')
+    _datewords = {'january','jan','february','feb','march','mar','april','apr','may','june','jun','july','jul','august','aug','september','sept','october','oct','november','nov','december','dec','monday','mon','tuesday','tues','wednesday','wed','thursday','thurs','friday','fri','saturday','sat','sunday','sun'}
+    _regExp = re('[a-z]{2,}')
+    _urlTokens = _regExp.tokenize(resp)
     return _urlTokens
 
 def is_valid(url):
