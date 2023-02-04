@@ -39,9 +39,8 @@ def extract_next_links(url, resp):
                     _linkHref = _linkHref.split("#")[0] 
                 if _linkHref.find("?replytocom="):
                     _linkHref = _linkHref.split("?")[0]
-
-
-
+                if _linkHref not in _urlList:
+                    _urlList.append(_linkHref)
     else:
         print("resp.status code: ", resp.status, "\nError of: ", resp.error) #Print Error code and name
     return _urlList
