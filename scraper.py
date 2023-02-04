@@ -51,8 +51,9 @@ def is_valid(url):
         if parsed.scheme not in {"http", "https"}:
             return False
         if not re.match(r'(?:.+\.(?:i?cs|stat|informatics)\.uci\.edu$)', parsed.netloc):
+            # theoretically, shouldn't be here if path is in allowed domains
             return False
-        if not re.match(r'^/.*', parsed.path):
+        if not re.match(r'^/.*', parsed.path): # returns true if path is / followed by text
             return False
         if (is_trap(url)): #is_trap returns true if it is a trap
             return False
@@ -72,6 +73,7 @@ def is_valid(url):
         print("TypeError for ", parsed)
         raise
 
+
 def is_trap(url):
     known_traps = ["https://wics.ics.uci.edu/events", "ppsx"] #list of traps we found whilst running crawler
     for trap in known_traps:
@@ -79,12 +81,14 @@ def is_trap(url):
             return True
     return False
 
+
 def correct_domain(url):
     valid_domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"] #all valid domains
     for domain in valid_domains: #loops through each domain to see if the url contains it
         if domain in url:
             return True
     return False
+
 
 def is_high_quality_page(soup_content):
     bad_count = 100  # Minimum number of words for "low textual content" pages
