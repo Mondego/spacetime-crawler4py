@@ -50,7 +50,7 @@ def scraper(url, resp):
     subDomainFile.close()
 
 
-    return None
+    return _validLinks
 
 def extract_next_links(url, resp):
     global PageWithMostWords
