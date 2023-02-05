@@ -16,7 +16,7 @@ SubDomainsFoundDict = defaultdict(set) #Deliverable Q4
 
 
 def scraper(url, resp):
-    global SubDomainsFoundDict
+    global SubDomainsFoundDict, PageWithMostWords, WordsList, SubDomainsFoundDict
     links = extract_next_links(url, resp)
     _validLinks = [link for link in links if is_valid(link)]
     for _link in _validLinks:
@@ -24,6 +24,30 @@ def scraper(url, resp):
         if "ics.uci.edu" in _urlParLink.netloc:
             _domain = _urlParLink.netloc.split(".")
             SubDomainsFoundDict[_domain[0]].add(_link) #Filling SubDomainsFoundDict for deliverable Q4
+
+    #Write to Files
+    uniqueUrlFile = open("UniqueUrlSet.txt" "w")
+    uniqueUrlFile.write(str(len(UniqueUrlSet)))
+    uniqueUrlFile.close()
+
+    mostWordsFile = open("PageWithMostWords.txt" "w")
+    mostWordsFile.write(PageWithMostWords[0] + " with " + str(PageWithMostWords[1]) + " words")
+    mostWordsFile.close()
+
+    wordsListFile = open("WordsList.txt" "w")
+    _counter = 0
+    for _word in sorted(WordsList.items(), key = lambda x: (-x[1],x[0])):
+        if _counter > 50:
+            break
+        wordsListFile.write(_word[0] + ": " + str(_word[1]) + "\n")
+        _counter += 1
+    wordsListFile.close()
+
+    subDomainFile = open("SubDomainsFoundDict.txt" "w")
+    _counter = 0
+    for _domain in sorted(SubDomainsFoundDict.items(), key = lambda x: (x[0],x[1])):
+        subDomainFile.write(_domain[0] + ": " + str(len(_domain[1])) + "\n")
+    subDomainFile.close()
 
 
     return None
@@ -39,13 +63,10 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-
-
-
     _urlList =  list()
     if(599 >= resp.status >= 200 and resp.raw_response.content != None): #Check if we got onto the page and if it has content
         _soupHtml = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        _urlTokenList = tokenize(_soupHtml.getText())
+        _urlTokenList = tokenize(_soupHtml.getText(), True)
         if len(_urlTokenList) > PageWithMostWords[1]:
             PageWithMostWords = [url, len(_urlTokenList)] #Filling PageWithMostWords for deliverable Q2
         for _link in _soupHtml.find_all("a"):
@@ -61,7 +82,7 @@ def extract_next_links(url, resp):
         print("resp.status code: ", resp.status, "\nError of: ", resp.error) #Print Error code and name
     return _urlList
 
-def tokenize(resp):
+def tokenize(resp, _savewords):
     global WordsList
     #Tokenize urls
     _urlTokens = list()
@@ -71,10 +92,11 @@ def tokenize(resp):
     _datewords = {'january','jan','february','feb','march','mar','april','apr','may','june','jun','july','jul','august','aug','september','sept','october','oct','november','nov','december','dec','monday','mon','tuesday','tues','wednesday','wed','thursday','thurs','friday','fri','saturday','sat','sunday','sun'}
     _regExp = re('[^a-zA-Z0-9]')
     _tempList = _regExp.tokenize(resp)
-    for _token in _tempList.lower():
-        if _token not in _stopwords and _token not in _datewords:
-            _urlTokens.append(_token)
-            WordsList[_token] += 1 #Filling WordsList for deliverable Q3
+    if _savewords:
+        for _token in _tempList.lower():
+            if _token not in _stopwords and _token not in _datewords:
+                _urlTokens.append(_token)
+                WordsList[_token] += 1 #Filling WordsList for deliverable Q3
 
     return _urlTokens
 
@@ -84,7 +106,18 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
+        _htmlRequest = urllib.request.urlopen(url)
+        _htmlCont = _htmlRequest.read().decode("utf8")
+        _soupHtml = BeautifulSoup(_htmlCont, "html.parser")
+        _urlTokenList = tokenize(_soupHtml.getText(), False)
+        if len(_urlTokenList) < 350:
+            return False
         parsed = urlparse(url)
+        _splitParsed = parsed.path.split("/")
+        for i in range(len(_splitParsed)):
+            if _splitParsed[i] == "pix" or "blog" in _splitParsed[i] or "news" in _splitParsed[i]: #Avoid
+                return False
+
         if parsed.hostname == None or parsed.netloc == None: #Check if hostname is not None
             return False
         if parsed.scheme not in set(["http", "https"]):
