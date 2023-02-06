@@ -1,6 +1,8 @@
 import re
 from urllib.parse import urlparse
+from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
+import csv
 
 pages = set()
 
@@ -14,6 +16,27 @@ def scraper(url, resp):
     links = extract_next_links(url, resp)
     # print(links)
     return [link for link in links if is_valid(link)]
+
+def extract_content(soup):
+    ex_data = {}
+    title = soup.title
+    for script in soup(["script", "style"]): # Remove script, style 
+        script.extract()
+    text = soup.get_text() # get text 
+    # data cleaning 
+    lines = (line.strip() for line in text.splitlines())
+    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+    text = [chunk for chunk in chunks if chunk] # make data to list 
+
+    ex_data['title'] = title
+    ex_data['text'] = text 
+    return ex_data 
+
+def save_contents(content):
+    csv_file = open('scrapped.csv', 'a', encoding='utf-8', newline='')
+    writer = csv.writer(csv_file)
+    writer.writerow(content.values())
+    csv_file.close()
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -32,8 +55,13 @@ def extract_next_links(url, resp):
     new_links = list()
     if resp.status == 200:
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+        contents = extract_content(soup)
+        contents['url'] = url
+        save_contents(contents)
         for link in soup.find_all('a'):
             extracted_link = link.get('href')
+            if extracted_link:
+                extracted_link,_ = urldefrag(extracted_link) #defragment URL
             if extracted_link not in pages:
                 new_links.append(extracted_link)
                 pages.add(extracted_link)
