@@ -115,10 +115,10 @@ def process_content(content):
     update_unique_url(content['url'])
     with open("processed_text.txt", 'w') as f:
         f.write('URL with Max No.of words \n')
-        for key, value in update_max_count.items():
+        for key, value in max_word_count_global.items():
             f.write('%s:%s\n' % (key, value))
         f.write('50 high freq words \n')
-        for key, value in update_max_freq_words.items():
+        for key, value in high_freq_words_global.items():
             f.write('%s:%s\n' % (key, value))
 
 def tokenize(text):
@@ -135,7 +135,7 @@ def tokenize(text):
         final_tokens.append(token.lower())
     return final_tokens
 
-def update_max_count(tokens):
+def update_max_count(tokens,url):
     global max_word_count_global
     current_word_count = len(tokens)
     if max_word_count_global['word_count'] < current_word_count:
@@ -148,9 +148,8 @@ def update_max_freq_words(tokens):
     for token in tokens:
         current_word_frequencies[token] += 1
     combined_dict = Counter(current_word_frequencies) + Counter(high_freq_words_global)
-    sorted_combined_dict = defaultdict(sorted(combined_dict.items(), key=lambda x: x[1], reverse=True))
     #update global dict with top 50 of combined dict
-    high_freq_words_global = defaultdict(sorted(sorted_combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
+    high_freq_words_global = dict(sorted(combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
 
 
 def update_unique_url(url):
