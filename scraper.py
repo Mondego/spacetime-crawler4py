@@ -3,8 +3,17 @@ from urllib.parse import urlparse
 from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
 import csv
+import nltk
+nltk.download('punkt')
+from nltk.tokenize import word_tokenize
+from collections import defaultdict
+from collections import Counter
+from operator import itemgetter
 
-# pages = set()
+max_word_count_global = dict(word_count = 0, url = '')
+high_freq_words_global = defaultdict(int)
+unique_urls_global = set()
+#pages = set()
 
 def filter_to_allow_subdomains(parsed):
     return  re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower()) or (
@@ -58,6 +67,7 @@ def extract_next_links(url, resp, pages):
         contents = extract_content(soup)
         contents['url'] = url
         save_contents(contents)
+        process_content(contents)
         for link in soup.find_all('a'):
             extracted_link = link.get('href')
             if extracted_link:
@@ -96,5 +106,55 @@ def is_valid(url):
         raise
 
 # TODO: Implement this
-def process(text):
-    pass
+def process_content(content):
+    #update max word counts and word freq dict
+    tokens = tokenize(content['text'])
+    update_max_count(tokens, content['url'])
+    update_max_freq_words(tokens)
+    #update unique urls
+    update_unique_url(content['url'])
+    with open("processed_text.txt", 'w') as f:
+        f.write('URL with Max No.of words \n')
+        for key, value in update_max_count.items():
+            f.write('%s:%s\n' % (key, value))
+        f.write('50 high freq words \n')
+        for key, value in update_max_freq_words.items():
+            f.write('%s:%s\n' % (key, value))
+
+def tokenize(text):
+    #read stopwords #stopwords in nltk and prof's link look different
+    f = open('stopwords.txt')
+    stopwords = f.read().splitlines()
+    file_format_text = '\n'.join(phrase for phrase in text if phrase)
+    tokens = word_tokenize(file_format_text)
+    #filter tokens
+    final_tokens = []
+    for token in tokens:
+        if len(token) < 2 or token in stopwords or token.isnumeric():
+            continue
+        final_tokens.append(token.lower())
+    return final_tokens
+
+def update_max_count(tokens):
+    global max_word_count_global
+    current_word_count = len(tokens)
+    if max_word_count_global['word_count'] < current_word_count:
+        max_word_count_global['word_count'] = current_word_count
+        max_word_count_global['url'] = url
+
+def update_max_freq_words(tokens):
+    global high_freq_words_global
+    current_word_frequencies = defaultdict(int)
+    for token in tokens:
+        current_word_frequencies[token] += 1
+    combined_dict = Counter(current_word_frequencies) + Counter(high_freq_words_global)
+    sorted_combined_dict = defaultdict(sorted(combined_dict.items(), key=lambda x: x[1], reverse=True))
+    #update global dict with top 50 of combined dict
+    high_freq_words_global = defaultdict(sorted(sorted_combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
+
+
+def update_unique_url(url):
+    #might require preprocessing of URLs before adding them to global set.
+    global unique_urls_global
+    unique_urls_global.add(url)
+
