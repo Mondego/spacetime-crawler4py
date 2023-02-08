@@ -4,7 +4,7 @@ from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
 import csv
 
-pages = set()
+# pages = set()
 
 def filter_to_allow_subdomains(parsed):
     return  re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower()) or (
@@ -12,8 +12,8 @@ def filter_to_allow_subdomains(parsed):
                 re.match(r"department/information_computer_sciences/.*", parsed.path.lower())
             )
 
-def scraper(url, resp):
-    links = extract_next_links(url, resp)
+def scraper(url, resp, pages):
+    links = extract_next_links(url, resp, pages)
     # print(links)
     return [link for link in links if is_valid(link)]
 
@@ -38,7 +38,7 @@ def save_contents(content):
     writer.writerow(content.values())
     csv_file.close()
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp, pages):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -94,3 +94,7 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+# TODO: Implement this
+def process(text):
+    pass
