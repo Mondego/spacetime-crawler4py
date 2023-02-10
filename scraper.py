@@ -1,5 +1,9 @@
 import re
 from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
+from bs4 import BeautifulSoup
+import time
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -14,8 +18,20 @@ def extract_next_links(url, resp):
     # resp.raw_response: this is where the page actually is. More specifically, the raw_response has two parts:
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
-    # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content\
+
+    links = []
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+    for link in soup.find_all('a'):
+        link = link.get('href')
+        if link:
+            # Defragment the URL
+            link = urlparse(link)._replace(fragment='').geturl()
+            # Transform relative to absolute URL
+            link = urljoin(url, link)
+            links.append(link)
+            print(link)
+    return links
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,6 +41,20 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        # Check if the URL is within the specified domains and paths
+        if not re.match(r".*\.(ics|cs|informatics|stat)\.uci\.edu/.*", parsed.netloc):
+            return False
+        # Detect and avoid large files, especially if they have low information value
+
+        # Detect and avoid dead URLs that return a 200 status but no data
+
+        # Detect and avoid sets of similar pages with no information
+
+        # Detect and avoid infinite traps
+        
+        # Honor the politeness delay for each site
+        time.sleep(1)
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
