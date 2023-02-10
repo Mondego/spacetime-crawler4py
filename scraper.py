@@ -66,6 +66,7 @@ def extract_next_links(url, resp, pages):
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         contents = extract_content(soup)
         contents['url'] = url
+        pages.add(url)
         save_contents(contents)
         process_content(contents)
         for link in soup.find_all('a'):
@@ -74,7 +75,6 @@ def extract_next_links(url, resp, pages):
                 extracted_link,_ = urldefrag(extracted_link) #defragment URL
             if extracted_link not in pages:
                 new_links.append(extracted_link)
-                pages.add(extracted_link)
     return new_links
 
 def is_valid(url):
