@@ -35,9 +35,9 @@ def extract_content(soup):
     ex_data = {}
     title = soup.title
     #corner cases handling
-    if isinstance(title,float):  # title is null 
+    if title is None:  # title is null 
         return ex_data
-    if 'error 404' in title: # error pages returned w/ text format 
+    if 'error 404' in str(title): # error pages returned w/ text format 
         return ex_data 
 
     for script in soup(["script", "style"]): # Remove script, style 
@@ -88,8 +88,7 @@ def extract_next_links(url, resp, pages):
                 extracted_link,_ = urldefrag(extracted_link) #defragment URL
             if extracted_link not in pages:
                 new_links.append(extracted_link)
-    return list()
-    # return new_links
+    return new_links
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
