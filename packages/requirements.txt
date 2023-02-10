@@ -1,2 +1,4 @@
 cbor
 requests
+simhash
+tldextract

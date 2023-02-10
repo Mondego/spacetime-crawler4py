@@ -1,4 +1,5 @@
 import re
+import random, string
 from urllib.parse import urlparse
 from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
@@ -11,9 +12,12 @@ from collections import defaultdict
 from collections import Counter
 from operator import itemgetter
 
+from simhash import Simhash, SimhashIndex
+
 max_word_count_global = dict(word_count = 0, url = '')
 high_freq_words_global = defaultdict(int)
 unique_urls_global = set()
+simhash_indexes = SimhashIndex(list(), k=3)
 #pages = set()
 
 def filter_to_allow_subdomains(parsed):
@@ -84,7 +88,8 @@ def extract_next_links(url, resp, pages):
                 extracted_link,_ = urldefrag(extracted_link) #defragment URL
             if extracted_link not in pages:
                 new_links.append(extracted_link)
-    return new_links
+    return list()
+    # return new_links
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -118,17 +123,19 @@ def is_valid(url):
 def process_content(content):
     #update max word counts and word freq dict
     tokens = tokenize(content['text'])
-    update_max_count(tokens, content['url'])
-    update_max_freq_words(tokens)
-    #update unique urls
-    update_unique_url(content['url'])
-    with open("processed_text.txt", 'w') as f:
-        f.write('URL with Max No.of words \n')
-        for key, value in max_word_count_global.items():
-            f.write('%s:%s\n' % (key, value))
-        f.write('50 high freq words \n')
-        for key, value in high_freq_words_global.items():
-            f.write('%s:%s\n' % (key, value))
+    is_close_duplicate = check_close_duplicates(tokens)
+    if not is_close_duplicate:
+        update_max_count(tokens, content['url'])
+        update_max_freq_words(tokens)
+        #update unique urls
+        update_unique_url(content['url'])
+        with open("processed_text.txt", 'w') as f:
+            f.write('URL with Max No.of words \n')
+            for key, value in max_word_count_global.items():
+                f.write('%s:%s\n' % (key, value))
+            f.write('50 high freq words \n')
+            for key, value in high_freq_words_global.items():
+                f.write('%s:%s\n' % (key, value))
 
 def tokenize(text):
     #read stopwords #stopwords in nltk and prof's link look different
@@ -166,3 +173,14 @@ def update_unique_url(url):
     global unique_urls_global
     unique_urls_global.add(url)
 
+
+def check_close_duplicates(tokens):
+    s1 = Simhash(tokens)
+    if len(simhash_indexes.get_near_dups(s1)) == 0:
+        simhash_indexes.add(get_random_string(), s1)
+        return False
+    return True
+
+def get_random_string():
+    return ''.join(random.choices(string.ascii_uppercase +
+                             string.digits, k=64))
