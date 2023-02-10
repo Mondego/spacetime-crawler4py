@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from urllib.parse import urldefrag
 from bs4 import BeautifulSoup
 import csv
+import math
 import nltk
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize
@@ -29,6 +30,12 @@ def scraper(url, resp, pages):
 def extract_content(soup):
     ex_data = {}
     title = soup.title
+    #corner cases handling
+    if isinstance(title,float):  # title is null 
+        return ex_data
+    if 'error 404' in title: # error pages returned w/ text format 
+        return ex_data 
+
     for script in soup(["script", "style"]): # Remove script, style 
         script.extract()
     text = soup.get_text() # get text 
@@ -65,6 +72,8 @@ def extract_next_links(url, resp, pages):
     if resp.status == 200:
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         contents = extract_content(soup)
+        if 'title' not in contents: # corner-case exception 
+            return new_links
         contents['url'] = url
         pages.add(url)
         save_contents(contents)
