@@ -145,7 +145,7 @@ def tokenize(text):
     #filter tokens
     final_tokens = []
     for token in tokens:
-        if len(token) < 2 or token in stopwords or token.isnumeric():
+        if len(token) < 3 or token in stopwords or token.isnumeric():
             continue
         final_tokens.append(token.lower())
     return final_tokens
