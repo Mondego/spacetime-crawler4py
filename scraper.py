@@ -15,8 +15,11 @@ from threading import Lock
 
 from simhash import Simhash, SimhashIndex
 
-max_word_count_global = dict(word_count = 0, url = '')
-high_freq_words_global = defaultdict(int)
+# max_word_count_global = dict(word_count = 0, url = '')
+# high_freq_words_global = defaultdict(int)
+max_word_count_mutex = Lock()
+high_freq_word_count_mutex = Lock()
+simhash_index_mutex = Lock()
 simhash_indexes = SimhashIndex(list(), k=3)
 csv_lock = Lock()
 
@@ -26,8 +29,8 @@ def filter_to_allow_subdomains(parsed):
                 re.match(r"department/information_computer_sciences/.*", parsed.path.lower())
             )
 
-def scraper(url, resp, pages):
-    links = extract_next_links(url, resp, pages)
+def scraper(url, resp, pages, max_word_count_global, high_freq_words_global):
+    links = extract_next_links(url, resp, pages, max_word_count_global, high_freq_words_global)
     # print(links)
     return [link for link in links if is_valid(link)]
 
@@ -53,8 +56,8 @@ def extract_content(soup):
     return ex_data 
 
 def save_contents(content):
+    csv_lock.acquire()
     try:
-        csv_lock.acquire()
         csv_file = open('scrapped.csv', 'a', encoding='utf-8', newline='')
         writer = csv.writer(csv_file)
         writer.writerow(content.values())
@@ -62,7 +65,7 @@ def save_contents(content):
     finally:
         csv_lock.release()
 
-def extract_next_links(url, resp, pages):
+def extract_next_links(url, resp, pages, max_word_count_global, high_freq_words_global):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -85,7 +88,7 @@ def extract_next_links(url, resp, pages):
         contents['url'] = url
         pages.add(url)
         save_contents(contents)
-        process_content(contents)
+        process_content(contents, max_word_count_global, high_freq_words_global)
         for link in soup.find_all('a'):
             extracted_link = link.get('href')
             if extracted_link:
@@ -123,22 +126,22 @@ def is_valid(url):
         raise
 
 # TODO: Implement this
-def process_content(content):
+def process_content(content, max_word_count_global, high_freq_words_global):
     #update max word counts and word freq dict
     tokens = tokenize(content['text'])
     is_close_duplicate = check_close_duplicates(tokens)
     if not is_close_duplicate:
-        update_max_count(tokens, content['url'])
-        update_max_freq_words(tokens)
+        update_max_count(tokens, content['url'], max_word_count_global)
+        update_max_freq_words(tokens, high_freq_words_global)
         #update unique urls
         # update_unique_url(content['url'])
-        with open("processed_text.txt", 'w') as f:
-            f.write('URL with Max No.of words \n')
-            for key, value in max_word_count_global.items():
-                f.write('%s:%s\n' % (key, value))
-            f.write('50 high freq words \n')
-            for key, value in high_freq_words_global.items():
-                f.write('%s:%s\n' % (key, value))
+        # with open("processed_text.txt", 'w') as f:
+        #     f.write('URL with Max No.of words \n')
+        #     for key, value in max_word_count_global.items():
+        #         f.write('%s:%s\n' % (key, value))
+        #     f.write('50 high freq words \n')
+        #     for key, value in high_freq_words_global.items():
+        #         f.write('%s:%s\n' % (key, value))
 
 def tokenize(text):
     #read stopwords #stopwords in nltk and prof's link look different
@@ -154,21 +157,29 @@ def tokenize(text):
         final_tokens.append(token.lower())
     return final_tokens
 
-def update_max_count(tokens,url):
-    global max_word_count_global
+def update_max_count(tokens,url, max_word_count_global):
+    # global max_word_count_global
     current_word_count = len(tokens)
-    if max_word_count_global['word_count'] < current_word_count:
-        max_word_count_global['word_count'] = current_word_count
-        max_word_count_global['url'] = url
+    max_word_count_mutex.acquire()
+    try:
+        if max_word_count_global['word_count'] < current_word_count:
+            max_word_count_global['word_count'] = current_word_count
+            max_word_count_global['url'] = url
+    finally:
+        max_word_count_mutex.release()
 
-def update_max_freq_words(tokens):
-    global high_freq_words_global
+def update_max_freq_words(tokens, high_freq_words_global):
+    # global high_freq_words_global
     current_word_frequencies = defaultdict(int)
     for token in tokens:
         current_word_frequencies[token] += 1
-    combined_dict = Counter(current_word_frequencies) + Counter(high_freq_words_global)
-    #update global dict with top 50 of combined dict
-    high_freq_words_global = dict(sorted(combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
+    high_freq_word_count_mutex.acquire()
+    try:
+        combined_dict = Counter(current_word_frequencies) + Counter(high_freq_words_global)
+        #update global dict with top 50 of combined dict
+        high_freq_words_global = dict(sorted(combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
+    finally:
+        high_freq_word_count_mutex.release()
 
 
 # def update_unique_url(url):
@@ -179,10 +190,14 @@ def update_max_freq_words(tokens):
 
 def check_close_duplicates(tokens):
     s1 = Simhash(tokens)
-    if len(simhash_indexes.get_near_dups(s1)) == 0:
-        simhash_indexes.add(get_random_string(), s1)
-        return False
-    return True
+    simhash_index_mutex.acquire()
+    try:
+        if len(simhash_indexes.get_near_dups(s1)) == 0:
+            simhash_indexes.add(get_random_string(), s1)
+            return False
+        return True
+    finally:
+        simhash_index_mutex.release()
 
 def get_random_string():
     return ''.join(random.choices(string.ascii_uppercase +
