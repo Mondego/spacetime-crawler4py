@@ -11,14 +11,14 @@ from nltk.tokenize import word_tokenize
 from collections import defaultdict
 from collections import Counter
 from operator import itemgetter
+from threading import Lock
 
 from simhash import Simhash, SimhashIndex
 
 max_word_count_global = dict(word_count = 0, url = '')
 high_freq_words_global = defaultdict(int)
-unique_urls_global = set()
 simhash_indexes = SimhashIndex(list(), k=3)
-#pages = set()
+csv_lock = Lock()
 
 def filter_to_allow_subdomains(parsed):
     return  re.match(r".*\.(stat|ics|cs)\.uci\.edu", parsed.netloc.lower()) or (
@@ -53,10 +53,14 @@ def extract_content(soup):
     return ex_data 
 
 def save_contents(content):
-    csv_file = open('scrapped.csv', 'a', encoding='utf-8', newline='')
-    writer = csv.writer(csv_file)
-    writer.writerow(content.values())
-    csv_file.close()
+    try:
+        csv_lock.acquire()
+        csv_file = open('scrapped.csv', 'a', encoding='utf-8', newline='')
+        writer = csv.writer(csv_file)
+        writer.writerow(content.values())
+        csv_file.close()
+    finally:
+        csv_lock.release()
 
 def extract_next_links(url, resp, pages):
     # Implementation required.
@@ -103,7 +107,7 @@ def is_valid(url):
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+            + r"|ps|eps|tex|ppt|pptx|ppsx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
@@ -127,7 +131,7 @@ def process_content(content):
         update_max_count(tokens, content['url'])
         update_max_freq_words(tokens)
         #update unique urls
-        update_unique_url(content['url'])
+        # update_unique_url(content['url'])
         with open("processed_text.txt", 'w') as f:
             f.write('URL with Max No.of words \n')
             for key, value in max_word_count_global.items():
@@ -167,10 +171,10 @@ def update_max_freq_words(tokens):
     high_freq_words_global = dict(sorted(combined_dict.items(), key = itemgetter(1), reverse = True)[:50])
 
 
-def update_unique_url(url):
-    #might require preprocessing of URLs before adding them to global set.
-    global unique_urls_global
-    unique_urls_global.add(url)
+# def update_unique_url(url):
+#     #might require preprocessing of URLs before adding them to global set.
+#     global unique_urls_global
+#     unique_urls_global.add(url)
 
 
 def check_close_duplicates(tokens):

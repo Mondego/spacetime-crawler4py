@@ -9,6 +9,7 @@ from scraper import is_valid
 
 class Frontier(object):
     def __init__(self, config, restart):
+        self.mutex_frontier = RLock()
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = list()
@@ -48,18 +49,25 @@ class Frontier(object):
             f"total urls discovered.")
 
     def get_tbd_url(self):
+        self.mutex_frontier.acquire()
         try:
             return self.to_be_downloaded.pop()
         except IndexError:
             return None
+        finally:
+            self.mutex_frontier.release()
 
     def add_url(self, url):
         url = normalize(url)
         urlhash = get_urlhash(url)
-        if urlhash not in self.save:
-            self.save[urlhash] = (url, False)
-            self.save.sync()
-            self.to_be_downloaded.append(url)
+        self.mutex_frontier.acquire()
+        try:
+            if urlhash not in self.save:
+                self.save[urlhash] = (url, False)
+                self.save.sync()
+                self.to_be_downloaded.append(url)
+        finally:
+            self.mutex_frontier.release()
     
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
