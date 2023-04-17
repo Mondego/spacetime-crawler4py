@@ -1,3 +1,5 @@
+Original crawler code: https://github.com/Mondego/spacetime-crawler4py
+
 ABOUT
 -------------------------
 This is the base implementation of a full crawler that uses a spacetime
