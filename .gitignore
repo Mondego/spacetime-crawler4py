@@ -74,6 +74,8 @@ target/
 
 # pyenv
 .python-version
+pyvenv.cfg
+bin/
 
 # celery beat schedule file
 celerybeat-schedule
@@ -105,6 +107,9 @@ venv.bak/
 
 # vscode
 .vscode/
+
+# PyCharm
+.idea/
 
 *.full.py
 *.shelve
