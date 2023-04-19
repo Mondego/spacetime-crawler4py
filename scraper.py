@@ -39,4 +39,4 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
-# JEREMY WRITING COMMENT FOR TESTING PUSH/PULL reqs
+# OVERWROTE COMMENT
