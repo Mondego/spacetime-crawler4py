@@ -35,8 +35,12 @@ def is_valid(url):
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
+# SOME TEXT 
+"""
+
+"""
     except TypeError:
         print ("TypeError for ", parsed)
         raise
 
-# JEREMY WRITING COMMENT FOR TESTING PUSH/PULL reqs
+# STILL TESTING
