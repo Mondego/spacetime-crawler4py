@@ -1,7 +1,13 @@
 import re
+from lxml import etree, etree
+import requests
 from urllib.parse import urlparse
+import utils.response
 
-def scraper(url, resp):
+from utils.download import download
+
+
+def scraper(url:str, resp: utils.response.Response) -> list:
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
@@ -15,6 +21,14 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    try:
+        response = requests.get(resp.url)
+        root = etree.ElementTree(response.content)
+        if resp.status is 200:
+            pass
+    except:
+        pass
+
     return list()
 
 def is_valid(url):
@@ -23,6 +37,7 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+
         if parsed.scheme not in set(["http", "https"]):
             return False
         return not re.match(
@@ -38,3 +53,7 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+
+if __name__ == "__main__":
+    extract_next_links("https://webscraper.io/test-sites/e-commerce/allinone", download("https://webscraper.io/test-sites/e-commerce/allinone"))
