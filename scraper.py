@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-import  re
+import  sys
 
 def scraper(url, resp):
     '''
@@ -14,8 +14,15 @@ def scraper(url, resp):
     print('RESP: ', resp)#FEEL FREE TO REMOVE THIS. 
     links = extract_next_links(url, resp)
     print('links: ', links)#FEEL FREE TO REMOVE THIS. 
+    res = [link for link in links if is_valid(link)]
+    print('--------------------------------------------------------------')
+    print('RES: ', res)
     print('===========================TESTING DONE=======================')#FEEL FREE TO REMOVE THIS. 
-    return [link for link in links if is_valid(link)]
+    return res 
+
+
+def is_absolute_url(url):
+    return 'www.' in url or 'http' in url
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -32,15 +39,27 @@ def extract_next_links(url, resp):
     
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
     links = soup.find_all('a', href=True) #all the links from the html content
-    urls = [link['href'] if 'www.' in  link['href'] else url+ link['href']for link in links] #get the urls
-    
+    urls = []
+    for link in links:
+        curr_link = link['href']
+        if 'mailto:' in curr_link:
+            continue
+        if '#' in curr_link: #if fragment in 
+            curr_link= curr_link[:curr_link.index('#')]
+        elif is_absolute_url(curr_link):
+            urls.append(curr_link)
+                
+        elif len(curr_link) >= 2 and curr_link[0:1] == '//':
+            urls.append('http:'+curr_link)
+        else:
+            urls.append(url+curr_link) #relative link
     return urls
     
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
-    return False
+
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
