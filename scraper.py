@@ -32,7 +32,7 @@ def extract_next_links(url, resp):
     
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
     links = soup.find_all('a', href=True) #all the links from the html content
-    urls = [link['href'] for link in links] #get the urls
+    urls = [link['href'] if 'www.' in  link['href'] else url+ link['href']for link in links] #get the urls
     
     return urls
     
