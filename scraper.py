@@ -1,8 +1,20 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+import  re
 
 def scraper(url, resp):
+    '''
+    This function needs to return a list of urls that are scraped from the response. 
+    These urls will be added to the Frontier and retrieved from the cache. 
+    These urls have to be filtered so that urls that do not have to be downloaded are not added to the frontier.
+    '''
+    print('===========================TESTING START=======================') #FEEL FREE TO REMOVE THIS. 
+    print('URL:', url)#FEEL FREE TO REMOVE THIS. 
+    print('RESP: ', resp)#FEEL FREE TO REMOVE THIS. 
     links = extract_next_links(url, resp)
+    print('links: ', links)#FEEL FREE TO REMOVE THIS. 
+    print('===========================TESTING DONE=======================')#FEEL FREE TO REMOVE THIS. 
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -15,12 +27,20 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
-
+    if resp.status != 200: #if err, then return empty list
+        return []
+    
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
+    links = soup.find_all('a', href=True) #all the links from the html content
+    urls = [link['href'] for link in links] #get the urls
+    
+    return urls
+    
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    return False
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
