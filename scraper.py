@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-import  sys
+import validators
 
 def scraper(url, resp):
     '''
@@ -22,7 +22,7 @@ def scraper(url, resp):
 
 
 def is_absolute_url(url):
-    return 'www.' in url or 'http' in url
+    return 'www.' in url or 'http' in url or (len(url) >= 4 and url[:2] == '//') #some abosolute urls start with "//" for example "//swiki.ics.uci.edu/doku.php"
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -41,39 +41,51 @@ def extract_next_links(url, resp):
     links = soup.find_all('a', href=True) #all the links from the html content
     urls = []
     for link in links:
-        curr_link = link['href']
-        if 'mailto:' in curr_link:
+        cur_link = link['href']
+        if 'mailto:' in cur_link:
             continue
-        if '#' in curr_link: #if fragment in 
-            curr_link= curr_link[:curr_link.index('#')]
-        elif is_absolute_url(curr_link):
-            urls.append(curr_link)
-                
-        elif len(curr_link) >= 2 and curr_link[0:1] == '//':
-            urls.append('http:'+curr_link)
+        if '#' in cur_link: #if fragment found, remove the fragment part
+            cur_link= cur_link[:cur_link.index('#')]
+        
+        if is_absolute_url(cur_link):
+            if '//' == cur_link[0:2]: # add http if missing
+                cur_link = 'http:'+cur_link
+            urls.append(cur_link) #http is not missing, url is absolute absolute
         else:
-            urls.append(url+curr_link) #relative link
+            urls.append(url+cur_link) #relative link, combine cur_link with url
     return urls
     
+def is_valid_domain(netloc):
+    netloc = netloc.lower()
+    return bool(re.search("cs.uci.edu", netloc)) or bool(re.search("ics.uci.edu", netloc)) or bool(re.search("informatics.uci.edu", netloc)) or bool(re.search("stat.uci.edu", netloc))
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
-
+    """
+    Notes:
+        -- domains: .ics.uci.edu, .cs.uci.edu, .informatics.uci.edu, .stat.uci.edu 
+            Question: do we filter out all except ics.uci.edu? (github README says this)
+    """
     try:
-        parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
+        if not validators.url(url):
+            return False
+        parsed_url = urlparse(url)        # https://docs.python.org/3/library/urllib.parse.html 
+        
+        if not(parsed_url.scheme == 'http' or parsed_url.scheme == 'https'):
+            return False
+        if not is_valid_domain(parsed_url.netloc):   
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            r".*.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed_url.path.lower())
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print ("TypeError for ", parsed_url)
         raise
