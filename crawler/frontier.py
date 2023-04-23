@@ -1,8 +1,9 @@
 import os
 import shelve
+import time
 
 from threading import Thread, RLock
-from queue import Queue, Empty
+from queue import Queue, Empty            # we should change it to a queue: https://stackoverflow.com/questions/1296511/efficiency-of-using-a-python-list-as-a-queue 
 
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
@@ -11,7 +12,7 @@ class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
         self.config = config
-        self.to_be_downloaded = list()
+        self.to_be_downloaded = Queue()              # add urls to this queue
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -24,7 +25,7 @@ class Frontier(object):
                 f"Found save file {self.config.save_file}, deleting it.")
             os.remove(self.config.save_file)
         # Load existing save file, or create one if it does not exist.
-        self.save = shelve.open(self.config.save_file)
+        self.save = shelve.open(self.config.save_file)                      # save file = frontier.shelve (dictionary-like object)
         if restart:
             for url in self.config.seed_urls:
                 self.add_url(url)
@@ -41,17 +42,16 @@ class Frontier(object):
         tbd_count = 0
         for url, completed in self.save.values():
             if not completed and is_valid(url):
-                self.to_be_downloaded.append(url)
+                self.to_be_downloaded.put(url)        # put from Queue library
                 tbd_count += 1
         self.logger.info(
             f"Found {tbd_count} urls to be downloaded from {total_count} "
             f"total urls discovered.")
 
     def get_tbd_url(self):
-        try:
-            return self.to_be_downloaded.pop()
-        except IndexError:
-            return None
+        time.sleep(self.config.time_delay)               # wait 0.5 sec to be polite, value in config.ini file (check utils --> config.py)
+        if not self.to_be_downloaded.empty():            # queue of urls cannot be empty
+            return self.to_be_downloaded.get()           # dequeue (faster than for lists)
 
     def add_url(self, url):
         url = normalize(url)
@@ -59,7 +59,7 @@ class Frontier(object):
         if urlhash not in self.save:
             self.save[urlhash] = (url, False)
             self.save.sync()
-            self.to_be_downloaded.append(url)
+            self.to_be_downloaded.put(url)                  # put() from Queue library
     
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
