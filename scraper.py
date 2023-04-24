@@ -1,12 +1,6 @@
 import re
-#probably remove this later for crawling
-import requests
-from configparser import ConfigParser
-
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from utils.download import download
-from utils.config import Config
 from urllib.parse import urldefrag
 
 # extract link
@@ -16,7 +10,7 @@ from urllib.parse import urldefrag
 # Detect and avoid crawling very large files, especially if they have low information value
 #  is_valid filters a large number of such extensions, but there may be more
 
-
+visited = set()
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -36,15 +30,13 @@ def extract_next_links(url, resp):
         return []
     
 
-    soup = BeautifulSoup(url)
-
 
 
     # Parse the HTML content of the webpage using Beautiful Soup
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
     # Extract the title of the webpage
-    title = soup.title.string
+    # title = soup.title.string
 
     # Extract all of the links on the webpage
     links = []
@@ -52,20 +44,9 @@ def extract_next_links(url, resp):
         href = remove_fragment(link.get('href'))
         if href and href.startswith('http'):
             links.append(href)
+            visited.add(href)
             
     return links
-
-
-
-# cparser = ConfigParser()
-# cparser.read("config.ini")
-# c = Config(cparser)
-
-# resp = download("https://www.ics.uci.edu/", c)
-
-# print(extract_next_links("https://www.ics.uci.edu/", resp))
-
-
 
 
 def is_valid(url):
@@ -79,12 +60,14 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
         
+        
         # #whitelist
         # return re.match(
 
         #     # html, txt, json(?)
-        #     r"^.*ics.uci.edu.*$", parsed.path.lower()
-        # )
+        #     r"|html|txt|json"
+        #     , parsed.path.lower()
+        # ) and url not in visited
     
     #blacklist
         return not re.match(
@@ -95,7 +78,7 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) and url not in visited
 
     except TypeError:
         print ("TypeError for ", parsed)
