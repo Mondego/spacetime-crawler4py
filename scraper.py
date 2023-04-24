@@ -1,5 +1,21 @@
 import re
+#probably remove this later for crawling
+import requests
+from configparser import ConfigParser
+
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+from utils.download import download
+from utils.config import Config
+from urllib.parse import urldefrag
+
+# extract link
+# is valid
+# -------------
+# It is important to filter out urls that are not with ics.uci.edu domain.
+# Detect and avoid crawling very large files, especially if they have low information value
+#  is_valid filters a large number of such extensions, but there may be more
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,16 +31,62 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+
+    if resp.status !=200:
+        return []
+    
+
+    soup = BeautifulSoup(url)
+
+
+
+    # Parse the HTML content of the webpage using Beautiful Soup
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+
+    # Extract the title of the webpage
+    title = soup.title.string
+
+    # Extract all of the links on the webpage
+    links = []
+    for link in soup.find_all('a'):
+        href = remove_fragment(link.get('href'))
+        if href and href.startswith('http'):
+            links.append(href)
+            
+    return links
+
+
+
+# cparser = ConfigParser()
+# cparser.read("config.ini")
+# c = Config(cparser)
+
+# resp = download("https://www.ics.uci.edu/", c)
+
+# print(extract_next_links("https://www.ics.uci.edu/", resp))
+
+
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    
+    
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        
+        # #whitelist
+        # return re.match(
+
+        #     # html, txt, json(?)
+        #     r"^.*ics.uci.edu.*$", parsed.path.lower()
+        # )
+    
+    #blacklist
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -38,3 +100,7 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def remove_fragment(url):
+    pure_url, frag = urldefrag(url)
+    return pure_url 
