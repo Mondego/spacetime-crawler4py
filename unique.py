@@ -1,4 +1,3 @@
-
 class Unique:
     """
     Unique objects helps determine unique urls,
