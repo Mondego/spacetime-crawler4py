@@ -29,9 +29,9 @@ def is_absolute_url(url):
 def extract_text_fingerprint(url, resp):
     # first web scrape a website for all text in body tags
     # create fingerprint hash using all the text
-    hash_method = hashlib.md5()
-    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
-    text_content = soup.get_text()        # text content of the page
+    hash_method = hashlib.md5()                                     # https://learncreategame.com/techart/fingerprinting-content-with-python/
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')  # get the html content from the response
+    text_content = soup.get_text()                                  # text content of the page
     text_content = ''.join(format(ord(i), '08b') for i in text_content)      # convert string to binary
 
     hash_method.update(text_content)

@@ -29,7 +29,7 @@ class Worker(Thread):
                 f"using cache {self.config.cache_server}.")
             
             url_fingerprint = scraper.extract_text_fingerprint(tbd_url, resp)
-            #self.
+            self.frontier.add_fingerprint(url_fingerprint, tbd_url)
 
             scraped_urls = scraper.scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
