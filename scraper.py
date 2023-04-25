@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import validators
+import hashlib
 
 def scraper(url, resp):
     '''
@@ -13,6 +14,7 @@ def scraper(url, resp):
     print('URL:', url)#FEEL FREE TO REMOVE THIS. 
     print('RESP: ', resp)#FEEL FREE TO REMOVE THIS. 
     links = extract_next_links(url, resp)
+    #fingerprint = extract_text_fingerprint(url, resp)
     print('links: ', links)#FEEL FREE TO REMOVE THIS. 
     res = [link for link in links if is_valid(link)]
     print('--------------------------------------------------------------')
@@ -23,6 +25,19 @@ def scraper(url, resp):
 
 def is_absolute_url(url):
     return 'www.' in url or 'http' in url or (len(url) >= 4 and url[:2] == '//') #some abosolute urls start with "//" for example "//swiki.ics.uci.edu/doku.php"
+
+def extract_text_fingerprint(url, resp):
+    # first web scrape a website for all text in body tags
+    # create fingerprint hash using all the text
+    hash_method = hashlib.md5()
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
+    text_content = soup.get_text()        # text content of the page
+    text_content = ''.join(format(ord(i), '08b') for i in text_content)      # convert string to binary
+
+    hash_method.update(text_content)
+    
+    return hash_method.hexdigest()
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -39,6 +54,7 @@ def extract_next_links(url, resp):
     
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser') #get the html content from the response
     links = soup.find_all('a', href=True) #all the links from the html content
+
     urls = []
     for link in links:
         cur_link = link['href']
@@ -58,6 +74,7 @@ def extract_next_links(url, resp):
 def is_valid_domain(netloc):
     netloc = netloc.lower()
     return bool(re.search("cs.uci.edu", netloc)) or bool(re.search("ics.uci.edu", netloc)) or bool(re.search("informatics.uci.edu", netloc)) or bool(re.search("stat.uci.edu", netloc))
+
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.

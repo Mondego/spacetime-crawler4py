@@ -9,6 +9,7 @@ class Crawler(object):
         self.frontier = frontier_factory(config, restart)
         self.workers = list()
         self.worker_factory = worker_factory
+        
 
     def start_async(self):
         self.workers = [
@@ -24,3 +25,4 @@ class Crawler(object):
     def join(self):
         for worker in self.workers:
             worker.join()
+    
