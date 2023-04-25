@@ -1,11 +1,20 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from ics_subdomains import icsSubdomains
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
+    if resp.status != 200:
+        pass # do something here
+    soup = BeautifulSoup(resp.raw_response.content, "html.parser")
+    extracted_links = set()
+    for link in soup.find_all('a'):
+        cur_url = link.get('href')
+        extracted_links.add(cur_url)
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -23,6 +32,7 @@ def extract_next_links(url, resp):
     for link in soup.find_all('a'):
         cur_url = link.get('href')
         extracted_links.add(cur_url[:cur_url.find('#')])
+        
     return list(extracted_links)
 
 def is_valid(url):
@@ -33,6 +43,9 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        if not re.match('\S*.ics.uci.edu$|\S*.cs.uci.edu$|\S*.informatics.uci.edu$|\S*.stat.uci.edu$', parsed.netloc):
+            return False # \S* matches any character before, so we don't have to worry if www is there or not, and $ makes sure the domain ends after that
+        icsSubdomains.addToSubdomain(parsed) # counts the found pages, rather than the crawled pages
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
