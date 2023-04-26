@@ -15,6 +15,7 @@ def scraper(url, resp):
                 ics.write(link)
                 ics.write("\n")
     return tba_links
+
 def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
@@ -52,19 +53,22 @@ def extract_next_links(url, resp):
 
     linksToAdd = list()
     for link in hyperlinks:
-        if urlparse(link['href']) == urlparse("https://www.stat.uci.edu/wp-json/wp/v2/posts/602"):
-            print("FOUND the weirD website")
-            print(url)
-            print(link['href'])
-            print()
         if urlparse(link['href']) == urlparse(url) or link['href'] == "#" or link['href'].startswith("mailto"): # avoid adding duplicates or invalid hrefs
             continue
         if not bool(urlparse(link['href']).netloc): #not absolute
+
             print("NOT ABSOLUTE")
             print("current ", url)
             print(link['href'])
             link = urljoin(url, link['href'])     # convert relative URLs to absolute
             print("new link", link)
+            if urlparse(link) == urlparse("http://www.ics.uci.edu/research/mergers.html"):
+                with open("fails2.txt", "a") as fails:
+                    fails.write(str(url) + "\n")
+
+
+
+            print()
             linksToAdd.append(link)
             _visitedLinks[link] += 1
         else:
@@ -85,10 +89,11 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        if parsed.netloc not in (urlparse("https://www.ics.uci.edu").netloc, urlparse("https://www.cs.uci.edu").netloc, urlparse("").netloc, urlparse("https://www.informatics.uci.edu").netloc, urlparse("https://www.stat.uci.edu").netloc):
-            return False
+        if not re.search(r"\.ics\.uci\.edu/|\.cs\.uci\.edu/"
+                     + r"|\.informatics\.uci\.edu/|\.stat\.uci\.edu/$", url):
+            return False  # using regex to see if a url contains these domain patterns
         return not re.match(
-            r".*\.(php|css|js|bmp|gif|jpe?g|ico"
+            r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
