@@ -9,8 +9,8 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    if resp.status != 200:
-        pass # do something here
+    if resp.status != 200 or resp.raw_response.content is None:
+        return list() # do something here
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     extracted_links = set()
     for link in soup.find_all('a'):
@@ -33,13 +33,15 @@ def extract_next_links(url, resp):
     # has more words than the recorded maxWords.
     maxWord.updateURL(tokenLst, resp.url)
     # print("TokenLst length:", len(tokenLst))
+    # print(tokenLst)
     # print("MaxLenght recoredd:", maxWord.maxWords)
     # print("current URL", resp.url)
     # print("url of longest page", maxWord.longestURL)
     extracted_links = set()
-    soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link in soup.find_all('a'):
         cur_url = link.get('href')
+        if cur_url is None:
+            continue
         extracted_links.add(cur_url[:cur_url.find('#')])
         
     return list(extracted_links)
