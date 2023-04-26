@@ -26,7 +26,7 @@ def extract_next_links(url, resp):
 
         return list()
     
- #   print("URL", urlparse(url).netloc == urlparse("https://www.ics.uci.edu").netloc)
+  #  print("URL", urlparse(url)== urlparse("https://www.ics.uci.edu"))
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
 
     hyperlinks = soup.find_all(href=True) #finds all elements w/ an href
@@ -38,7 +38,7 @@ def extract_next_links(url, resp):
 
     linksToAdd = list()
     for link in hyperlinks:
-        if link['href'] == url:
+        if urlparse(link['href']) == urlparse(url): # avoid adding the link that we are currently exploring into the frontier
             print("SAME LINK")
             continue
         if not bool(urlparse(link['href']).netloc) and link['href'] != "#": #not absolute
@@ -55,7 +55,7 @@ def extract_next_links(url, resp):
    # print("URL", urlparse(url).netloc == urlparse("https://www.ics.uci.edu").netloc)
         #print("RESPONSE", resp.raw_response.content)
 
-    return list()#linksToAdd    #!need a way to remove websites that have already been scraped
+    return linksToAdd    #!need a way to remove websites that have already been scraped
 
 
 def is_valid(url):
