@@ -1,6 +1,8 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from maxWordCount import *
+=======
 from ics_subdomains import icsSubdomains
 
 def scraper(url, resp):
@@ -24,10 +26,14 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    
+    # maxWord object to keep track of maxWords over all the webpages.
+    maxWord = maxWordCount()
+    # tokenLst of all tokens of the current webpage being crawled.
+    tokenLst = maxWord.tokenizer(soup)
+    # Updates the maxWordCount if current webpage
+    # has more words than the recorded maxWords.
+    maxWord.updateMaxCount(tokenLst)
     extracted_links = set()
-    if resp.status != 200:
-        print(url)
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link in soup.find_all('a'):
         cur_url = link.get('href')
