@@ -8,9 +8,13 @@ _visitedLinks = defaultdict(int)
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]  #list of links to be added to the Frontier
-
-
+    tba_links = [link for link in links if is_valid(link)]  #list of links to be added to the Frontier
+    if urlparse(url) == urlparse("https://www.stat.uci.edu"):
+        with open("icsSubDomain.txt", "a") as ics:
+            for link in tba_links:
+                ics.write(link)
+                ics.write("\n")
+    return tba_links
 def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
@@ -28,11 +32,13 @@ def extract_next_links(url, resp):
         print(resp.error)
         print()
 
-        with open("fails.txt", "w") as fails:
-            fails.write(url, resp.status, resp.error)
-            fails.write("\n")
-            
+        with open("fails.txt", "a") as fails:
+            fails.write(str(url) + "\n")
+            fails.write(str(resp.status) + "\n")
+            fails.write(str(resp.error) + "\n")
+
         return list()
+    
     
   #  print("URL", urlparse(url)== urlparse("https://www.ics.uci.edu"))
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
@@ -54,8 +60,9 @@ def extract_next_links(url, resp):
         if urlparse(link['href']) == urlparse(url) or link['href'] == "#" or link['href'].startswith("mailto"): # avoid adding duplicates or invalid hrefs
             continue
         if not bool(urlparse(link['href']).netloc): #not absolute
-            print(link['href'])
             print("NOT ABSOLUTE")
+            print("current ", url)
+            print(link['href'])
             link = urljoin(url, link['href'])     # convert relative URLs to absolute
             print("new link", link)
             linksToAdd.append(link)
@@ -81,7 +88,7 @@ def is_valid(url):
         if parsed.netloc not in (urlparse("https://www.ics.uci.edu").netloc, urlparse("https://www.cs.uci.edu").netloc, urlparse("").netloc, urlparse("https://www.informatics.uci.edu").netloc, urlparse("https://www.stat.uci.edu").netloc):
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            r".*\.(php|css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"

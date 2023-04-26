@@ -1,0 +1,1020 @@
+http://www.ics.uci.edu/research/mergers.html
+404
+None
+http://www.ics.uci.edu/research/universal service.html
+404
+None
+http://www.ics.uci.edu/research/dca.html
+404
+None
+http://www.ics.uci.edu/research/resalloc.html
+404
+None
+http://www.ics.uci.edu/research/qos.html
+404
+None
+http://www.ics.uci.edu/research/wireless.html
+404
+None
+http://www.ics.uci.edu/research/pricing.html
+404
+None
+http://www.ics.uci.edu/research/privacy proposal.html
+404
+None
+http://www.ics.uci.edu/research/identifiability.html
+404
+None
+http://www.ics.uci.edu/research/gdpr ccpa.html
+404
+None
+http://www.ics.uci.edu/research/privacy deficiencies.html
+404
+None
+http://www.ics.uci.edu/research/non neutral incentives.html
+404
+None
+http://www.ics.uci.edu/research/net neutrality.html
+404
+None
+http://www.ics.uci.edu/research/reasonable network management.html
+404
+None
+http://www.ics.uci.edu/research/device attachment.html
+404
+None
+http://www.ics.uci.edu/research/broadband facts label.html
+404
+None
+http://www.ics.uci.edu/research/data caps.html
+404
+None
+http://www.ics.uci.edu/research/zero rating.html
+404
+None
+http://www.ics.uci.edu/research/interconnection.html
+404
+None
+http://www.ics.uci.edu/research/broadband classification.html
+404
+None
+http://www.ics.uci.edu/research/applicants.html
+404
+None
+http://www.ics.uci.edu/courses/ics11/index.html
+404
+None
+https://www.ics.uci.edu/baloghdabrowski-rie10-centrobot.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-irsc11-radar.bibtex.txt
+404
+None
+https://www.ics.uci.edu/da.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-smc13-P3F.bibtex.txt
+404
+None
+https://www.ics.uci.edu/hardware-malware.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ndss14-hwtrojansposter.bibtex.txt
+404
+None
+https://www.ics.uci.edu/Dabrowski-AresECTCM14-Hardware-Trojans-Detection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-woot14-ipv6sok.bibtex.txt
+404
+None
+https://www.ics.uci.edu/JimenezDabrowski-iwdw14-TagDetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ccsspsm2014-qrinception.bibtex.txt
+404
+None
+https://www.ics.uci.edu/imsi.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-fcwws15-OkGlass.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwlangsec15-ECCpolyglots.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-bis2015-ptdcs-smartprivacyvisor.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-usenix3gse15-inetsec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwmost16-WiFiHistoryStealing.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-raid16-providerICdetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-USEC17_wearable.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-acsac17-gridshock.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-ndss18posters-petridish.bibtex.txt
+404
+None
+https://www.ics.uci.edu/rupprechtdabrowski-cst-onsecurity.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-raid18-proofofblackouts.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-pam19-postgdprcookies.bibtex.txt
+404
+None
+https://www.ics.uci.edu/altinaydabrowski-eurosys20-binrec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/pfeffermaidabrowski-sec21-hardwaretoken.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-defi21-hwwallet.bibtex.txt
+404
+None
+https://www.ics.uci.edu/kirth-eurosys22-pkru.bibtex.txt
+404
+None
+https://www.ics.uci.edu/gerhard-usenix23-investigatingEudcc.bibtex.txt
+404
+None
+https://www.cs.uci.edu/reappointment-of-dean-marios-papaefthymiou
+601
+Download Exception HTTPSConnectionPool(host='www.cs.uci.edu', port=443): Read timed out. (read timeout=10).
+http://www.ics.uci.edu/pubs/index.html
+404
+None
+http://www.ics.uci.edu/recommendations.html
+404
+None
+http://www.ics.uci.edu/choosing.courses.html
+404
+None
+http://www.ics.uci.edu/teachingics.html
+404
+None
+http://www.ics.uci.edu/courses/previous.html
+404
+None
+http://www.ics.uci.edu/ http:/www.slis.indiana.edu/TIS
+404
+None
+http://www.ics.uci.edu/classification
+404
+None
+http://www.ics.uci.edu/pubs.htm
+404
+None
+http://www.ics.uci.edu/actnet.html
+404
+None
+http://www.ics.uci.edu/records.html
+404
+None
+http://www.ics.uci.edu/http|/www.ischool.pitt.edu
+404
+None
+https://www.informatics.uci.edu/?page_id=87
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-software-engineering-details/phd-swe-advancement-details
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-informatics-details/comprehensive-exam-details
+404
+None
+https://www.informatics.uci.edu/filter-test
+601
+Download Exception HTTPSConnectionPool(host='www.informatics.uci.edu', port=443): Read timed out..
+http://www.informatics.uci.edu/undergrad/bs-computer-game-science
+404
+None
+http://www.ics.uci.edu/involved/tech_talk
+404
+None
+http://www.ics.uci.edu/Adriana Avina <atavina@uci.edu>
+404
+None
+http://www.ics.uci.edu/contact
+404
+None
+http://www.ics.uci.edu/students
+404
+None
+http://www.ics.uci.edu/courses
+404
+None
+http://www.ics.uci.edu/research
+404
+None
+http://www.ics.uci.edu/bio
+404
+None
+http://www.ics.uci.edu/publications
+404
+None
+http://www.ics.uci.edu/news-3
+404
+None
+http://www.ics.uci.edu/press
+404
+None
+https://www.ics.uci.edu/publications.html
+404
+None
+https://www.ics.uci.edu/group.html
+404
+None
+http://www.ics.uci.edu/contact.html
+404
+None
+http://www.ics.uci.edu/publication.html
+404
+None
+http://www.ics.uci.edu/service.html
+404
+None
+http://www.ics.uci.edu/work.html
+404
+None
+http://www.ics.uci.edu/teach.html
+404
+None
+http://www.ics.uci.edu/research.html
+404
+None
+http://www.ics.uci.edu/pub/websoft/wwwstat
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/wwwstat (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4b80>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/MOMspider
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/MOMspider (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4100>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-perl
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-perl (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4520>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-ada95
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-ada95 (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4d90>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/webdav
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/webdav (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4790>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/http/rfc1945.html
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/http/rfc1945.html (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df42e0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/html
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/html (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f1ff0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/http
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/http (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2830>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/uri
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/uri (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f1de0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2cb0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/hyperware
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/hyperware (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2110>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/Publications.htm
+404
+None
+http://www.ics.uci.edu/Classes.htm
+404
+None
+http://www.ics.uci.edu/software
+601
+Download Exception No host specified..
+http://www.ics.uci.edu/biography_kai_zheng.txt
+404
+None
+http://www.informatics.uci.edu/explore/faculty-profiles/don-patterson
+404
+None
+http://www.informatics.uci.edu/grad/student-profiles/jed-brubaker
+404
+None
+http://www.ics.uci.edu/~seal/projects/resist/ics.uci.edu/~malek
+404
+None
+http://www.ics.uci.edu/research/mergers.html
+404
+None
+http://www.ics.uci.edu/research/universal service.html
+404
+None
+http://www.ics.uci.edu/research/dca.html
+404
+None
+http://www.ics.uci.edu/research/resalloc.html
+404
+None
+http://www.ics.uci.edu/research/qos.html
+404
+None
+http://www.ics.uci.edu/research/wireless.html
+404
+None
+http://www.ics.uci.edu/research/pricing.html
+404
+None
+http://www.ics.uci.edu/research/privacy proposal.html
+404
+None
+http://www.ics.uci.edu/research/identifiability.html
+404
+None
+http://www.ics.uci.edu/research/gdpr ccpa.html
+404
+None
+http://www.ics.uci.edu/research/privacy deficiencies.html
+404
+None
+http://www.ics.uci.edu/research/non neutral incentives.html
+404
+None
+http://www.ics.uci.edu/research/net neutrality.html
+404
+None
+http://www.ics.uci.edu/research/reasonable network management.html
+404
+None
+http://www.ics.uci.edu/research/device attachment.html
+404
+None
+http://www.ics.uci.edu/research/broadband facts label.html
+404
+None
+http://www.ics.uci.edu/research/data caps.html
+404
+None
+http://www.ics.uci.edu/research/zero rating.html
+404
+None
+http://www.ics.uci.edu/research/interconnection.html
+404
+None
+http://www.ics.uci.edu/research/broadband classification.html
+404
+None
+http://www.ics.uci.edu/research/applicants.html
+404
+None
+http://www.ics.uci.edu/courses/ics11/index.html
+404
+None
+https://www.ics.uci.edu/baloghdabrowski-rie10-centrobot.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-irsc11-radar.bibtex.txt
+404
+None
+https://www.ics.uci.edu/da.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-smc13-P3F.bibtex.txt
+404
+None
+https://www.ics.uci.edu/hardware-malware.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ndss14-hwtrojansposter.bibtex.txt
+404
+None
+https://www.ics.uci.edu/Dabrowski-AresECTCM14-Hardware-Trojans-Detection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-woot14-ipv6sok.bibtex.txt
+404
+None
+https://www.ics.uci.edu/JimenezDabrowski-iwdw14-TagDetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ccsspsm2014-qrinception.bibtex.txt
+404
+None
+https://www.ics.uci.edu/imsi.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-fcwws15-OkGlass.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwlangsec15-ECCpolyglots.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-bis2015-ptdcs-smartprivacyvisor.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-usenix3gse15-inetsec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwmost16-WiFiHistoryStealing.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-raid16-providerICdetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-USEC17_wearable.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-acsac17-gridshock.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-ndss18posters-petridish.bibtex.txt
+404
+None
+https://www.ics.uci.edu/rupprechtdabrowski-cst-onsecurity.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-raid18-proofofblackouts.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-pam19-postgdprcookies.bibtex.txt
+404
+None
+https://www.ics.uci.edu/altinaydabrowski-eurosys20-binrec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/pfeffermaidabrowski-sec21-hardwaretoken.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-defi21-hwwallet.bibtex.txt
+404
+None
+https://www.ics.uci.edu/kirth-eurosys22-pkru.bibtex.txt
+404
+None
+https://www.ics.uci.edu/gerhard-usenix23-investigatingEudcc.bibtex.txt
+404
+None
+https://www.cs.uci.edu/reappointment-of-dean-marios-papaefthymiou
+601
+Download Exception HTTPSConnectionPool(host='www.cs.uci.edu', port=443): Read timed out. (read timeout=10).
+http://www.ics.uci.edu/pubs/index.html
+404
+None
+http://www.ics.uci.edu/recommendations.html
+404
+None
+http://www.ics.uci.edu/choosing.courses.html
+404
+None
+http://www.ics.uci.edu/teachingics.html
+404
+None
+http://www.ics.uci.edu/courses/previous.html
+404
+None
+http://www.ics.uci.edu/ http:/www.slis.indiana.edu/TIS
+404
+None
+http://www.ics.uci.edu/classification
+404
+None
+http://www.ics.uci.edu/pubs.htm
+404
+None
+http://www.ics.uci.edu/actnet.html
+404
+None
+http://www.ics.uci.edu/records.html
+404
+None
+http://www.ics.uci.edu/http|/www.ischool.pitt.edu
+404
+None
+https://www.informatics.uci.edu/?page_id=87
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-software-engineering-details/phd-swe-advancement-details
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-informatics-details/comprehensive-exam-details
+404
+None
+https://www.informatics.uci.edu/filter-test
+601
+Download Exception HTTPSConnectionPool(host='www.informatics.uci.edu', port=443): Read timed out..
+http://www.informatics.uci.edu/undergrad/bs-computer-game-science
+404
+None
+http://www.ics.uci.edu/involved/tech_talk
+404
+None
+http://www.ics.uci.edu/Adriana Avina <atavina@uci.edu>
+404
+None
+http://www.ics.uci.edu/contact
+404
+None
+http://www.ics.uci.edu/students
+404
+None
+http://www.ics.uci.edu/courses
+404
+None
+http://www.ics.uci.edu/research
+404
+None
+http://www.ics.uci.edu/bio
+404
+None
+http://www.ics.uci.edu/publications
+404
+None
+http://www.ics.uci.edu/news-3
+404
+None
+http://www.ics.uci.edu/press
+404
+None
+https://www.ics.uci.edu/publications.html
+404
+None
+https://www.ics.uci.edu/group.html
+404
+None
+http://www.ics.uci.edu/contact.html
+404
+None
+http://www.ics.uci.edu/publication.html
+404
+None
+http://www.ics.uci.edu/service.html
+404
+None
+http://www.ics.uci.edu/work.html
+404
+None
+http://www.ics.uci.edu/teach.html
+404
+None
+http://www.ics.uci.edu/research.html
+404
+None
+http://www.ics.uci.edu/pub/websoft/wwwstat
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/wwwstat (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4b80>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/MOMspider
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/MOMspider (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4100>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-perl
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-perl (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4520>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-ada95
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-ada95 (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4d90>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/webdav
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/webdav (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4790>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/http/rfc1945.html
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/http/rfc1945.html (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df42e0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/research/mergers.html
+404
+None
+http://www.ics.uci.edu/research/universal service.html
+404
+None
+http://www.ics.uci.edu/research/dca.html
+404
+None
+http://www.ics.uci.edu/research/resalloc.html
+404
+None
+http://www.ics.uci.edu/research/qos.html
+404
+None
+http://www.ics.uci.edu/research/wireless.html
+404
+None
+http://www.ics.uci.edu/research/pricing.html
+404
+None
+http://www.ics.uci.edu/research/privacy proposal.html
+404
+None
+http://www.ics.uci.edu/research/identifiability.html
+404
+None
+http://www.ics.uci.edu/research/gdpr ccpa.html
+404
+None
+http://www.ics.uci.edu/research/privacy deficiencies.html
+404
+None
+http://www.ics.uci.edu/research/non neutral incentives.html
+404
+None
+http://www.ics.uci.edu/research/net neutrality.html
+404
+None
+http://www.ics.uci.edu/research/reasonable network management.html
+404
+None
+http://www.ics.uci.edu/research/device attachment.html
+404
+None
+http://www.ics.uci.edu/research/broadband facts label.html
+404
+None
+http://www.ics.uci.edu/research/data caps.html
+404
+None
+http://www.ics.uci.edu/research/zero rating.html
+404
+None
+http://www.ics.uci.edu/research/interconnection.html
+404
+None
+http://www.ics.uci.edu/research/broadband classification.html
+404
+None
+http://www.ics.uci.edu/research/applicants.html
+404
+None
+http://www.ics.uci.edu/courses/ics11/index.html
+404
+None
+https://www.ics.uci.edu/baloghdabrowski-rie10-centrobot.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-irsc11-radar.bibtex.txt
+404
+None
+https://www.ics.uci.edu/da.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-smc13-P3F.bibtex.txt
+404
+None
+https://www.ics.uci.edu/hardware-malware.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ndss14-hwtrojansposter.bibtex.txt
+404
+None
+https://www.ics.uci.edu/Dabrowski-AresECTCM14-Hardware-Trojans-Detection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-woot14-ipv6sok.bibtex.txt
+404
+None
+https://www.ics.uci.edu/JimenezDabrowski-iwdw14-TagDetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-ccsspsm2014-qrinception.bibtex.txt
+404
+None
+https://www.ics.uci.edu/imsi.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-fcwws15-OkGlass.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwlangsec15-ECCpolyglots.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-bis2015-ptdcs-smartprivacyvisor.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-usenix3gse15-inetsec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-spwmost16-WiFiHistoryStealing.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-raid16-providerICdetection.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-USEC17_wearable.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-acsac17-gridshock.bibtex.txt
+404
+None
+https://www.ics.uci.edu/krombholzdabrowski-ndss18posters-petridish.bibtex.txt
+404
+None
+https://www.ics.uci.edu/rupprechtdabrowski-cst-onsecurity.bibtex.txt
+404
+None
+https://www.ics.uci.edu/ullrichdabrowski-raid18-proofofblackouts.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-pam19-postgdprcookies.bibtex.txt
+404
+None
+https://www.ics.uci.edu/altinaydabrowski-eurosys20-binrec.bibtex.txt
+404
+None
+https://www.ics.uci.edu/pfeffermaidabrowski-sec21-hardwaretoken.bibtex.txt
+404
+None
+https://www.ics.uci.edu/dabrowski-defi21-hwwallet.bibtex.txt
+404
+None
+https://www.ics.uci.edu/kirth-eurosys22-pkru.bibtex.txt
+404
+None
+https://www.ics.uci.edu/gerhard-usenix23-investigatingEudcc.bibtex.txt
+404
+None
+https://www.cs.uci.edu/reappointment-of-dean-marios-papaefthymiou
+601
+Download Exception HTTPSConnectionPool(host='www.cs.uci.edu', port=443): Read timed out. (read timeout=10).
+http://www.ics.uci.edu/pubs/index.html
+404
+None
+http://www.ics.uci.edu/recommendations.html
+404
+None
+http://www.ics.uci.edu/choosing.courses.html
+404
+None
+http://www.ics.uci.edu/teachingics.html
+404
+None
+http://www.ics.uci.edu/courses/previous.html
+404
+None
+http://www.ics.uci.edu/ http:/www.slis.indiana.edu/TIS
+404
+None
+http://www.ics.uci.edu/classification
+404
+None
+http://www.ics.uci.edu/pubs.htm
+404
+None
+http://www.ics.uci.edu/actnet.html
+404
+None
+http://www.ics.uci.edu/records.html
+404
+None
+http://www.ics.uci.edu/http|/www.ischool.pitt.edu
+404
+None
+https://www.informatics.uci.edu/?page_id=87
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-software-engineering-details/phd-swe-advancement-details
+404
+None
+https://www.informatics.uci.edu/graduate-resources/program-details/phd-informatics-details/comprehensive-exam-details
+404
+None
+https://www.informatics.uci.edu/filter-test
+601
+Download Exception HTTPSConnectionPool(host='www.informatics.uci.edu', port=443): Read timed out..
+http://www.informatics.uci.edu/undergrad/bs-computer-game-science
+404
+None
+http://www.ics.uci.edu/involved/tech_talk
+404
+None
+http://www.ics.uci.edu/Adriana Avina <atavina@uci.edu>
+404
+None
+http://www.ics.uci.edu/contact
+404
+None
+http://www.ics.uci.edu/students
+404
+None
+http://www.ics.uci.edu/courses
+404
+None
+http://www.ics.uci.edu/research
+404
+None
+http://www.ics.uci.edu/bio
+404
+None
+http://www.ics.uci.edu/publications
+404
+None
+http://www.ics.uci.edu/news-3
+404
+None
+http://www.ics.uci.edu/press
+404
+None
+https://www.ics.uci.edu/publications.html
+404
+None
+https://www.ics.uci.edu/group.html
+404
+None
+http://www.ics.uci.edu/contact.html
+404
+None
+http://www.ics.uci.edu/publication.html
+404
+None
+http://www.ics.uci.edu/service.html
+404
+None
+http://www.ics.uci.edu/work.html
+404
+None
+http://www.ics.uci.edu/teach.html
+404
+None
+http://www.ics.uci.edu/research.html
+404
+None
+http://www.ics.uci.edu/pub/websoft/wwwstat
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/wwwstat (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4b80>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/MOMspider
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/MOMspider (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4100>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-perl
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-perl (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4520>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft/libwww-ada95
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft/libwww-ada95 (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4d90>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/webdav
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/webdav (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df4790>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/http/rfc1945.html
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/http/rfc1945.html (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f67d3df42e0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/html
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/html (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f1ff0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/http
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/http (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2830>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/ietf/uri
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/ietf/uri (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f1de0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/websoft
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/websoft (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2cb0>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/pub/hyperware
+601
+Download Exception HTTPConnectionPool(host='ftp.ics.uci.edu', port=80): Max retries exceeded with url: /pub/hyperware (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f79ef1f2110>, 'Connection to ftp.ics.uci.edu timed out. (connect timeout=10)')).
+http://www.ics.uci.edu/Publications.htm
+404
+None
+http://www.ics.uci.edu/Classes.htm
+404
+None
+http://www.ics.uci.edu/software
+601
+Download Exception No host specified..
+http://www.ics.uci.edu/biography_kai_zheng.txt
+404
+None
+http://www.informatics.uci.edu/explore/faculty-profiles/don-patterson
+404
+None
+http://www.informatics.uci.edu/grad/student-profiles/jed-brubaker
+404
+None
+http://www.ics.uci.edu/~seal/projects/resist/ics.uci.edu/~malek
+404
+None
+http://www.ics.uci.edu/research/mergers.html
+404
+None
+http://www.ics.uci.edu/research/universal service.html
+404
+None
+http://www.ics.uci.edu/research/dca.html
+404
+None
+http://www.ics.uci.edu/research/resalloc.html
+404
+None
+http://www.ics.uci.edu/research/qos.html
+404
+None
+http://www.ics.uci.edu/research/wireless.html
+404
+None
+http://www.ics.uci.edu/research/pricing.html
+404
+None
+http://www.ics.uci.edu/research/privacy proposal.html
+404
+None
+http://www.ics.uci.edu/research/identifiability.html
+404
+None
+http://www.ics.uci.edu/research/gdpr ccpa.html
+404
+None
+http://www.ics.uci.edu/research/privacy deficiencies.html
+404
+None
+http://www.ics.uci.edu/research/non neutral incentives.html
+404
+None
+http://www.ics.uci.edu/research/net neutrality.html
+404
+None
+http://www.ics.uci.edu/research/reasonable network management.html
+404
+None
+http://www.ics.uci.edu/research/device attachment.html
+404
+None
+http://www.ics.uci.edu/research/broadband facts label.html
+404
+None
+http://www.ics.uci.edu/research/data caps.html
+404
+None
+http://www.ics.uci.edu/research/zero rating.html
+404
+None
+http://www.ics.uci.edu/research/interconnection.html
+404
+None
+http://www.ics.uci.edu/research/broadband classification.html
+404
+None
+http://www.ics.uci.edu/research/applicants.html
+404
+None
+http://www.ics.uci.edu/research/mergers.html
+404
+None
+http://www.ics.uci.edu/research/universal service.html
+404
+None
+http://www.ics.uci.edu/research/dca.html
+404
+None
+http://www.ics.uci.edu/research/resalloc.html
+404
+None
+http://www.ics.uci.edu/research/qos.html
+404
+None
+http://www.ics.uci.edu/research/wireless.html
+404
+None
+http://www.ics.uci.edu/research/pricing.html
+404
+None
+http://www.ics.uci.edu/research/privacy proposal.html
+404
+None
+http://www.ics.uci.edu/research/identifiability.html
+404
+None
+http://www.ics.uci.edu/research/gdpr ccpa.html
+404
+None
+http://www.ics.uci.edu/research/privacy deficiencies.html
+404
+None
+http://www.ics.uci.edu/research/non neutral incentives.html
+404
+None
+http://www.ics.uci.edu/research/net neutrality.html
+404
+None
+http://www.ics.uci.edu/research/reasonable network management.html
+404
+None
+http://www.ics.uci.edu/research/device attachment.html
+404
+None
+http://www.ics.uci.edu/research/broadband facts label.html
+404
+None
+http://www.ics.uci.edu/research/data caps.html
+404
+None
+http://www.ics.uci.edu/research/zero rating.html
+404
+None
+http://www.ics.uci.edu/research/interconnection.html
+404
+None
+http://www.ics.uci.edu/research/broadband classification.html
+404
+None
+http://www.ics.uci.edu/research/applicants.html
+404
+None
+http://www.ics.uci.edu/courses/ics11/index.html
+404
+None
