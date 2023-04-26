@@ -22,16 +22,21 @@ def extract_next_links(url, resp):
 
         return list()
     
+  #  print(resp.raw_response.content)
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
-    results = soup.find_all("a", href=True) #finds all 'a' element w/ an href
+
+    results = soup.find_all(href=True) #finds all elements w/ an href
+    words = soup.find_all("p")
+    for w in words:
+        print(w.text)
     #print(results.prettify())
 
     #convert relative URLs to absolute
 
 
-    print("URL", url)
+   # print("URL", urlparse(url).netloc == urlparse("https://www.ics.uci.edu").netloc)
         #print("RESPONSE", resp.raw_response.content)
-    return [link['href'] for link in results]    #!need a way to remove websites that have already been scraped
+    return list()#[link['href'] for link in results]    #!need a way to remove websites that have already been scraped
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -41,6 +46,8 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        
+        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
