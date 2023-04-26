@@ -1,5 +1,7 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+from maxWordCount import *
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,7 +17,28 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    print(url)
+    print(resp.error)
+    print(resp.status)
+    soup = BeautifulSoup(resp.raw_response.content, "html.parser")
+    # maxWord object to keep track of maxWords over all the webpages.
+    maxWord = maxWordCount()
+    # tokenLst of all tokens of the current webpage being crawled.
+    tokenLst = maxWord.tokenizer(soup)
+    
+    print(tokenLst)
+    # Updates the maxWordCount if current webpage
+    # has more words than the recorded maxWords.
+    maxWord.updateMaxCount(tokenLst)
+    # print("Length of list", len(tokenLst))
+    # print("Current max:", maxWord.maxWords)
+    extracted_links = set()
+    
+    for link in soup.find_all('a'):
+        cur_url = link.get('href')
+        extracted_links.add(cur_url[:cur_url.find('#')])
+    # print(extracted_links)
+    return (list(extracted_links))
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,6 +48,8 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        if not re.match('\S*.ics.uci.edu$|\S*.cs.uci.edu$|\S*.informatics.uci.edu$|\S*.stat.uci.edu$', parsed.netloc):
+            return False # \S* matches any character before, so we don't have to worry if www is there or not, and $ makes sure the domain ends after that
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
