@@ -1,10 +1,14 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+from collections import defaultdict
+
+_visitedLinks = defaultdict(int)
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]  #list of links to be added to the Frontier
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -25,19 +29,34 @@ def extract_next_links(url, resp):
  #   print("URL", urlparse(url).netloc == urlparse("https://www.ics.uci.edu").netloc)
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
 
-    results = soup.find_all(href=True) #finds all elements w/ an href
+    hyperlinks = soup.find_all(href=True) #finds all elements w/ an href
     words = soup.find_all("p")
    # for w in words:
         #print(w.text)
     #print(results.prettify())
 
-    #convert relative URLs to absolute
-    if not bool(urlparse(url).netloc):
-        
 
+    linksToAdd = list()
+    for link in hyperlinks:
+        if link['href'] == url:
+            print("SAME LINK")
+            continue
+        if not bool(urlparse(link['href']).netloc) and link['href'] != "#": #not absolute
+          #  print(link['href'])
+          #  print("NOT ABSOLUTE")
+            link = urljoin(url, link['href'])     # convert relative URLs to absolute
+           # print("new link", link)
+            linksToAdd.append(link)
+            _visitedLinks[link] += 1
+        else:
+            linksToAdd.append(link['href'])
+            _visitedLinks[link['href']] += 1
+    
    # print("URL", urlparse(url).netloc == urlparse("https://www.ics.uci.edu").netloc)
         #print("RESPONSE", resp.raw_response.content)
-    return [link['href'] for link in results]    #!need a way to remove websites that have already been scraped
+
+    return list()#linksToAdd    #!need a way to remove websites that have already been scraped
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
