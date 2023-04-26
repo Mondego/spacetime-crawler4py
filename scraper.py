@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from collections import defaultdict
 
+
 _visitedLinks = defaultdict(int)
 
 def scraper(url, resp):
@@ -23,13 +24,20 @@ def extract_next_links(url, resp):
     
     if resp.status != 200: # this means we didn't get the page
         print("u suck")
+        print(url)
+        print(resp.error)
+        print()
 
+        with open("fails.txt", "w") as fails:
+            fails.write(url, resp.status, resp.error)
+            fails.write("\n")
+            
         return list()
     
   #  print("URL", urlparse(url)== urlparse("https://www.ics.uci.edu"))
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
 
-    hyperlinks = soup.find_all(href=True) #finds all elements w/ an href
+    hyperlinks = soup.find_all("a", href=True) #finds all elements w/ an href
     words = soup.find_all("p")
    # for w in words:
         #print(w.text)
@@ -38,14 +46,18 @@ def extract_next_links(url, resp):
 
     linksToAdd = list()
     for link in hyperlinks:
-        if urlparse(link['href']) == urlparse(url): # avoid adding the link that we are currently exploring into the frontier
-            print("SAME LINK")
+        if urlparse(link['href']) == urlparse("https://www.stat.uci.edu/wp-json/wp/v2/posts/602"):
+            print("FOUND the weirD website")
+            print(url)
+            print(link['href'])
+            print()
+        if urlparse(link['href']) == urlparse(url) or link['href'] == "#" or link['href'].startswith("mailto"): # avoid adding duplicates or invalid hrefs
             continue
-        if not bool(urlparse(link['href']).netloc) and link['href'] != "#": #not absolute
-          #  print(link['href'])
-          #  print("NOT ABSOLUTE")
+        if not bool(urlparse(link['href']).netloc): #not absolute
+            print(link['href'])
+            print("NOT ABSOLUTE")
             link = urljoin(url, link['href'])     # convert relative URLs to absolute
-           # print("new link", link)
+            print("new link", link)
             linksToAdd.append(link)
             _visitedLinks[link] += 1
         else:
