@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import nltk
@@ -16,8 +17,9 @@ class maxWordCount():
         
         # The text is the string of all the words on the webpage without the HTML markup
         text = soup.get_text(strip=True)
+        textWithoutSymbols = re.sub(r"[^A-Za-z0-9\s]+", "", text)
         # Tokenizes the text into a list.
-        token_lst = nltk.word_tokenize(text)
+        token_lst = nltk.word_tokenize(textWithoutSymbols)
         return token_lst
     
     @classmethod
