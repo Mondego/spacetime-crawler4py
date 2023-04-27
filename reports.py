@@ -6,10 +6,6 @@ report.write("2. The maximum number of words overall the webpages crawled is:", 
 report.write("\n")
 report.write("""4. Here is a list of all the subdomains found in the ics.uci.edu domain in alphabetical order, 
              along with the number of unique pages detected in each subdomain:\n""")
-# subdomainList = list()
 for key, value in icsSubdomains.subdomainDict.items():
     report.write(key, value + "\n")
-    # itemString = key + ", " + str(value)
-    # subdomainList.append(itemString)
-# report.write(subdomainList)
 report.close()
