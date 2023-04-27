@@ -12,7 +12,7 @@ def _generate_Hash(word:str) -> str:
     hash = 0
     word = word.lower()
     for i in range(len(word)):
-        asciiRep = word[i] - 'a' + 1
+        asciiRep = ord(word[i]) - ord('a') + 1
         asciiRep %= mod
         temp = base**len(word)
         temp = temp%mod
@@ -45,3 +45,19 @@ def generate_Fingerprint(token_Freq:dict):
         fingerprint += "1" if val > 0 else "0"
     
     return fingerprint
+
+
+def calc_similarity(f1, f2) -> bool:
+    """
+    threshold: 0.96
+    """
+    threshold = 0.96
+    
+    assert len(f1) == len(f2), "Fingerprints are not same length"
+
+    similar_count = 0
+    for i in range(12):
+        if f1[i] == f2[i]:
+            similar_count += 1
+    
+    return (similar_count / 12) >= threshold

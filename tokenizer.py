@@ -91,7 +91,9 @@ if __name__ == "__main__":
     try:
         p = Path(sys.argv[1])
     # p = Path(r"C:\Users\steie\OneDrive\Desktop\College\CS 121\Assignment 1\tests\simpletest.txt")
-        printFreq(computeWordFrequencies(tokenize(p)))
+        freq = computeWordFrequencies(tokenize(p))
+        printFreq(freq)
+
     except IndexError:
         print("Not enough inputs provided")
 
