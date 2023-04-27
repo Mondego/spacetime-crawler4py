@@ -12,6 +12,10 @@ class Worker(Thread):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
+        
+        with open("stopwords.txt","r") as f:
+            self.stopwords = [i.strip() for i in f]
+            
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -29,7 +33,8 @@ class Worker(Thread):
                 f"using cache {self.config.cache_server}.")
             
             writingFile = open("wordsCollection.txt","a")
-            scraped_urls = scraper.scraper(tbd_url, resp,self.config,writingFile)
+            
+            scraped_urls = scraper.scraper(self,self.frontier,tbd_url, resp,self.config,writingFile,self.stopwords)
             writingFile.close()
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)

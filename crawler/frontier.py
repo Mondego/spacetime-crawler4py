@@ -12,6 +12,8 @@ class Frontier(object):
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = list()
+        self.visited = list() # added by Hitoki 4/27/2023
+        self.visitedSimHashes = list() # added by Hitoki 4/27/2023
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.

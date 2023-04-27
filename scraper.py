@@ -3,13 +3,14 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 
-def scraper(url, resp,config,writingFile):
+def scraper(worker,frontier,url, resp,config,writingFile,stopwords):
 
 
-    links = extract_next_links(url, resp,config,writingFile)
+    links = extract_next_links(worker,frontier,url, resp,config,writingFile,stopwords)
+    
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp,config, writingFile):
+def extract_next_links(worker,frontier,url, resp,config, writingFile,stopwords):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -28,61 +29,94 @@ def extract_next_links(url, resp,config, writingFile):
     
     #finding all links
     links = list()
-    for link in soup.find_all('a'):
-        links.append(link.get('href'))
-    
     texts = soup.get_text()
 
-    tokens = tokenize(texts)
+    tokens = list(set(tokenize(texts,stopwords)))
     
+    
+    if simHash(tokens) not in frontier.visitedSimHashes:
+        #TODO complete simhash
+        writingFile.write("PAGE::"+url)
+        writingFile.write(sorted(tokens))
+        for link in soup.find_all('a'):
+            
+            link = toAbsolute(url,link)
+            
+            if link not in frontier.visited:
+                if "?" in link:
+                    link = link[:link.index("?")] # this takes out the fragment
+                links.append(link.get('href'))
+
+        return links
     ### END by hitoki 4/26/2023 10:52pm
     
+    return list()
+
+#added by Hitoki 4/27/2023 1:19am
+def toAbsolute(url, newlink):
+    #TODO make relative to absolute
+    return newlink 
+
+#added by Hitoki 4/27/2023 1:24am
+def simHash(words):
+    #TODO
+    return -1
+
+#added by Hitoki 4/27/2023 1:12am
+def tokenize(text,stopwords)->list:
+    """The tokenize function is a modified function from Assignment 1 Part A of Hitoki Kdahashi's submission (37022201)
+    This function takes in a string text, splits it by white spaces, and attempt to check the validity of each word.
+    A word is valid if it is not in the stopwords list, or that it is more than 1 character long, and obeys the regular expression ^[a-zA-Z0-9]$, or that it has to be alphanumerical.
     
-    return links
-
-
-def tokenize(text)->list:
-    """The tokenize function reads in a text file and returns a list of the tokens in that file. 
-        This function deos not remove duplicate tokens and will add the strings as lower alphabets.
+    THIS FUNCTION DOES NOT REMOVE DUPLICATES
     
-
     Args:
-        filePath (string): string to the file or filepath.
+        text (str): text scraped from the crawler
+        stopwords (list[str]): list of string of stopwords in english dictionary.
 
     Returns:
         List[str]: A list of token strings
         
     Complexity:
-        O(n) where n is the number of characters in the file because this function loops through every line and for every line it iterates through every character in that line. Thus the function grow in linear time based on the input N.
+        O(n) where n is the number of characters in the text because this function loops through every line and for every line it iterates through every character in that line. Thus the function grow in linear time based on the input N.
     """
-    # f = open(filePath,"r") # using utf-8 to open non-english character words
-    with open(filePath,"r",errors="ignore") as f:
-        # tokens = []
-        words = []
+    text = text.split(" ") 
+    words = []
+    numOfStopWordsDetected = 0
+    # iterate avery line
+    for word in text:
+        #reset currentword
         currentWord = ""
-        # iterate avery line
-        for line in f: 
-            #iterate every char in line
-            for i in line: 
-                try:
-                    # if current char is alphanumerical, then it is in the sequence of the token
-                    if re.match('^[a-zA-Z0-9]$',i): 
-                        # if i.isalnum():
-                        currentWord+=i
-                        # print(currentWord)
-                    else:
-                        
-                        # if current word is "" then no sequence of alphanumerical strings are being appeneded
-                        if currentWord == "": continue
-                        
-                        # add to wordlist
-                        words.append(currentWord.lower())
-                        currentWord = ""
+        for i in word: 
+            
+            #if word is upfront in the stopwords list or that if it is less than or equal to 1 characters long then discard it.
+            if word.lower() in stopwords or len(word) <= 1:
+                numOfStopWordsDetected+=1
+                continue
+            try:
+                # if current char is alphanumerical, then it is in the sequence of the token
+                if re.match('^[a-zA-Z0-9]$',i): 
+                    # if i.isalnum():
+                    currentWord+=i
+                    # print(currentWord)
+                else:
                     
-                except:
-                    continue
-
-        
+                    # if current word is "" then no sequence of alphanumerical strings are being appeneded
+                    if currentWord == "": continue
+                    
+                    # if word in stopword list then discard the word
+                    if currentWord.lower() in stopwords or len(currentWord) <= 1:
+                        currentWord = ""
+                        numOfStopWordsDetected+=1
+                        continue
+                    
+                    #add to wordlist
+                    words.append(currentWord.lower())
+                    currentWord = ""
+                
+            except:
+                continue
+    print("Number of stopwords detected:",numOfStopWordsDetected)
     return words
        
 
@@ -107,3 +141,7 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+
+if __name__ == "__main__":
+    print(is_valid(""))
