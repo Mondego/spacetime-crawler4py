@@ -1,11 +1,15 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
-def scraper(url, resp,config):
-    links = extract_next_links(url, resp,config)
+
+def scraper(url, resp,config,writingFile):
+
+
+    links = extract_next_links(url, resp,config,writingFile)
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp,config):
+def extract_next_links(url, resp,config, writingFile):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -18,17 +22,69 @@ def extract_next_links(url, resp,config):
     
     
     
+    ### Start Added by Hitoki 4/26/2023 10:52pm
+    
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # beautifulsoup for html.
+    
+    #finding all links
+    links = list()
+    for link in soup.find_all('a'):
+        links.append(link.get('href'))
+    
+    texts = soup.get_text()
+
+    tokens = tokenize(texts)
+    
+    ### END by hitoki 4/26/2023 10:52pm
     
     
+    return links
+
+
+def tokenize(text)->list:
+    """The tokenize function reads in a text file and returns a list of the tokens in that file. 
+        This function deos not remove duplicate tokens and will add the strings as lower alphabets.
     
-    
-    
-    
-    
-    print(resp)
-    
-    
-    return list()
+
+    Args:
+        filePath (string): string to the file or filepath.
+
+    Returns:
+        List[str]: A list of token strings
+        
+    Complexity:
+        O(n) where n is the number of characters in the file because this function loops through every line and for every line it iterates through every character in that line. Thus the function grow in linear time based on the input N.
+    """
+    # f = open(filePath,"r") # using utf-8 to open non-english character words
+    with open(filePath,"r",errors="ignore") as f:
+        # tokens = []
+        words = []
+        currentWord = ""
+        # iterate avery line
+        for line in f: 
+            #iterate every char in line
+            for i in line: 
+                try:
+                    # if current char is alphanumerical, then it is in the sequence of the token
+                    if re.match('^[a-zA-Z0-9]$',i): 
+                        # if i.isalnum():
+                        currentWord+=i
+                        # print(currentWord)
+                    else:
+                        
+                        # if current word is "" then no sequence of alphanumerical strings are being appeneded
+                        if currentWord == "": continue
+                        
+                        # add to wordlist
+                        words.append(currentWord.lower())
+                        currentWord = ""
+                    
+                except:
+                    continue
+
+        
+    return words
+       
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
