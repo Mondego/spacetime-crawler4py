@@ -42,6 +42,7 @@ def extract_next_links(url, resp):
         return list()
     
     
+    #poop
   #  print("URL", urlparse(url)== urlparse("https://www.ics.uci.edu"))
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
 
