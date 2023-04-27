@@ -26,7 +26,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    
+    parsed = urlparse(url)
     if resp.status != 200: # this means we didn't get the page
         print("u suck")
         print(url)
@@ -37,6 +37,7 @@ def extract_next_links(url, resp):
             fails.write(str(url) + "\n")
             fails.write(str(resp.status) + "\n")
             fails.write(str(resp.error) + "\n")
+            fails.write("\n")
 
         return list()
     
@@ -60,17 +61,18 @@ def extract_next_links(url, resp):
             print("NOT ABSOLUTE")
             print("current ", url)
             print(link['href'])
-            link = urljoin(url, link['href'])     # convert relative URLs to absolute
-            print("new link", link)
-            if urlparse(link) == urlparse("http://www.ics.uci.edu/research/mergers.html"):
+            link2 = urljoin(parsed.geturl(), link['href'])     # convert relative URLs to absolute
+            if(link2 != parsed.geturl()):  # checks if the url we just created is the same as what we started with
+                print("new link", link2)
                 with open("fails2.txt", "a") as fails:
-                    fails.write(str(url) + "\n")
+                    fails.write("CURRENT: " + str(url) + "\n")
+                    fails.write(link['href'] + '\n')
+                    fails.write(link2 + '\n')
+                    fails.write("\n")
 
-
-
-            print()
-            linksToAdd.append(link)
-            _visitedLinks[link] += 1
+                print()
+                linksToAdd.append(link2)
+                _visitedLinks[link2] += 1
         else:
             linksToAdd.append(link['href'])
             _visitedLinks[link['href']] += 1
@@ -91,7 +93,7 @@ def is_valid(url):
             return False
         if not re.search(r"\.ics\.uci\.edu/|\.cs\.uci\.edu/"
                      + r"|\.informatics\.uci\.edu/|\.stat\.uci\.edu/$", url):
-            return False  # using regex to see if a url contains these domain patterns
+            return False  # using regex to see if a url contains one of these domain patterns
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
