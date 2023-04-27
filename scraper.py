@@ -29,7 +29,6 @@ def extract_next_links(url, resp):
     # Updates the maxWordCount if current webpage
     # has more words than the recorded maxWords.
     maxWord.updateURL(tokenLst, resp.url)
-    
     extracted_links = set()
     for link in soup.find_all('a'):
         cur_url = link.get('href')
