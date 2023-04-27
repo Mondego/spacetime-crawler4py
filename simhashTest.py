@@ -15,7 +15,7 @@ class TestSimilarity(unittest.TestCase):
         f1 = simHash.generate_Fingerprint(freq1)
         f2 = simHash.generate_Fingerprint(freq2)
 
-        assert simHash.calc_similarity(f1, f1)
+        self.assertTrue(simHash.calc_similarity(f1, f1))
 
 if __name__ == "__main__":
     unittest.main()
