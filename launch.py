@@ -17,7 +17,7 @@ def main(config_file, restart):
 
 if __name__ == "__main__":
     parser = ArgumentParser()
-    parser.add_argument("--restart", action="store_true", default=False)
-    parser.add_argument("--config_file", type=str, default="config.ini")
+    parser.add_argument("--restart", action="store_true", default=False)     # run with --restart=True
+    parser.add_argument("--config_file", type=str, default="config.ini")     # keep as is, don't need to type into CLI
     args = parser.parse_args()
-    main(args.config_file, args.restart)
+    main(args.config_file, args.restart)        # have to tell it to restart in cmd line arguments

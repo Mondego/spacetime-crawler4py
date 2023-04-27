@@ -2,14 +2,15 @@ import os
 import shelve
 import time
 
-from threading import Thread, RLock
+import threading
 from queue import Queue, Empty            # we should change it to a queue: https://stackoverflow.com/questions/1296511/efficiency-of-using-a-python-list-as-a-queue 
 
 from utils import get_logger, get_urlhash, normalize
-from scraper import is_valid
+from scraper import is_valid, extract_text_fingerprint
 
 class Frontier(object):
     def __init__(self, config, restart):
+        self.lock = threading.Lock()         # lock shared frontier so one thread can access at a time (avoids race conditions)
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = Queue()              # add urls to this queue
@@ -34,7 +35,10 @@ class Frontier(object):
         if restart:
             for url in self.config.seed_urls:
                 self.add_url(url)
-                self.add_fingerprint(url)            # not sure if this works
+                
+                #resp = 
+                #fingerprint = extract_text_fingerprint(url, resp)
+                #self.add_fingerprint(fingerprint, url)            # not sure if this works
         else:
             # Set the frontier state with contents of save file.
             self._parse_save_file()
@@ -71,8 +75,8 @@ class Frontier(object):
     # BIG PROBLEM (i think i solved it but not sure): resp is needed for extract_text_fingerprint() in scraper.py, but it is only defined in worker.py run()
     # soln: use frontier object in worker.py to call add_fingerprint() function below, which should update fingerprint.shelve
     def add_fingerprint(self, fingerprint, url):               # call this function in worker.py using self.frontier object
-        if fingerprint not in self.save:
-            self.save[url] = fingerprint                       # urlfingerprint is the value (and url is the key)
+        if fingerprint not in self.fingerprint:
+            self.fingerprint[fingerprint] = url                       # urlfingerprint is the value (and url is the key)
 
     
     def mark_url_complete(self, url):

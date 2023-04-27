@@ -7,7 +7,7 @@ class Crawler(object):
         self.config = config
         self.logger = get_logger("CRAWLER")
         self.frontier = frontier_factory(config, restart)
-        self.workers = list()
+        self.workers = list()                              # worker threads go in here
         self.worker_factory = worker_factory
         
 
@@ -16,11 +16,14 @@ class Crawler(object):
             self.worker_factory(worker_id, self.config, self.frontier)
             for worker_id in range(self.config.threads_count)]
         for worker in self.workers:
-            worker.start()
+            worker.start()              # start each worker thread
 
     def start(self):
-        self.start_async()
-        self.join()
+        self.start_async()        # starts each worker thread
+        
+        # add work for worker thread here?
+
+        self.join()               # joins each worker thread
 
     def join(self):
         for worker in self.workers:
