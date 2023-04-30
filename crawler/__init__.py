@@ -25,6 +25,3 @@ class Crawler(object):
         for worker in self.workers:
             worker.join()
 
-    def penis(self):
-        print("penis")
-        return
