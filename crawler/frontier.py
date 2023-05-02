@@ -6,13 +6,14 @@ from queue import Queue, Empty
 
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
+from helper import Helper
 
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = list()
-        
+        self.fHelper = Helper()
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
             self.logger.info(
@@ -28,13 +29,19 @@ class Frontier(object):
         if restart:
             for url in self.config.seed_urls:
                 self.add_url(url)
+            temp = open(self.fHelper.log_name, "w")
+            temp.close()
+            temp = open(self.fHelper.freq_log_name, "w")
+            temp.close()
         else:
             # Set the frontier state with contents of save file.
             self._parse_save_file()
+            self.fHelper.load()
             if not self.save:
                 for url in self.config.seed_urls:
                     self.add_url(url)
-
+        
+        
     def _parse_save_file(self):
         ''' This function can be overridden for alternate saving techniques. '''
         total_count = len(self.save)
