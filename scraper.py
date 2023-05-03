@@ -31,7 +31,7 @@ def extract_next_links(url, resp, sHelper: Helper):
     if resp.status == 200: # GL: removing "and is_valid(UReaL)" since you can assume anything link from the crawler has been checked if valid from line 13. redundant is_valid check.
      
         # GL: Cook the html into soup and tokenize strings
-        soup = BeautifulSoup(html_content, "lxml", from_encoding= "utf-8")
+        soup = BeautifulSoup(resp.raw_response.content, "lxml", from_encoding= "utf-8")
         tokens = []
         for string in soup.stripped_strings:
             tokens.extend(tokenize(string))
