@@ -36,6 +36,7 @@ class Helper:
     def add(self, log_entry, tokens_dict):
         self.dumper.append(log_entry)
         self.log.append(log_entry)
+        self.known_exact_hash.add(log_entry[2])
         for word, freq in tokens_dict.items():
             if word in self.freq_dict:
                 self.freq_dict[word] += freq

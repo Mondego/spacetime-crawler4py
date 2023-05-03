@@ -28,18 +28,18 @@ def extract_next_links(url, resp, sHelper: Helper):
     links_set = set()
     UReaL = resp.raw_response.url
     # If status is OK (= 200)
-    if resp.status == 200 and is_valid(UReaL):
-        
-        # Cook the html into soup
-        soup = BeautifulSoup(resp.raw_response.content, "lxml", from_encoding= "utf-8")
-        texts = soup.find_all(string=True)
-        tags = set([t.parent.name for t in texts])
-        desired_tags = tags - sHelper.low_text_tags
+    if resp.status == 200: # GL: removing "and is_valid(UReaL)" since you can assume anything link from the crawler has been checked if valid from line 13. redundant is_valid check.
+     
+        # GL: Cook the html into soup and tokenize strings
+        soup = BeautifulSoup(html_content, "lxml", from_encoding= "utf-8")
         tokens = []
-        for text in texts:
-            if text.parent.name in desired_tags:
-                tokens.extend(tokenize(text))
+        for string in soup.stripped_strings:
+            tokens.extend(tokenize(string))
         page_len = len(tokens)
+
+
+        
+        
 
         # check low information page (word count <= 200) and exact match through hash freq
         # exact_hash = md5(texts.encode("utf-8")).hexdigest()
@@ -125,12 +125,12 @@ def is_valid(url):
         raise
 
 def simhash_page(tokDict):
-    page_hash_list = [0]*128
+    page_hash_list = [0]*32
     for word, freq in tokDict.items():
         hash = md5 (word.encode("utf-8")).hexdigest()
         a = int(hash,16)
         # !!! reverse order
-        for i in range(128):
+        for i in range(32):
             val = -1
             if a%2 == 1:
                 val = 1
@@ -146,15 +146,18 @@ def simhash_page(tokDict):
 
 # return true if this page is a near duplicate of some page
 def check_near_dup(x, tHelper: Helper):
-    for entry in tHelper.log:
-        y = entry[2]
-        different_bits = x ^ y
+    if x in tHelper.known_exact_hash:
+        return True
+
+    for entry in tHelper.known_exact_hash:
+        # y = entry[2]
+        different_bits = x ^ entry #Xor the two hashes to get only the different bits (1 represents a similar bit and 0 respresents a different bit)
         diff_count = 0
-        for i in range(0,128):
-            diff_count += different_bits & 1
-            different_bits = different_bits >> 1
-        # if 2 page is only 15/128 different => they are simmilar
-        if diff_count <= 15:
+        while(different_bits!=0):
+            diff_count += different_bits & 1 # and the different bits with binary 1, if different bits ends with a 1 then it will return 1 increasing the count indicating a similar bit 
+            different_bits = different_bits >> 1 # logical right shift to knock of LSB bit and continue to count similar bits.
+        # if 2 page is only 3/32 different => they are simmilar
+        if diff_count <= 3:
             return True
     return False
 
