@@ -2,7 +2,7 @@ import re
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
 from helper import Helper
-from hashlib import md5
+from mmh3 import hash
 
 def scraper(url, resp, sHelper: Helper):
     links = []
@@ -37,32 +37,31 @@ def extract_next_links(url, resp, sHelper: Helper):
             tokens.extend(tokenize(string))
         page_len = len(tokens)
 
-
-        
-        
-
-        # check low information page (word count <= 200) and exact match through hash freq
-        # exact_hash = md5(texts.encode("utf-8")).hexdigest()
-        if page_len > 200: #and exact_hash not in sHelper.known_exact_hash:
-            #sHelper.known_exact_hash.add(exact_hash)
+        if page_len > 200:
             tokens_dict = computeWordFrequencies(tokens)
             page_hash = simhash_page(tokens_dict)
-            # check_near_dup() return True for similar pages
+            # check_dup() return True for similar pages
             # => if not similar
-            if not(check_near_dup(page_hash, sHelper)):
+            if not(check_dup(page_hash, sHelper)):
                 ready = [UReaL, page_len, page_hash]
                 sHelper.add(ready, tokens_dict)
 
                 # findAll('a') get all the <a> tag, where all the links are in the html, into a list
                 for link in soup.findAll('a'):
 
-                    # get the link from the tag
-                    
+                    # get the link from href inside <a>
                     linked = link.get('href')
                     linked = str(linked)
+
+                    # after get(href) linked still gonna have the double quotation mark around it
+                    # remove " "
                     linked = linked.replace("\"", "")
+
+                    # remove "www."
                     linked = linked.replace("www.", "")
+
                     parsed = urlparse(linked)
+
                     # check if the URL doesn't have a hostname (netloc) => relative URL,
                     # and convert into absolute link by combining with the original link
                     if (parsed.netloc == ""):
@@ -72,17 +71,26 @@ def extract_next_links(url, resp, sHelper: Helper):
                     # [0] to take the unique link only ([1] would be the fragment)
                     linked = urldefrag(linked)[0]
 
+                    """ Already taken care of in utils.__init__.normalize LOL
+
+                    # ics.uci.edu and ics.uci.edu/ will be stored as 2 different links in frontier
+                    # even though netloc of them are the same, one will have path = "", the other will have path = "/"
+                    # => waste time checking both => removing / at the end
                     if len(linked) > 0:
                         if linked[-1] == "/":
                             linked = linked[:-1]
+                            
+                    """
 
                     # adding scheme: links can unspecify the scheme,
                     # but if they still start with "//", the links still accessible in the web
                     if (parsed.scheme == "" and linked[0:2] == "//"):
-                        linked = "http:" + linked
+                        linked = "https:" + linked
 
-                    if parsed.netloc == "archive.ics.uci.edu" and parsed.path == "/ml/datasets.php":
-                        linked = "http://archive.ics.uci.edu/ml/datasets.php"
+                    if parsed.netloc == "archive.ics.uci.edu":
+                        # have changed linked quite a bit, don't think we should use parsed here => re-parse into no_query
+                        no_query = urlparse(linked)
+                        linked = no_query.scheme + "://" + no_query.netloc + no_query.path
 
                     # !!!: https://www.ics.uci.edu/ and http://www.ics.uci.edu/ will be hash to the same value since get_urlhash(url) doesnt hash scheme
                     links_set.add(linked)
@@ -101,13 +109,20 @@ def is_valid(url):
         if '.'.join(parsed.netloc.split('.')[-3:]) not in set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]):
             return False
         
+        if re.match(r"^.*(session=|s=|\/search\/).*", parsed.geturl()): #if url conatins session=, s=, or /search/ then dont crawl it, could be a trap.
+            #print("contains session")
+            return False
+       
         # trap 1:repeating path
         pars = parsed.path.split('/')
         if len(pars) != len(set(pars)):
             return False
         
-        # pls fix
-        if parsed.netloc == "archive-beta.ics.uci.edu":
+        # pages in this domain are determined by "skip" and "take" queries
+        # but there are also queries for filter and sort
+        # => huge amount of combiantions for queries
+        # => To Cope: "badly designed pages will not filth our crawler => ban the domain"
+        if "archive-beta.ics.uci.edu" in parsed.netloc:
             return False
         
         return not re.match(
@@ -127,15 +142,14 @@ def is_valid(url):
 def simhash_page(tokDict):
     page_hash_list = [0]*32
     for word, freq in tokDict.items():
-        hash = md5 (word.encode("utf-8")).hexdigest()
-        a = int(hash,16)
+        hash32 = hash(word)
         # !!! reverse order
         for i in range(32):
             val = -1
-            if a%2 == 1:
+            if hash32 % 2 == 1:
                 val = 1
             page_hash_list[i] += val * freq
-            a = a//2
+            hash32 = hash32//2
     page_hash = 0
     for bit in reversed(page_hash_list):
         v = 0
@@ -145,7 +159,8 @@ def simhash_page(tokDict):
     return page_hash
 
 # return true if this page is a near duplicate of some page
-def check_near_dup(x, tHelper: Helper):
+def check_dup(x, tHelper: Helper):
+    # check exact hash
     if x in tHelper.known_exact_hash:
         return True
 
