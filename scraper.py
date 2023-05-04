@@ -34,7 +34,7 @@ def extract_next_links(url, resp, sHelper: Helper):
         soup = BeautifulSoup(resp.raw_response.content, "lxml", from_encoding= "utf-8")
         tokens = []
         for string in soup.stripped_strings:
-            tokens.extend(tokenize(string))
+            tokens.extend(tokenize(string, sHelper))
         page_len = len(tokens)
 
         if page_len > 200:
@@ -176,13 +176,15 @@ def check_dup(x, tHelper: Helper):
             return True
     return False
 
-def tokenize(text):
+def tokenize(text, tHelper: Helper):
     master_tokens = []
     for line in text.splitlines():
         
         #Find all the tokens in the line, then add them to the main list
         tokens = re.findall("[a-zA-Z0-9]+[\"']*[a-zA-Z0-9]*", line.lower(), re.UNICODE)
-        master_tokens.extend(tokens) 
+        for t in tokens:
+            if t not in tHelper.stop_words:
+                master_tokens.append(t)
     
     return master_tokens
 
