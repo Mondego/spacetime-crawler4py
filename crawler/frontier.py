@@ -43,7 +43,6 @@ class Frontier(object):
                 temp.close()
                 temp = open(self.fHelper.freq_log_name, "w")
                 temp.close()
-                self.fHelper.load()
 
             if not self.save:
                 for url in self.config.seed_urls:
