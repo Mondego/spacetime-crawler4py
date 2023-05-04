@@ -36,7 +36,15 @@ class Frontier(object):
         else:
             # Set the frontier state with contents of save file.
             self._parse_save_file()
-            self.fHelper.load()
+            try:
+                self.fHelper.load()
+            except FileNotFoundError:
+                temp = open(self.fHelper.log_name, "w")
+                temp.close()
+                temp = open(self.fHelper.freq_log_name, "w")
+                temp.close()
+                self.fHelper.load()
+
             if not self.save:
                 for url in self.config.seed_urls:
                     self.add_url(url)
