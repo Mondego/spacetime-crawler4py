@@ -71,16 +71,16 @@ def extract_next_links(url, resp, sHelper: Helper):
                     # [0] to take the unique link only ([1] would be the fragment)
                     linked = urldefrag(linked)[0]
 
-                    """ Already taken care of in utils.__init__.normalize LOL
+                    # """ Already taken care of in utils.__init__.normalize LOL
 
-                    # ics.uci.edu and ics.uci.edu/ will be stored as 2 different links in frontier
-                    # even though netloc of them are the same, one will have path = "", the other will have path = "/"
-                    # => waste time checking both => removing / at the end
-                    if len(linked) > 0:
-                        if linked[-1] == "/":
-                            linked = linked[:-1]
+                    # # ics.uci.edu and ics.uci.edu/ will be stored as 2 different links in frontier
+                    # # even though netloc of them are the same, one will have path = "", the other will have path = "/"
+                    # # => waste time checking both => removing / at the end
+                    # if len(linked) > 0:
+                    #     if linked[-1] == "/":
+                    #         linked = linked[:-1]
                             
-                    """
+                    # """
 
                     # adding scheme: links can unspecify the scheme,
                     # but if they still start with "//", the links still accessible in the web
