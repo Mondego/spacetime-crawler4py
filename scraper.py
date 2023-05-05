@@ -183,7 +183,7 @@ def tokenize(text, tHelper: Helper):
     master_tokens = []
     for line in text.splitlines():
         
-        #Find all the tokens in the line, then add them to the main list
+        #Find all the tokens in the line, then add them to the main list.
         tokens = re.findall("[a-zA-Z0-9]+[\"']*[a-zA-Z0-9]*", line.lower(), re.UNICODE)
         for t in tokens:
             if t not in tHelper.stop_words:
