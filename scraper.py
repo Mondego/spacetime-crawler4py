@@ -114,7 +114,10 @@ def is_valid(url):
             return False
        
         # trap 1:repeating path
-        pars = parsed.path.split('/')
+        pat = parsed.path
+        if len(pat) > 0 and pat[-1] == "/":
+            pat = pat[:-1]
+        pars = pat.split('/')
         if len(pars) != len(set(pars)):
             return False
         
