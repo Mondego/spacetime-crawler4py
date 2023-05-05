@@ -108,3 +108,5 @@ venv.bak/
 
 *.full.py
 *.shelve
+
+.DS_Store
