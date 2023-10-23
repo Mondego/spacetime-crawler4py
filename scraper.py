@@ -35,7 +35,7 @@ def is_valid(url):
             return False
 
         # Define a list of disallowed file extensions
-        disallowed_extensions = [
+        invalid = [
             "css", "js", "bmp", "gif", "jpg", "jpeg", "ico",
             "png", "tif", "tiff", "mid", "mp2", "mp3", "mp4",
             "wav", "avi", "mov", "mpeg", "ram", "m4v", "mkv", "ogg", "ogv", "pdf",
@@ -45,13 +45,13 @@ def is_valid(url):
             "rm", "smil", "wmv", "swf", "wma", "zip", "rar", "gz"
         ]
 
-        allowed_domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]
+        domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]
 
         # Check if the parsed netloc (domain) matches any of the allowed domains
-        domain_match = any(parsed.netloc.endswith("." + domain) or parsed.netloc == domain for domain in allowed_domains)
+        domain_match = any(parsed.netloc.endswith("." + domain) or parsed.netloc == domain for domain in domains)
 
         # Check if the path doesn't have disallowed extensions
-        extension_match = not any(parsed.path.lower().endswith("." + ext) for ext in disallowed_extensions)
+        extension_match = not any(parsed.path.lower().endswith("." + ext) for ext in invalid)
 
         return domain_match and extension_match
 
