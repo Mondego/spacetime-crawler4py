@@ -1,6 +1,7 @@
 ABOUT
 -------------------------
 Greg Khanoyan - gkhanoya - 55544104
+
 Adit Mohindra - amohind1 - 11539047
 
 This is the base implementation of a full crawler that uses a spacetime
