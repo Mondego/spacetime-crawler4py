@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,26 +16,55 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+
+    actual_url = resp.url
+
+    if resp.status == 200:
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+        links = [link.get('href') for link in soup.find_all('a')]
+        links = [urlparse(url, link) for link in links]
+    else:
+        print(resp.error)
+
     return list()
 
 def is_valid(url):
-    # Decide whether to crawl this url or not. 
-    # If you decide to crawl it, return True; otherwise return False.
-    # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+
+        # Define a list of disallowed file extensions
+        disallowed_extensions = [
+            "css", "js", "bmp", "gif", "jpg", "jpeg", "ico",
+            "png", "tif", "tiff", "mid", "mp2", "mp3", "mp4",
+            "wav", "avi", "mov", "mpeg", "ram", "m4v", "mkv", "ogg", "ogv", "pdf",
+            "ps", "eps", "tex", "ppt", "pptx", "doc", "docx", "xls", "xlsx", "names",
+            "data", "dat", "exe", "bz2", "tar", "msi", "bin", "7z", "psd", "dmg", "iso",
+            "epub", "dll", "cnf", "tgz", "sha1", "thmx", "mso", "arff", "rtf", "jar", "csv",
+            "rm", "smil", "wmv", "swf", "wma", "zip", "rar", "gz"
+        ]
+
+        allowed_domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]
+
+        # Check if the parsed netloc (domain) matches any of the allowed domains
+        domain_match = any(parsed.netloc.endswith("." + domain) or parsed.netloc == domain for domain in allowed_domains)
+
+        # Check if the path doesn't have disallowed extensions
+        extension_match = not any(parsed.path.lower().endswith("." + ext) for ext in disallowed_extensions)
+
+        return domain_match and extension_match
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print("TypeError for ", parsed)
         raise
+
+# MAIN
+
+url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
+url_bad = "https://www.chess.com/login_and_go?returnUrl=https://www.chess.com/home"
+
+if is_valid(url_good):
+    print("URL is Valid!")
+else:
+    print("Invalid URL!")
