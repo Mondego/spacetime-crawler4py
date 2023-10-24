@@ -66,9 +66,6 @@ def is_valid(url):
 
 # DRIVER
 
-url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
-url_bad = "https://r4ds.had.co.nz/"
-
 test_urls = [
     "https://www.ics.uci.edu/page",
     "http://cs.uci.edu/page",
