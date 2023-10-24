@@ -1,4 +1,5 @@
 import re
+import requests
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
@@ -103,22 +104,33 @@ def is_valid(url):
 
 # DRIVER CODE
 
-# test_urls = [
-#     "https://www.ics.uci.edu/page",
-#     "http://cs.uci.edu/page",
-#     "https://informatics.uci.edu/page",
-#     "https://stat.uci.edu/page",
-#     "https://www.google.com/page",
-#     "ftp://invalid-url.com/ftp-page",
-#     "https://www.linkedin.com/feed/",
-#     "https://drive.google.com/drive/u/0/my-drive",
-#     "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
-#     "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
-#     "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
-#     "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
-#     "https://ics.uci.edu/academics/undergraduate-academic-advising/",
-#     "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/"
-# ]
+test_urls = [
+    # "https://www.ics.uci.edu/page",
+    # "http://cs.uci.edu/page",
+    # "https://informatics.uci.edu/page",
+    # "https://stat.uci.edu/page",
+    # "https://www.google.com/page",
+    # "ftp://invalid-url.com/ftp-page",
+    "https://www.linkedin.com/feed/",
+    "https://drive.google.com/drive/u/0/my-drive",
+    "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
+    "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
+    "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
+    "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
+    "https://ics.uci.edu/academics/undergraduate-academic-advising/",
+    "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/"
+]
+
+for url in test_urls:
+    if is_valid(url):
+        print(f"Testing URL: {url}")
+        resp = requests.get(url)
+        links = extract_next_links(url, resp)
+        print("Extracted Links:")
+        for link in links:
+            print(link)
+    else:
+        print(f"{url} is not a valid URL for crawling.")
 
 # for url in test_urls:
 #     if is_valid(url):
