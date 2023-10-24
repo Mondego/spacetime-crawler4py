@@ -20,3 +20,9 @@
     Submit the list of subdomains ordered alphabetically and the number of unique pages detected in each subdomain.
     The content of this list should be lines containing URL, number, for example:
     http://vision.ics.uci.edu, 10 (not the actual number here)
+
+**FINAL SUBMISSION**
+
+What to submit: a zip file containing your modified crawler code and the report. Please submit the entire code 
+(i.e. just compress your modified crawler code directory, including the files you did not modify). 
+The file format of the report can be either pure text or PDF.
