@@ -34,7 +34,7 @@ def is_valid(url):
         if parsed.scheme not in set(["http", "https"]):
             return False
 
-        # Define a list of disallowed file extensions
+        # List of disallowed file extensions
         invalid = [
             "css", "js", "bmp", "gif", "jpg", "jpeg", "ico",
             "png", "tif", "tiff", "mid", "mp2", "mp3", "mp4",
@@ -45,26 +45,29 @@ def is_valid(url):
             "rm", "smil", "wmv", "swf", "wma", "zip", "rar", "gz"
         ]
 
+        # List of valid domains we can crawl in
         domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]
 
-        # Check if the parsed netloc (domain) matches any of the allowed domains
+        # Check if the parsed domain matches any of the allowed domains
         domain_match = any(parsed.netloc.endswith("." + domain) or parsed.netloc == domain for domain in domains)
 
-        # Check if the path doesn't have disallowed extensions
-        extension_match = not any(parsed.path.lower().endswith("." + ext) for ext in invalid)
+        # Check if the path doesn't have invalid extensions
+        extension_match = not any(parsed.path.lower().endswith("." + filetype) for filetype in invalid)
 
+        # return the boolean expression determined by the logical AND of domain_match and extension_match
+        # if the url exists in our valid domains and does not fall under any of the invalid extensions, return True, else return False
         return domain_match and extension_match
 
     except TypeError:
         print("TypeError for ", parsed)
         raise
 
-# MAIN
+# DRIVER
 
 url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
-url_bad = "https://www.chess.com/login_and_go?returnUrl=https://www.chess.com/home"
+url_bad = "https://r4ds.had.co.nz/"
 
-if is_valid(url_good):
+if is_valid(url_bad):
     print("URL is Valid!")
 else:
     print("Invalid URL!")
