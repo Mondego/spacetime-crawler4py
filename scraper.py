@@ -50,8 +50,55 @@ from bs4 import BeautifulSoup
 
     NEED TO DO:
 
-    - deal with duplicate links in extract_next_links(url, resp) function
-    - everything else lmao
+    Deliverables:
+        - Deal with duplicate links in 'extract_next_links(url, resp)' function
+        - Determine how many unique pages we found (unique = URL - fragment)
+            - should be easy, since we already defragment in 'extract_next_links(url, resp)'
+        - Determine the longest page in terms of the number of words (HTML markup doesn't count as words)
+            - Need to find a way to calculate word number without HTML markup code
+            - can def use some library for this (explore BeautifulSoup)
+            - Word Length count printed?
+        - Determine the 50 most common words in the entire set of pages crawled under these domains. Submit list in order of frequency
+            - Use Assignment 1 Code
+            - Ignore "English Stop Words: https://www.ranks.nl/stopwords"
+        - Determine how many subdomains we found in the 'ics.uci.edu' domain. Submit list of subdomains ordered alphabetically and 
+        number of unique pages detected in each subdomain. 
+            - Content should be like so: {URL, number} e.g. {http://vision.ics.edu, 10}
+    
+    
+    Scraper Function:
+        I feel like some of what needs to be in the 'scraper(url, resp)' function is already in 'extract_next_links(url, resp)'.
+        I will look soon and try to move it around. This is what the scraper function is supposed to do:
+            - Receive a URL and corresponding Web Response (url, resp)
+            - Parse the Web Response
+                - extract information from the page (if valid) to answer deliverable questions above ^^^^
+                - return a list of URL's scrapped from that page
+                    - make sure to only return URL's that are within the domains allowed (is_valid(url) function deals w/ this)
+                    - Defragment URL's - done in 'extract_next_links(url, resp)' but triple check cuz this is major
+    
+    Politeness
+        I haven't even looked at what we need to do to obey politeness rules.
+            - Learn how to implement robots.txt politeness policies
+    
+    Check for a Correct Crawl - HARD PART - READ ALL!
+        - Honor politeness delay for each site (robots.txt)
+        - Crawl all pages with high textual information content
+            - not sure what defines high here
+        - Detect and avoid infinite traps
+        - Detect and avoid sets of similar pages w/ no information
+            - Decide and discuss a reasonable definition for low information page + defend it in the TA talk
+        - Detect redirects and if the page redirects your crawler, index the redirected content
+        - Detect and avoid deal URL's that return a 200 status but no data
+            - https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html                   could be useful here
+        - Detect and avoid crawling very large files, esp. if they have low information content
+        - Transform relative URL's to absolute URL's - I think I did this in 'extract_next_links(url, resp)'
+        - Ensure we send the server a request with ASCII URL (???)
+        - Write simple automatic trap detection systems (???)
+        - Use openlab/tmux (??? on tmux, never used it before)
+    
+    CRAWLER MUST BEHAVE CORRECTLY BY: Friday, 10/27 by 9:00 PM
+    DEPLOYMENT STAGE: Monday, 10/30 to Friday, 11/3 by 9:00 PM
+        - Crawler must crawl 3 times during deployment stage
 
 """
 
