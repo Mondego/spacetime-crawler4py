@@ -94,7 +94,8 @@ from bs4 import BeautifulSoup
             - https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html                   could be useful here
         - Detect and avoid crawling very large files, esp. if they have low information content
         - Transform relative URL's to absolute URL's - I think I did this in 'extract_next_links(url, resp)'
-        - Ensure we send the server a request with ASCII URL (???)
+        - Ensure we send the server a request with ASCII URL
+            - make sure that the URL being requested is ics.uci.edu, not <a href="ics.uci.edu">
         - Write simple automatic trap detection systems (???)
         - Use openlab/tmux (??? on tmux, never used it before)
     
