@@ -2,6 +2,8 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
+# Seed URL : 
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -67,7 +69,25 @@ def is_valid(url):
 url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
 url_bad = "https://r4ds.had.co.nz/"
 
-if is_valid(url_bad):
-    print("URL is Valid!")
-else:
-    print("Invalid URL!")
+test_urls = [
+    "https://www.ics.uci.edu/page",
+    "http://cs.uci.edu/page",
+    "https://informatics.uci.edu/page",
+    "https://stat.uci.edu/page",
+    "https://www.google.com/page",
+    "ftp://invalid-url.com/ftp-page",
+    "https://www.linkedin.com/feed/",
+    "https://drive.google.com/drive/u/0/my-drive",
+    "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
+    "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
+    "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
+    "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
+    "https://ics.uci.edu/academics/undergraduate-academic-advising/",
+    "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/"
+]
+
+for url in test_urls:
+    if is_valid(url):
+        print(f"{url} is a valid URL for crawling.")
+    else:
+        print(f"{url} is not a valid URL for crawling.")
