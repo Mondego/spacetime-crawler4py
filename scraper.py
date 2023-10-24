@@ -1,12 +1,28 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
-# Seed URL : 
+# Seed URL: http://www.ics.uci.edu
+
+
+
+
+
 
 def scraper(url, resp):
+    # list of valid links
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
+
+    # parse the web response, 'resp', extract information from here answering deliverable questions
+    # return list of URL's scrapped from that page
+    #   return only valid URL's
+    #   defragment URL's (remove fragment)
+    #   use library (BeautifulSoup, lxml)
+
+
+
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -19,17 +35,38 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
-    actual_url = resp.url
+    # retrieving final page URL after redirects - keep this Greg for testing/matching after implementation
+    # actual_url = resp.url
 
+    link_list = []
+
+    # checking if we actually got the page
     if resp.status == 200:
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
-        links = [link.get('href') for link in soup.find_all('a')]
-        links = [urlparse(url, link) for link in links]
+        try:
+            # use BeautifulSoup library to parse the HTML content of the page
+            soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+
+            # in the HTML, we want to find all '<a>' tags and extract the link, the 'href'
+            for curr in soup.find_all('a'):
+                link = curr.get('href')
+                if link:
+                    # we then use 'urllib.parse' in order to combine the relative URL's with our base URL in order to get our final URL
+                    final_url = urljoin(url, link)
+
+                    # checks validity of our final_url - if it is valid, then we can add it to our list of links
+                    if is_valid(final_url):
+                        link_list.append(final_url)
+
+        except Exception as e:
+            print(f"ERROR: Error parsing {url}: {str(e)}")       
+    # if the response code was something other than 200, means there was an error - print it so we can see
     else:
-        print(resp.error)
+        print(f"Error {resp.status} for {url}: {resp.error}")
 
-    return list()
+    return link_list
 
+
+# FUNCTION: is_valid(url) - checks the validity of a URL:str passed in - returns a boolean True or False
 def is_valid(url):
     try:
         parsed = urlparse(url)
@@ -64,27 +101,27 @@ def is_valid(url):
         print("TypeError for ", parsed)
         raise
 
-# DRIVER
+# DRIVER CODE
 
-test_urls = [
-    "https://www.ics.uci.edu/page",
-    "http://cs.uci.edu/page",
-    "https://informatics.uci.edu/page",
-    "https://stat.uci.edu/page",
-    "https://www.google.com/page",
-    "ftp://invalid-url.com/ftp-page",
-    "https://www.linkedin.com/feed/",
-    "https://drive.google.com/drive/u/0/my-drive",
-    "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
-    "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
-    "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
-    "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
-    "https://ics.uci.edu/academics/undergraduate-academic-advising/",
-    "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/"
-]
+# test_urls = [
+#     "https://www.ics.uci.edu/page",
+#     "http://cs.uci.edu/page",
+#     "https://informatics.uci.edu/page",
+#     "https://stat.uci.edu/page",
+#     "https://www.google.com/page",
+#     "ftp://invalid-url.com/ftp-page",
+#     "https://www.linkedin.com/feed/",
+#     "https://drive.google.com/drive/u/0/my-drive",
+#     "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
+#     "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
+#     "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
+#     "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
+#     "https://ics.uci.edu/academics/undergraduate-academic-advising/",
+#     "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/"
+# ]
 
-for url in test_urls:
-    if is_valid(url):
-        print(f"{url} is a valid URL for crawling.")
-    else:
-        print(f"{url} is not a valid URL for crawling.")
+# for url in test_urls:
+#     if is_valid(url):
+#         print(f"{url} is a valid URL for crawling.")
+#     else:
+#         print(f"{url} is not a valid URL for crawling.")
