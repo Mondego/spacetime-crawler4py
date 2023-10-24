@@ -29,7 +29,7 @@ def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
-    # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
+    # resp.status_code: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
     # resp.error: when status is not 200, you can check the error here, if needed.
     # resp.raw_response: this is where the page actually is. More specifically, the raw_response has two parts:
     #         resp.raw_response.url: the url, again
@@ -42,7 +42,7 @@ def extract_next_links(url, resp):
     link_list = []
 
     # checking if we actually got the page
-    if resp.status == 200:
+    if resp.status_code == 200:
         try:
             # use BeautifulSoup library to parse the HTML content of the page
             soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
@@ -59,10 +59,10 @@ def extract_next_links(url, resp):
                         link_list.append(final_url)
 
         except Exception as e:
-            print(f"ERROR: Error parsing {url}: {str(e)}")       
+            print("ERROR: Error parsing " + url + str(e))       
     # if the response code was something other than 200, means there was an error - print it so we can see
     else:
-        print(f"Error {resp.status} for {url}: {resp.error}")
+        print("Error: " + str(resp.status_code))
 
     return link_list
 
@@ -105,12 +105,12 @@ def is_valid(url):
 # DRIVER CODE
 
 test_urls = [
-    # "https://www.ics.uci.edu/page",
-    # "http://cs.uci.edu/page",
-    # "https://informatics.uci.edu/page",
-    # "https://stat.uci.edu/page",
-    # "https://www.google.com/page",
-    # "ftp://invalid-url.com/ftp-page",
+    "https://www.ics.uci.edu/page",
+    "http://cs.uci.edu/page",
+    "https://informatics.uci.edu/page",
+    "https://stat.uci.edu/page",
+    "https://www.google.com/page",
+    "ftp://invalid-url.com/ftp-page",
     "https://www.linkedin.com/feed/",
     "https://drive.google.com/drive/u/0/my-drive",
     "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
