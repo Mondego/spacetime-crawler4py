@@ -50,8 +50,10 @@ from bs4 import BeautifulSoup
 
     NEED TO DO:
 
-    Deliverables:
+        MISC.
         - Deal with duplicate links in 'extract_next_links(url, resp)' function
+
+    Deliverables:
         - Determine how many unique pages we found (unique = URL - fragment)
             - should be easy, since we already defragment in 'extract_next_links(url, resp)'
         - Determine the longest page in terms of the number of words (HTML markup doesn't count as words)
