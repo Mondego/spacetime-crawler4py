@@ -49,6 +49,7 @@ How We Take a W On This Project
 
   ***MISC.***
   - Verify web page word count
+  - **FIND A WAY TO CALCULATE DELIVERABLE STATISTICS INDEPENDENT OF SCRAPER.PY?**
   - **NO DRIVER CODE**
   - Check for HTML Response codes other than 200 (e.g. 403 Forbidden)
   - Deal with duplicate links in 'extract_next_links(url, resp)' function
