@@ -10,6 +10,15 @@ from difflib import SequenceMatcher
 def scraper(url, resp):
     # list of valid links
     links = extract_next_links(url, resp)
+
+
+
+
+
+
+
+
+    # returns a list of links
     return [link for link in links if is_valid(link)]
 
 
@@ -114,7 +123,7 @@ url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
 url_bad = "https://r4ds.had.co.nz/"
 
 test_urls = [
-    # # These are all for validity checker
+    # These are all for validity checker
     # "https://www.ics.uci.edu/page",
     # "http://cs.uci.edu/page",
     # "https://informatics.uci.edu/page",
@@ -127,12 +136,13 @@ test_urls = [
     # "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
     # "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
     # "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
-    # # These are actual links that can be crawled
+    # These are actual links that can be crawled
     # "https://ics.uci.edu/academics/undergraduate-academic-advising/",
     # "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/",
-    # "https://grape.ics.uci.edu/wiki/public/wiki/cs122b-2019-winter"
+    # "https://grape.ics.uci.edu/wiki/public/wiki/cs122b-2019-winter",
 
-    "http://www.ics.uci.edu"
+    # "http://www.ics.uci.edu",
+    "https://sami.ics.uci.edu/"
 
 ]
 
@@ -192,7 +202,7 @@ def count_words(content):
     words = re.findall(r'\w+', newContent)
     return len(words)
 
-
+# move this all to scraper func
 for url in test_urls:
     if is_valid(url):
         print("Testing URL: " , url)
@@ -208,13 +218,16 @@ for url in test_urls:
                 if link not in linkSet:
                     test_urls.append(link)
         else:
-            print("no more links")
+            print("No more links here! Moving on...")
 
         test_urls.remove(url)
 
         print("Extracted Links:")
         if(links is not None):
             linkSet.update(links)
+            # Find number of unique pages
+            uniquePages = len(linkSet)
+            print("Number of Unique Pages: ", uniquePages)
 
 
         # Store word count for the current URL
@@ -231,6 +244,9 @@ for url in test_urls:
         if parsed_url.netloc.endswith('ics.uci.edu'):
             # Extract the subdomain part
             subdomain = parsed_url.netloc.rsplit('.', 2)[0]
+
+            if subdomain == 'ics':
+                subdomain = parsed_url.netloc.rsplit('.', 3)[1]
             
             # Increment count for the subdomain or initialize it if it doesn't exists
             subdomainCounts[subdomain] = subdomainCounts.get(subdomain, 0) + 1
@@ -243,14 +259,13 @@ for url in test_urls:
     else:
         print(url, " is not a valid URL for crawling.")
 
-# Find number of unique pages
-uniquePages = len(linkSet)
-print("Number of Unique Pages: ", uniquePages)
+
 
 # Find the url of the longest page in terms of words count
-longest_page_url = max(pageWordCounts, key=pageWordCounts.get)
-print("Longest page URL:", longest_page_url)
-print("Number of words:", pageWordCounts[longest_page_url])
+if pageWordCounts:
+    longest_page_url = max(pageWordCounts, key=pageWordCounts.get)
+    print("Longest page URL:", longest_page_url)
+    print("Number of words:", pageWordCounts[longest_page_url])
 
 # Get the 50 most common words
 most_common_words = wordCounter.most_common(50)
