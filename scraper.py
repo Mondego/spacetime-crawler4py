@@ -21,8 +21,24 @@ def scraper(url, resp):
     # returns a list of links
     return [link for link in links if is_valid(link)]
 
+    # NEED TO
+    # parse the web response, 'resp', extract information from here answering deliverable questions
+    # return list of URL's scrapped from that page
+    #   return only valid URL's
+    #   defragment URL's (remove fragment)
+    #   use library (BeautifulSoup, lxml)
+
 
 def extract_next_links(url, resp):
+    # Implementation required.
+    # url: the URL that was used to get the page
+    # resp.url: the actual url of the page
+    # resp.status_code: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
+    # resp.error: when status is not 200, you can check the error here, if needed.
+    # resp.raw_response: this is where the page actually is. More specifically, the raw_response has two parts:
+    #         resp.raw_response.url: the url, again    
+    #         resp.raw_response.content: the content of the page! (NOT CORRECT VARIABLE)
+    # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # retrieving final page URL after redirects - keep this Greg for testing/matching after implementation
     # actual_url = resp.url
@@ -110,7 +126,6 @@ def is_valid(url):
 
         # return the boolean expression determined by the logical AND of domain_match and extension_match
         # if the url exists in our valid domains and does not fall under any of the invalid extensions, return True, else return False
-        
         return domain_check and extension_check
 
     except TypeError:
@@ -118,9 +133,6 @@ def is_valid(url):
         raise
 
 # DRIVER CODE
-
-url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
-url_bad = "https://r4ds.had.co.nz/"
 
 test_urls = [
     # These are all for validity checker
