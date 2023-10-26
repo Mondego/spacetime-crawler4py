@@ -49,10 +49,11 @@ How We Take a W On This Project
 
   ***MISC.***
   - Deal with duplicate links in 'extract_next_links(url, resp)' function
-  - page similarity (ASCII)
-  - longest page url being invalid
-  - subdomains
+  - **Page Similarity** (ASCII?)
+  - Longest page URL being invalid - why is it considering this if it throws a 404 error?
+  - **SUBDOMAINS - NUMBER AND ORDERED ALPHABETICALLY**
   - check for head being empty (**timed out**)
+  - **CHECK FOR INVALID PAGES -> REAL PAGE BUT ERROR STATEMENTS IN HEAD**
 
  # Deliverables:
  
