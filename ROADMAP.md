@@ -48,6 +48,7 @@ How We Take a W On This Project
   # NEED TO DO:
 
   ***MISC.***
+  - Check for HTML Response codes other than 200 (e.g. 403 Forbidden)
   - Deal with duplicate links in 'extract_next_links(url, resp)' function
   - **Page Similarity** (ASCII?) + **AVOID TRAPS!!!!!!!!!!!**
   - Longest page URL being invalid - why is it considering this if it throws a 404 error?
