@@ -73,13 +73,13 @@ How We Take a W On This Project
 
  # Deliverables:
  
-  - [x] Determine how many unique pages we found (unique = URL - fragment)
+  - Determine how many unique pages we found (unique = URL - fragment)
       - should be easy, since we already defragment in 'extract_next_links(url, resp)'
   - Determine the longest page in terms of the number of words (HTML markup doesn't count as words)
       - Need to find a way to calculate word number without HTML markup code
       - can def use some library for this (explore BeautifulSoup)
       - Word Length count printed?
-  - [x] Determine the 50 most common words in the entire set of pages crawled under these domains. Submit list in order of frequency
+  - Determine the 50 most common words in the entire set of pages crawled under these domains. Submit list in order of frequency
       - Use Assignment 1 Code
       - Ignore "English Stop Words: https://www.ranks.nl/stopwords"
   - Determine how many subdomains we found in the 'ics.uci.edu' domain. Submit list of subdomains ordered alphabetically and 
