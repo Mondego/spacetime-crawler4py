@@ -6,7 +6,7 @@ How We Take a W On This Project
   Currently, the driver code at the bottom first takes a list of URL's to test. The first marked portion of those URL's
   are invalid URL's used to test the 'is_valid(url)' function, which works as so:
 
-  **is_valid(url):**
+  **is_valid(url):** **UPDATE**
   
       The function takes a URL 'url' of type string. It then parses the URL into a URL scheme object, which basically means it is now an object with
       recognized URL structure, 'parsed'. We check if it is not an 'http' or 'https' URL, and if it is not, we return False.
@@ -24,7 +24,7 @@ How We Take a W On This Project
   The driver code iterates through each URL in the testing list and uses the 'requests' library to retrieve a 'Response' object, which we need for our HTML parsing.
   We pass this 'Response' object, 'resp' and a string URL 'url', into the 'extract_next_links(url, resp)' function, which works as so:
 
-  **extract_next_links(url, resp):**
+  **extract_next_links(url, resp):** **UPDATE**
   
       We first create an empty list to store our list of links, 'link_list'. We then check for a valid status code of 200, which means we successfully retrieve the
       page we want. 
@@ -49,11 +49,22 @@ How We Take a W On This Project
 
   ***MISC.***
   - Deal with duplicate links in 'extract_next_links(url, resp)' function
-  - **Page Similarity** (ASCII?)
+  - **Page Similarity** (ASCII?) + **AVOID TRAPS!!!!!!!!!!!**
   - Longest page URL being invalid - why is it considering this if it throws a 404 error?
   - **SUBDOMAINS - NUMBER AND ORDERED ALPHABETICALLY**
   - check for head being empty (**timed out**)
   - **CHECK FOR INVALID PAGES -> REAL PAGE BUT ERROR STATEMENTS IN HEAD**
+  - Define what we consider pages with "high textual information content" and crawl **only** those pages - ignore low information content
+      - Detect and avoid crawling very large files, esp. if they have low information content
+      - Decide and discuss a reasonable definition for low information page + defend it in the TA talk
+  - Politeness
+  - - Detect and avoid deal URL's that return a 200 status but no data
+      - https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html could be useful here
+  - Detect redirects and if the page redirects your crawler, index the redirected content
+  -  Ensure we send the server a request with ASCII URL
+      - make sure that the URL being requested is ics.uci.edu, not <a href="ics.uci.edu">
+  - tmux
+
 
  # Deliverables:
  
@@ -70,43 +81,8 @@ How We Take a W On This Project
   number of unique pages detected in each subdomain. 
       - Content should be like so: {URL, number} e.g. {http://vision.ics.edu, 10}
   
-  
-  **Scraper Function:**
-  
-  I feel like some of what needs to be in the 'scraper(url, resp)' function is already in 'extract_next_links(url, resp)'.
-      
-  I will look soon and try to move it around. This is what the scraper function is supposed to do:
-      
-  - Receive a URL and corresponding Web Response (url, resp)
-  - Parse the Web Response
-      - extract information from the page (if valid) to answer deliverable questions above ^^^^
-      - return a list of URL's scrapped from that page
-          - make sure to only return URL's that are within the domains allowed (is_valid(url) function deals w/ this)
-          - Defragment URL's - done in 'extract_next_links(url, resp)' but triple check cuz this is major
-  
-  **Politeness**
-  
-  I haven't even looked at what we need to do to obey politeness rules.
-      
-  - Learn how to implement robots.txt politeness policies
-  
-  # Check for a Correct Crawl - HARD PART - READ ALL!
-  
-  - Honor politeness delay for each site (robots.txt)
-  - Crawl all pages with high textual information content
-      - not sure what defines high here
-  - Detect and avoid infinite traps
-  - Detect and avoid sets of similar pages w/ no information
-      - Decide and discuss a reasonable definition for low information page + defend it in the TA talk
-  - Detect redirects and if the page redirects your crawler, index the redirected content
-  - Detect and avoid deal URL's that return a 200 status but no data
-      - https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html                   could be useful here
-  - Detect and avoid crawling very large files, esp. if they have low information content
-  - Transform relative URL's to absolute URL's - I think I did this in 'extract_next_links(url, resp)'
-  - Ensure we send the server a request with ASCII URL
-      - make sure that the URL being requested is ics.uci.edu, not <a href="ics.uci.edu">
-  - Write simple automatic trap detection systems (???)
-  - Use openlab/tmux (??? on tmux, never used it before)
+  **Politeness**      
+  - Learn how to implement **robots.txt** politeness policies
   
   ***CRAWLER MUST BEHAVE CORRECTLY BY:*** Friday, 10/27 by 9:00 PM
   
