@@ -110,24 +110,30 @@ def is_valid(url):
 
 # DRIVER CODE
 
+url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
+url_bad = "https://r4ds.had.co.nz/"
+
 test_urls = [
-    # These are all for validity checker
-    "https://www.ics.uci.edu/page",
-    "http://cs.uci.edu/page",
-    "https://informatics.uci.edu/page",
-    "https://stat.uci.edu/page",
-    "https://www.google.com/page",
-    "ftp://invalid-url.com/ftp-page",
-    "https://www.linkedin.com/feed/",
-    "https://drive.google.com/drive/u/0/my-drive",
-    "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
-    "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
-    "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
-    "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
-    # These are actual links that can be crawled
-    "https://ics.uci.edu/academics/undergraduate-academic-advising/",
-    "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/",
-    "https://grape.ics.uci.edu/wiki/public/wiki/cs122b-2019-winter"
+    # # These are all for validity checker
+    # "https://www.ics.uci.edu/page",
+    # "http://cs.uci.edu/page",
+    # "https://informatics.uci.edu/page",
+    # "https://stat.uci.edu/page",
+    # "https://www.google.com/page",
+    # "ftp://invalid-url.com/ftp-page",
+    # "https://www.linkedin.com/feed/",
+    # "https://drive.google.com/drive/u/0/my-drive",
+    # "https://www.youtube.com/watch?v=_ITiwPMUzho&ab_channel=LofiGhostie",
+    # "https://www.youtube.com/watch?v=TUEju_i3oWE&ab_channel=Insomniac",
+    # "https://github.com/gregkhanoyan/IR23F-A2-G33#things-to-keep-in-mind",
+    # "https://canvas.eee.uci.edu/courses/58552/assignments/1243743",
+    # # These are actual links that can be crawled
+    # "https://ics.uci.edu/academics/undergraduate-academic-advising/",
+    # "https://ics.uci.edu/academics/undergraduate-academic-advising/change-of-major/",
+    # "https://grape.ics.uci.edu/wiki/public/wiki/cs122b-2019-winter"
+
+    "http://www.ics.uci.edu"
+
 ]
 
 # linkSet transforms list of links into a set to remove duplicates
@@ -190,13 +196,26 @@ def count_words(content):
 for url in test_urls:
     if is_valid(url):
         print("Testing URL: " , url)
-        resp = requests.get(url)
-
+        try:
+            resp = requests.get(url)
+        except:
+            print("Timeout")
         # Store number of unique pages
         links = extract_next_links(url, resp)
+
+        if links is not None:
+            for link in links:
+                if link not in linkSet:
+                    test_urls.append(link)
+        else:
+            print("no more links")
+
+        test_urls.remove(url)
+
         print("Extracted Links:")
         if(links is not None):
             linkSet.update(links)
+
 
         # Store word count for the current URL
         content = resp.text
@@ -218,9 +237,9 @@ for url in test_urls:
 
         # if links is not None:
             # for link in links:
-        if linkSet is not None:
-            for link in linkSet:
-                print(link)
+        # if linkSet is not None:
+        #     for link in linkSet:
+        #         print(link)
     else:
         print(url, " is not a valid URL for crawling.")
 

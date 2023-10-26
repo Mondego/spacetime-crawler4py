@@ -52,6 +52,7 @@ How We Take a W On This Project
   - page similarity (ASCII)
   - longest page url being invalid
   - subdomains
+  - check for head being empty (**timed out**)
 
  # Deliverables:
  
