@@ -231,8 +231,10 @@ for url in test_urls:
             # Increment count for the subdomain or initialize it if it doesn't exists
             subdomainCounts[subdomain] = subdomainCounts.get(subdomain, 0) + 1
 
-        if links is not None:
-            for link in links:
+        # if links is not None:
+            # for link in links:
+        if linkSet is not None:
+            for link in linkSet:
                 print(link)
     else:
         print(url, " is not a valid URL for crawling.")
