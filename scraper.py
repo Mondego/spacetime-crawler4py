@@ -2,6 +2,7 @@ import re
 import requests
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
+from collections import Counter
 
 # Seed URL: http://www.ics.uci.edu
 
@@ -229,16 +230,96 @@ test_urls = [
     "https://grape.ics.uci.edu/wiki/public/wiki/cs122b-2019-winter"
 ]
 
+# linkSet transforms list of links into a set to remove duplicates
+linkSet = set()
+# pagewordCounts dictionary holds url and word count
+pageWordCounts = {}
+# subdomainCounts dictionary hold subdomains and it's frequency
+subdomainCounts = {}
+wordCounter = Counter()
+stopWords = stopwords = set([
+    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", 
+    "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", 
+    "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", 
+    "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", 
+    "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", 
+    "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", 
+    "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", 
+    "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", 
+    "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", 
+    "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", 
+    "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", 
+    "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", 
+    "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", 
+    "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", 
+    "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", 
+    "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", 
+    "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
+])
+
+def tokenize(content):
+    tokens = re.split(r'\W+', content)
+    cleanTokens = [token.lower() for token in tokens if token and len(token) > 2]
+
+    return cleanTokens
+
+
+def count_words(content):
+    # Use regex to count the number of words in the content
+    words = re.findall(r'\w+', content)
+    return len(words)
+
+
 for url in test_urls:
     if is_valid(url):
         print("Testing URL: " , url)
         resp = requests.get(url)
+
+        # Store number of unique pages
         links = extract_next_links(url, resp)
         print("Extracted Links:")
+        linkSet.update(links)
+
+        # Store word count for the current URL
+        content = resp.text
+        pageWordCounts[url] = count_words(content)
+
+        # Update wordCounter for each tokenized word, not including stop words
+        tokens = tokenize(content)
+        for word in tokens:
+            if word not in stopWords:
+                wordCounter[word] += 1
+
+        parsed_url = urlparse(url)
+        if parsed_url.netloc.endswith('ics.uci.edu'):
+            # Extract the subdomain part
+            subdomain = parsed_url.netloc.rsplit('.', 2)[0]
+            
+            # Increment count for the subdomain or initialize it if it doesn't exists
+            subdomainCounts[subdomain] = subdomainCounts.get(subdomain, 0) + 1
+
         for link in links:
             print(link)
     else:
         print(url, " is not a valid URL for crawling.")
+
+# Find number of unique pages
+uniquePages = len(linkSet)
+print("Number of Unique Pages: ", uniquePages)
+
+# Find the url of the longest page in terms of words count
+longest_page_url = max(pageWordCounts, key=pageWordCounts.get)
+print("Longest page URL:", longest_page_url)
+print("Number of words:", pageWordCounts[longest_page_url])
+
+# Get the 50 most common words
+most_common_words = wordCounter.most_common(50)
+print("50 most common words:", most_common_words)
+
+# Print out the counts for each subdomain
+sorted_subdomains = sorted(subdomainCounts.items(), key=lambda x: x[0])  # Sort by subdomain name
+for subdomain, count in sorted_subdomains:
+    print(f"http://{subdomain}.ics.uci.edu, {count}")
 
 # for url in test_urls:
 #     if is_valid(url):
