@@ -236,7 +236,9 @@ linkSet = set()
 pageWordCounts = {}
 # subdomainCounts dictionary hold subdomains and it's frequency
 subdomainCounts = {}
+# wordCounter will hold number of times a certain word is read
 wordCounter = Counter()
+
 stopWords = stopwords = set([
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", 
     "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", 
@@ -257,16 +259,31 @@ stopWords = stopwords = set([
     "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
 ])
 
+
 def tokenize(content):
-    tokens = re.split(r'\W+', content)
-    cleanTokens = [token.lower() for token in tokens if token and len(token) > 2]
+    # Strip HTML markup
+    soup = BeautifulSoup(content, 'html.parser')
+    newContent = soup.get_text()
+
+    # Splits words and creates list, non word characters act as the break
+    # cleanTokens will set all tokens lower case and will discard any tokens with length less than 2 letters
+    tokens = re.split(r'\W+', newContent)
+    cleanTokens = []
+    for token in tokens:
+        if len(token) > 2:
+            token.lower()
+            cleanTokens.append(token)
 
     return cleanTokens
 
 
 def count_words(content):
+    # Strip HTML markup
+    soup = BeautifulSoup(content, 'html.parser')
+    newContent = soup.get_text()
+
     # Use regex to count the number of words in the content
-    words = re.findall(r'\w+', content)
+    words = re.findall(r'\w+', newContent)
     return len(words)
 
 
