@@ -125,6 +125,9 @@ def is_valid(url):
 
 # DRIVER CODE
 
+url_good = "https://ics.uci.edu/academics/undergraduate-academic-advising/"
+url_bad = "https://r4ds.had.co.nz/"
+
 test_urls = [
     # # These are all for validity checker
     # "https://www.ics.uci.edu/page",
