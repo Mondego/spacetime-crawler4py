@@ -49,6 +49,7 @@ How We Take a W On This Project
 
   ***MISC.***
   - Verify web page word count
+  - fix subdomain typo
   - **FIND A WAY TO CALCULATE DELIVERABLE STATISTICS INDEPENDENT OF SCRAPER.PY?**
   - **NO DRIVER CODE**
   - Check for HTML Response codes other than 200 (e.g. 403 Forbidden)
