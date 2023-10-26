@@ -45,10 +45,13 @@ How We Take a W On This Project
   We then print all of the links just to see our code in action and ensure everything looks good.
   We also print whether or not a link is valid and can be crawled.
 
-  **NEED TO DO:**
+  # NEED TO DO:
 
   ***MISC.***
   - Deal with duplicate links in 'extract_next_links(url, resp)' function
+  - page similarity (ASCII)
+  - longest page url being invalid
+  - subdomains
 
  # Deliverables:
  
