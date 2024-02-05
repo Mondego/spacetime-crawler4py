@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -7,6 +8,14 @@ def scraper(url, resp):
 
 def extract_next_links(url, resp):
     # Implementation required.
+    filter_rule = "uci.edu" #accept all links with this rule 
+    
+    if resp.status == 200: # check if url can be crawled, ask for permission 
+        links = set() # use this to avoid repeated links 
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # bts content into a varaible that we can further parse 
+        hyperlinks = soup.find_all('a') # extract all hyper links 
+        for link in hyperlinks:
+            if link 
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
@@ -23,7 +32,7 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
+        if parsed.scheme not in set(["http", "https"]): ## not https will also avoid 
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -33,7 +42,7 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) # this avoids any file of these types 
 
     except TypeError:
         print ("TypeError for ", parsed)
