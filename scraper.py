@@ -9,13 +9,21 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     # Implementation required.
     filter_rule = "uci.edu" #accept all links with this rule 
-    
-    if resp.status == 200: # check if url can be crawled, ask for permission 
-        links = set() # use this to avoid repeated links 
-        soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # bts content into a varaible that we can further parse 
-        hyperlinks = soup.find_all('a') # extract all hyper links 
-        for link in hyperlinks:
-            if link 
+    links = set() # use this to avoid repeated links 
+    try:
+        if resp.status == 200: # check if url can be crawled, ask for permission 
+            soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # bts content into a varaible that we can further parse 
+            hyperlinks = soup.find_all('a') # extract all hyper links 
+            for link in hyperlinks:
+                href_link = link.get('href')
+                if filter_rule in href_link: # only accept uci.edu links 
+                    links.add(href_link)
+        else:
+            print(resp.error) # print the error code 
+            return list()
+    except:
+        print("Something went wrong :3")
+        
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
@@ -24,7 +32,7 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    return list(links)
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
