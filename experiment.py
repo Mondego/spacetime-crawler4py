@@ -27,15 +27,29 @@ find the Site map with: https://ics.uci.edu/feed/ ???
     # savePage(url,)
 
 
-def find_all_pages(url:str)-> list(str):
+def find_all_pages(url:str):
     # current ly save all pages in a file 
     grab = requests.get(url)
     soup = BeautifulSoup(grab.text, 'html.parser')
-    with open("test1.txt", "w") as f: 
-    # traverse paragraphs from soup
-        for link in soup.find_all("a"):
-            data = link.get('href')
-            f.write(data)
-            f.write("\n")
+    for link in soup.find_all("a"):
+        data = link.get('href')
+        print(data)
+    # with open("test1.txt", "w") as f: 
+    # # traverse paragraphs from soup
+    #     for link in soup.find_all("a"):
+    #         data = link.get('href')
+    #         f.write(data)
+    #         f.write("\n")
+
+import csv
+
+csvfile = r"/home/xiaofl/Desktop/cs121/hw2/spacetime-crawler4py/debug_log/experiment.csv"
+experiment = r'/home/xiaofl/Desktop/cs121/hw2/spacetime-crawler4py/debug_log/word_count.csv'
+with open(experiment, mode='a',newline='\n',encoding='utf-8') as csvfile:
+    t = '1111111wwwwwwwweeqwqwrqqweqwe'
+    filename = ['Word','Count']
+    writer = csv.DictWriter(csvfile,fieldnames=filename)
+    writer.writerow({'Word':'department','Count':500})
+
     
     
