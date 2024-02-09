@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse,urlunparse
+from urllib.parse import urlparse,urlunparse,urljoin
 import bs4, requests
 import csv
 
@@ -51,8 +51,15 @@ class scraper_stats:
 
         # TODO: should I used the tokenized text or before tokenize, 
         # currently is using soup.body.get_text(), it may include many symbols
-        self.update_page_word_count_csv(url,len(text))
-        self.update_count_words_csv(text)
+        tokenized = self.tokenize(text)
+        self.update_page_word_count_csv(url,len(tokenized))
+        self.update_count_words_csv(tokenized)
+
+    def tokenize(self,text):
+        PATTERN = r"\b(?:\w+(?:[-'\u2019]\w+)*|\w+)\b"
+        text = text.lower()
+        filtered = re.findall(PATTERN, text)
+        return filtered
     
     def update_page_word_count_csv(self, url, word_count):
         with open(self.page_word_count_file, mode='a', newline='', encoding='utf-8') as csvfile:
@@ -61,11 +68,9 @@ class scraper_stats:
             # if there are fragment, there should have redundant url
             writer.writerow({'URL': url, 'Word Count': word_count})
 
-    def update_count_words_csv(self,text:str):
+    def update_count_words_csv(self,filtered:str):
         # TODO: improve the regular expression pattern 
-        PATTERN = r"\b(?:\w+(?:[-'\u2019]\w+)*|\w+)\b"
-        text = text.lower()
-        filtered = re.findall(PATTERN, text)
+    
         for t in filtered:
             if t not in self.stop_words:
                 if t not in self.word_count_dict:
@@ -96,7 +101,20 @@ def extract_subdomain(url):
     else:
         return None
 
+def remove_fragment(url):
+    parsed_url = urlparse(url)
+    defrag_page_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, parsed_url.query,'' ))
+    defrag_page_url= defrag_page_url.rstrip('/')
+    return defrag_page_url
 
+def handle_relative_url(base,url):
+    if not url.startswith(("http://", "https://")):
+        print(f'relative url : {url}, the base is {base}')
+        absolute_url = urljoin(base, url)
+        return absolute_url
+    else:
+        return url
+    
 def extract_next_links(url, resp):
     current_depth = stats.url_depth[resp.url]
     print(f'from scraper: current url is {url}, status is {resp.status}, is there error {resp.error}, current url depth is {stats.url_depth[url]}')
@@ -135,13 +153,13 @@ def extract_next_links(url, resp):
     #TODO: get all text from given url: not sure if the current implementation capture all the text content
     soup = bs4.BeautifulSoup(resp.raw_response.content,'lxml')
 
-    # TODO: need to handle redirect url 
     # avoid crawling empty content url 
     if soup.body == None:
         print(f'empty url {url}')
         return list()
     if soup.body:
         text_in_page = soup.body.get_text(' ', strip=True)
+        print(f'***[test] the len of text in page is {len(text_in_page)} content is {text_in_page}')
         stats.update_stats(url=url,text=text_in_page)
     
     #TODO: for next urls: 
@@ -150,15 +168,15 @@ def extract_next_links(url, resp):
         page_url = link.get('href')
         if page_url:
             #TODO: handle how to collect stats with fragment urls: counting unique page
-            parsed_url = urlparse(page_url)
-            defrag_page_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, '', parsed_url.query))
-
-            defrag_page_url= page_url.rstrip('/')
+            defrag_page_url = remove_fragment(page_url)
+            defrag_page_url = handle_relative_url(base=url,url=defrag_page_url)
             stats.url_depth[defrag_page_url] = current_depth +1
             if "#" in defrag_page_url:
                 print(f'*******[warning] this url {defrag_page_url} has fragment origin is {page_url}')
             # assert '#' not in defrag_page_url, f'{defrag_page_url} has fragment, fragment should be deleted'
-            elif "#" not in defrag_page_url:
+            
+            # prevent duplicate
+            elif "#" not in defrag_page_url and defrag_page_url not in stats.page_word_count:
                 url_list.append(defrag_page_url)
     # print(f'what is the content: {text_in_page}')
     # Implementation required.
