@@ -7,9 +7,7 @@ response = requests.get('https://www.nytimes.com/',headers={'User-Agent': 'Mozil
 
 
 
-def scraper(url, resp):
-    links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+
 
 class scraper_stats:
     """
@@ -31,7 +29,12 @@ class scraper_stats:
         self.page_word_count_file = r"/home/xiaofl/Desktop/cs121/hw2/spacetime-crawler4py/debug_log/page_word_count.csv"
         self.word_count_file = r'/home/xiaofl/Desktop/cs121/hw2/spacetime-crawler4py/debug_log/word_count.csv'
         self.stop_words = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]
-
+        
+        #TODO: avoid infinite trap by set up depth limits, 100 might be good? 
+        self.url_depth = {'https://www.ics.uci.edu':0,
+                          'https://www.cs.uci.edu':0,
+                          'https://www.informatics.uci.edu':0,
+                          'https://www.stat.uci.edu':0}
 
         # TODO: how to find the subdomains of a given url
         self.subdomains = set()
@@ -76,18 +79,39 @@ class scraper_stats:
             for word, count in self.word_count_dict.items():
                 writer.writerow({'Word': word, 'Count': count})
 
+#TODO: I am not sure this stats object will be only intialized once 
 stats = scraper_stats()
+
+def scraper(url, resp):
+    links = extract_next_links(url, resp)
+    return [link for link in links if is_valid(link)]
+    
+
+def extract_subdomain(url):
+    url = urlparse(url)
+    subdomain = url.netloc.split('.')
+    if len(subdomain) > 3:
+        # more than just ics.uci.edu ex. 
+        return '.'.join(subdomain[:-3])
+    else:
+        return None
 
 
 def extract_next_links(url, resp):
-
-    print(f'from scraper: current url is {url}, status is {resp.status}, is there error {resp.error}')
+    current_depth = stats.url_depth[resp.url]
+    print(f'from scraper: current url is {url}, status is {resp.status}, is there error {resp.error}, current url depth is {stats.url_depth[url]}')
     # print(f'resp.url is {resp.url}')
     # print(f'resp.status is {resp.status}, and type of status is {type(resp.status)} resp.status == 200 is {resp.status == 200}')
     # print(f'resp.error is {resp.error}')
-
+    #TODO: current depth limit is 100, 
+    if stats.url_depth[url] > 100:
+        return list()
     if resp.status != 200:
         return list()
+    
+    # Handle redirect url
+    if resp.status ==307 or resp.status ==308 :
+        url = resp.url 
     
     # TODO: Honor the politeness delay for each site
     # Crawl all pages with high textual information content
@@ -97,21 +121,45 @@ def extract_next_links(url, resp):
     # TODO: Detect and avoid dead URLs that return a 200 status but no data (click here to see what the different HTTP status codes mean
     # (https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html) )
     # TODO: Detect and avoid crawling very large files, especially if they have low information value
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    print('[test] len of current url content is:',len(resp.raw_response.content))
+    if len(resp.raw_response.content)> MAX_FILE_SIZE:
+        print(f'the file in url {url} is too large')
+        return list()
+    
+    #collecting subdomain: 
+    subdomain = extract_subdomain(url)
+    stats.subdomains.add(subdomain)
 
-    #TODO: handle how to collect stats with fragment urls: counting unique page
-    parsed_url = urlparse(url)
-    url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, '', parsed_url.query))
-
+    
     #TODO: get all text from given url: not sure if the current implementation capture all the text content
     soup = bs4.BeautifulSoup(resp.raw_response.content,'lxml')
-    text_in_page = soup.body.get_text(' ', strip=True)
-    stats.update_stats(url=url,text=text_in_page)
+
+    # TODO: need to handle redirect url 
+    # avoid crawling empty content url 
+    if soup.body == None:
+        print(f'empty url {url}')
+        return list()
+    if soup.body:
+        text_in_page = soup.body.get_text(' ', strip=True)
+        stats.update_stats(url=url,text=text_in_page)
     
     #TODO: for next urls: 
     url_list = []
     for link in soup.find_all("a"):
-        url = link.get('href')
-        url_list.append(url)
+        page_url = link.get('href')
+        if page_url:
+            #TODO: handle how to collect stats with fragment urls: counting unique page
+            parsed_url = urlparse(page_url)
+            defrag_page_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, '', parsed_url.query))
+
+            defrag_page_url= page_url.rstrip('/')
+            stats.url_depth[defrag_page_url] = current_depth +1
+            if "#" in defrag_page_url:
+                print(f'*******[warning] this url {defrag_page_url} has fragment origin is {page_url}')
+            # assert '#' not in defrag_page_url, f'{defrag_page_url} has fragment, fragment should be deleted'
+            elif "#" not in defrag_page_url:
+                url_list.append(defrag_page_url)
     # print(f'what is the content: {text_in_page}')
     # Implementation required.
     # url: the URL that was used to get the page
