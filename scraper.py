@@ -1,4 +1,5 @@
 import re
+import frontier
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
@@ -45,9 +46,14 @@ def extract_next_links(url, resp):
     temp_links = list() # Holds unchecked links
 
     for item in parsed_text.find_all('a'):
-        links = item.get('href') # Returns a list of links
+        link = item.get('href') # Returns a list of links
+        # Verify that links point to websites within our domain
+        # using updated is_valid function
         if is_valid(links):
-            temp_links.append(links)
+            # Remove the fragment from end of link
+            link._replace(fragment='')
+
+            temp_links.append(link)
     # Break down links into sections
 
 
@@ -56,12 +62,15 @@ def extract_next_links(url, resp):
 
     # Remove the fragment from end of link
 
-    # Check for duplicates
+
 
     # Check for traps
+    
 
+    # Check for duplicates
     # If link passes all tests, add it to the url_list
-
+    for item in temp_links:
+            Frontier.add_url(item)
 
     return url_list
 
