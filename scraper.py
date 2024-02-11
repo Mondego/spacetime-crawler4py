@@ -46,23 +46,19 @@ def extract_next_links(url, resp):
     temp_links = list() # Holds unchecked links
 
     for item in parsed_text.find_all('a'):
-        link = item.get('href') # Returns a list of links
-        # Verify that links point to websites within our domain
-        # using updated is_valid function
+        links = item.get('href') # Returns a list of links
         if is_valid(links):
+            
+            # Break down links into sections
+            parsed_link = urlparse(links)
+
+            # Verify that links point to websites within our domain
+            # using updated is_valid function
+            isValid = checkValidUCIHost(parsed_link) 
+            # add logic for valid/invalid links
+
             # Remove the fragment from end of link
-            link._replace(fragment='')
-
-            temp_links.append(link)
-    # Break down links into sections
-
-
-    # Verify that links point to websites within our domain
-    # using updated is_valid function
-
-    # Remove the fragment from end of link
-
-
+            parsed_link = removeFragment(parsed_link)
 
     # Check for traps
     
