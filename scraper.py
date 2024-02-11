@@ -1,4 +1,5 @@
 import re
+import frontier
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
@@ -47,21 +48,25 @@ def extract_next_links(url, resp):
     for item in parsed_text.find_all('a'):
         links = item.get('href') # Returns a list of links
         if is_valid(links):
-            temp_links.append(links)
-    # Break down links into sections
+            
+            # Break down links into sections
+            parsed_link = urlparse(links)
 
+            # Verify that links point to websites within our domain
+            # using updated is_valid function
+            isValid = checkValidUCIHost(parsed_link) 
+            # add logic for valid/invalid links
 
-    # Verify that links point to websites within our domain
-    # using updated is_valid function
-
-    # Remove the fragment from end of link
-
-    # Check for duplicates
+            # Remove the fragment from end of link
+            parsed_link = removeFragment(parsed_link)
 
     # Check for traps
+    
 
+    # Check for duplicates
     # If link passes all tests, add it to the url_list
-
+    for item in temp_links:
+            Frontier.add_url(item)
 
     return url_list
 
@@ -81,10 +86,17 @@ def removeFragment(parsedUrl: urlparse) -> urlparse:
 
 
 def checkValidUCIHost(parsedUrl: urlparse) -> bool:
+    # Check if URL has a hostname
+    if not parsedUrl.hostname:
+        return False
+    
     VALIDS = ["stat", "informatics", "cs", "ics"]
     
     # Splits URL by "."
     urlParts = parsedUrl.hostname.split(".")
+    # Check if URL has at least 4 parameters ("www", domain name, "uci", "edu")
+    if len(urlParts) != 4:
+        return False
     # Grab important parts of URL
     urlDomain = urlParts[1]
     urlSchool = urlParts[2]
