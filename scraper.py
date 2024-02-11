@@ -28,9 +28,25 @@ def extract_next_links(url, resp):
         # Placeholder for error checking
         print(resp.status)
         return url_list
+
+    # Check for permanent redirection
+    # If valid get new location from redirection
+    if(resp.status == 301):
+        resp = resp.url
+
+    # Check for traps
+    for header, value in response.headers.items():
+        if(header.lower() in ['x-robots-tag', 'x-content-type-options']):
+            return url_list
+    
     
     # Convert text to usable format
     raw_text = resp.raw_response.text
+    
+    # Check for capcha
+    if 'CAPCHA' in raw_text or 'capcha' in raw_text:
+        return url_list
+
     parsed_text = BeautifulSoup(raw_text,'html.parser')
 
     # Check unique pages
@@ -48,12 +64,15 @@ def extract_next_links(url, resp):
     for item in parsed_text.find_all('a'):
         links = item.get('href') # Returns a list of links
         if is_valid(links):
+            
             # Break down links into sections
             parsed_link = urlparse(links)
+
             # Remove the fragment from end of link
             parsed_link = removeFragment(parsed_link)
             # Add URL to list as a string
             temp_links.append(urlunparse(parsed_link))
+
 
     # Check for traps
     
@@ -73,6 +92,7 @@ def extract_next_links(url, resp):
     *.informatics.uci.edu/*
     *.stat.uci.edu/*
 '''
+
 
 def removeFragment(parsedUrl: urlparse) -> urlparse:
     newURL = parsedUrl._replace(fragment='')
@@ -109,7 +129,9 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]) and not checkValidUCIHost(parsed):
+        if parsed.scheme not in set(["http", "https"]):
+            return False
+        if not checkValidUCIHost(parsed):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
