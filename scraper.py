@@ -41,10 +41,15 @@ def extract_next_links(url, resp):
     # Count subdomains
 
     # Extract links from text
-    for item in parsed_text.find_all('a',href=True):
-        pass
-    # Break down links into sections
     
+    temp_links = list() # Holds unchecked links
+
+    for item in parsed_text.find_all('a'):
+        links = item.get('href') # Returns a list of links
+        if is_valid(links):
+            temp_links.append(links)
+    # Break down links into sections
+
 
     # Verify that links point to websites within our domain
     # using updated is_valid function
