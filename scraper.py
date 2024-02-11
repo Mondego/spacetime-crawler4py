@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,7 +16,58 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    url_list = list()
+
+    # Check for empty sites
+    if url == None or resp == None or resp.raw_response.content == None:
+        return url_list
+    
+    # Verify response status is valid
+    if not resp.status == 200:
+        # Placeholder for error checking
+        print(resp.status)
+        return url_list
+    
+    # Convert text to usable format
+    raw_text = resp.raw_response.text
+    parsed_text = BeautifulSoup(raw_text,'html.parser')
+
+    # Check unique pages
+    #   Unique pages function?
+    # Count words, check for longest document
+    #   Maybe add a function for this?
+    # Count 50 most common words w/o stop words
+    #   Word counter function
+    # Count subdomains
+
+    # Extract links from text
+    for item in parsed_text.find_all('a',href=True):
+        pass
+    # Break down links into sections
+    
+
+    # Verify that links point to websites within our domain
+    # using updated is_valid function
+
+    # Remove the fragment from end of link
+
+    # Check for duplicates
+
+    # Check for traps
+
+    # If link passes all tests, add it to the url_list
+
+
+    return url_list
+
+## TODO:
+'''
+    List of valid domains:
+    *.ics.uci.edu/*
+    *.cs.uci.edu/*
+    *.informatics.uci.edu/*
+    *.stat.uci.edu/*
+'''
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
