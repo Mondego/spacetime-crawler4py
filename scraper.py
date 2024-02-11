@@ -53,12 +53,14 @@ def extract_next_links(url, resp):
             parsed_link = urlparse(links)
 
             # Verify that links point to websites within our domain
-            # using updated is_valid function
-            isValid = checkValidUCIHost(parsed_link) 
-            # add logic for valid/invalid links
+            is_valid_uci = checkValidUCIHost(parsed_link)
+            
+            if not is_valid_uci: # If it's not valid, move on
+                continue
 
             # Remove the fragment from end of link
             parsed_link = removeFragment(parsed_link)
+            temp_links.append(parsed_link)
 
     # Check for traps
     
