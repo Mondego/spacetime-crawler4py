@@ -83,13 +83,35 @@ def extract_next_links(url, resp):
     *.stat.uci.edu/*
 '''
 
+def removeFragment(parsedUrl: urlparse) -> urlparse:
+    newURL = parsedUrl._replace(fragment='')
+    
+    return newURL
+
+
+def checkValidUCIHost(parsedUrl: urlparse) -> bool:
+    VALIDS = ["stat", "informatics", "cs", "ics"]
+    
+    # Splits URL by "."
+    urlParts = parsedUrl.hostname.split(".")
+    # Grab important parts of URL
+    urlDomain = urlParts[1]
+    urlSchool = urlParts[2]
+    urlEnd = urlParts[3]
+    # Check if URL parts contain all the valid components
+    if (urlDomain in VALIDS and urlSchool == "uci" and urlEnd == "edu"):
+        return True
+        
+    return False
+        
+
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
+        if parsed.scheme not in set(["http", "https"]) and not checkValidUCIHost(parsed):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
