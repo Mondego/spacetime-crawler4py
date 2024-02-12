@@ -38,14 +38,13 @@ class Worker(Thread):
                 if (word.isalpha() or word.isdigit()) and word not in self.stop_words] # ignore stops words in self.stop_words 
 
         checkSum = scraper.checkSum_Hash(words) # get a tuple for check sum 
-
+        
         if checkSum not in self.sum_hashes:
             for word in words:
-                if word not in self.stop_words:
-                    if word in self.word_dict: #not already in dict, and not a stop word
-                        self.word_dict[word] +=1 
-                    else:
-                        self.word_dict[word] = 1
+                if word in self.word_dict: #not already in dict
+                    self.word_dict[word] +=1 
+                else:
+                    self.word_dict[word] = 1
             self.sum_hashes[checkSum] = tbd_url 
             # add that sum to keep track if we hit a duplicate this also helps keep track of unqiue urls (non duplicate urls) 
 
