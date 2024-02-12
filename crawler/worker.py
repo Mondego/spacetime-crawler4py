@@ -24,7 +24,7 @@ class Worker(Thread):
         
     def parse_text(self, tbd_url, resp) -> None:
         string = ""
-        soup = BeautifulSoup(html_content, 'html.parser') # bts content into a varaible that we can further parse 
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # bts content into a varaible that we can further parse 
         headers_types = ['title', 'h1','h2,''h3', 'h4', 'h5','h6','p']
         # para = soup.find_all('p')
 
