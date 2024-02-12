@@ -38,7 +38,7 @@ class Worker(Thread):
                 if (word.isalpha() or word.isdigit()) and word not in self.stop_words] # ignore stops words in self.stop_words 
 
         checkSum = scraper.checkSum_Hash(words) # get a tuple for check sum 
-        
+
         if checkSum not in self.sum_hashes:
             for word in words:
                 if word in self.word_dict: #not already in dict
@@ -70,5 +70,5 @@ class Worker(Thread):
             scraped_urls = scraper.scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
-            self.frontier.mark_url_complete(tbd_url) # <- simhash / checksum of the tbh_url should be passed into the mark_complete, so that we can write it into our txt file / dict 
+            self.frontier.mark_url_complete(tbd_url) 
             time.sleep(self.config.time_delay)
