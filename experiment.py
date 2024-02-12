@@ -102,12 +102,31 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+def parse_robots_txt(domain):
+    robots_txt_url = f"http://{domain}/robots.txt"
+    try:
+        response = requests.get(robots_txt_url)
+        print(f'http://{domain}/robots.txt allow for robot')
+        if response.status_code == 200:
+            return response.text
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching {robots_txt_url}: {e}")
+    return ""
+valid_domains = [
+            "ics.uci.edu",
+            "cs.uci.edu",
+            "informatics.uci.edu",
+            "stat.uci.edu"
+        ]
+for d in valid_domains:
+    print(parse_robots_txt(d))
+    
 # print(is_valid(' '))
 # find_all_pages('https://stat.uci.edu/')
-print(urljoin('https://stat.uci.edu/','mailto:communications@ics.uci.edu'))
-# print(tokenize('This\u2019is\u2019a'))
-print(remove_fragment('https://ics.uci.edu/happening/news/?filter%5Bunits%5D=19'))
-print(remove_fragment('https://recruit.ap.uci.edu/apply#donald-bren-school-of-information-and-computer-sciences'))
+# print(urljoin('https://stat.uci.edu/','mailto:communications@ics.uci.edu'))
+# # print(tokenize('This\u2019is\u2019a'))
+# print(remove_fragment('https://ics.uci.edu/happening/news/?filter%5Bunits%5D=19'))
+# print(remove_fragment('https://recruit.ap.uci.edu/apply#donald-bren-school-of-information-and-computer-sciences'))
 # import csv
 
 # csvfile = r"/home/xiaofl/Desktop/cs121/hw2/spacetime-crawler4py/debug_log/experiment.csv"
