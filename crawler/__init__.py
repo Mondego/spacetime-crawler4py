@@ -7,12 +7,14 @@ class Crawler(object):
         self.config = config
         self.logger = get_logger("CRAWLER")
         self.frontier = frontier_factory(config, restart)
+        self.word_dict = dict() # pass a dictionary to keep track of all words, is referenced by all workers 
         self.workers = list()
         self.worker_factory = worker_factory
+        self.checkSum_hashes = dict()
 
     def start_async(self):
         self.workers = [
-            self.worker_factory(worker_id, self.config, self.frontier)
+            self.worker_factory(worker_id, self.config, self.frontier, self.word_dict, self.checkSum_hashes)
             for worker_id in range(self.config.threads_count)]
         for worker in self.workers:
             worker.start()
