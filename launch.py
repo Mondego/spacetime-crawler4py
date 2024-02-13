@@ -5,6 +5,8 @@ from utils.server_registration import get_cache_server
 from utils.config import Config
 from crawler import Crawler
 
+from crawling_function import stats
+
 
 def main(config_file, restart):
     cparser = ConfigParser()
@@ -13,7 +15,10 @@ def main(config_file, restart):
     config.cache_server = get_cache_server(config, restart)
     crawler = Crawler(config, restart)
     crawler.start()
-
+    
+    stats.print_word_count()
+    print('page with most text: ',stats.page_with_most_text)
+    print('total number of page crawled: ',len(stats.crawled_urls))
 
 if __name__ == "__main__":
     parser = ArgumentParser()

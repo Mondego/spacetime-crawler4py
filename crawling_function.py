@@ -35,7 +35,9 @@ class ScraperStats:
         self.page_word_count_file = r"./debug_log/page_word_count.csv"
         self.trap_detection_file = r'./debug_log/trap_file.csv'
         self.subdomains_file = r'./debug_log/subdomains_file.csv'
-
+        self.redirect_file = r'./debug_log/redirect_file.csv'
+        self.crawled_urls_file = r'./debug_log/crawled_urls_file.csv'
+        self.word_count_file = r'./debug_log/word_count_file.csv'
         ## for robot.txt
         self.allowed_path = defaultdict(list)
         self.disallowed_path = defaultdict(list)
@@ -109,11 +111,22 @@ class ScraperStats:
     # only need to keep track the most words' url and word count,
     # and trap urls to see if the trap we detect are actual trap 
     # and subdomain csv to store all unique subdomain from ics.uci.edu
-    def update_csv(self,url,csv_file,count = 0):
+    def update_csv(self,url,csv_file,count = 0,redirect = ''):
         with open(csv_file, mode='a', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['URL', 'Word Count']
+            fieldnames = ['URL', 'Word Count',"redirect"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writerow({'URL': url, 'Word Count': count})
+            writer.writerow({'URL': url, 'Word Count': count,'redirect':redirect})
+            
+    def print_word_count(self):
+        top_50 = self.word_count.most_common(50)
+        print(top_50)
+    
+    def update_word_count_csv(self):
+        with open(self.word_count_file, mode='a', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['word', 'Count']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            for word, count in self.word_count.items():
+                writer.writerow({'word': word, 'Count': count})
         
 
 
