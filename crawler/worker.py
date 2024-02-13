@@ -37,14 +37,18 @@ class Worker(Thread):
         parsed_tbd = urlparse(tbd_url)
         parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc 
         if parsed_tbd_sub[1] == "ics": # we only want ics domains 
+            unqies = set()
+                for url in urls:
+                    unqies.add(url) 
 
             if parsed_tbd_sub[0] not in self.JustICS: # if this specific subdmaoin is not in ics
-                unqies = set()
-                for url in urls:
-                    parsed_url = urlparse(url) # we parse then add it to our set 
-                    unqies.add(parsed_url.scheme + '://' + parsed_url.netloc) 
+                
                 self.JustICS[parsed_tbd_sub[0]] = (parsed_tbd.scheme + '://' + parsed_tbd.netloc, len(unqies))
                 # key : subdomain, val : (url, num unqiue urls)
+            else:
+                url, unqie_links = self.JustICS[parsed_tbd_sub[0]] # get the tuple 
+                unqie_links += len(unqies) # add the extra links we got from that sub domain 
+                self.JustICS[parsed_tbd_sub[0]] = (url, unqie_links) # update our tuple 
         
 
 
@@ -76,6 +80,8 @@ class Worker(Thread):
                 else:
                     self.word_dict[word] = 1
             self.sum_hashes.add(checkSum) #add that checkSum into our set
+            self.UniqueUrls.add(tbd_url)   # count and add to our ics thingy 
+
             # add that sum to keep track if we hit a duplicate this also helps keep track of unqiue urls (non duplicate urls) 
 
     def run(self):
