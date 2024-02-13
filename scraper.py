@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 from bs4 import BeautifulSoup
 import nltk 
 from nltk.tokenize import word_tokenize
@@ -7,7 +7,8 @@ from nltk.corpus import stopwords
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    x=  [link for link in links if is_valid(link)]
+    return x
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -19,8 +20,11 @@ def extract_next_links(url, resp):
             hyperlinks = soup.find_all('a') # extract all hyper links 
             for link in hyperlinks:
                 href_link = link.get('href')
-                if filter_rule in href_link: # only accept uci.edu links 
-                    links.add(href_link)
+                parsed = urlparse(href_link)
+                parsed = parsed._replace(fragment='') # remove the fragment 
+                parsed = urlunparse(parsed) # stitch it back together 
+                links.add(parsed)
+                
         else:
             print(resp.error) # print the error code 
             return list()
@@ -42,7 +46,16 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
+        valid_domains = {"ics", "stat", "informatics", "cs"} # set of valid domains 
+        if type(url) != str:
+            url = url.decode('utf-8') # make it into a string
+
         parsed = urlparse(url)
+
+        broken = parsed.netloc.split('.') # [ics, uci, edu]
+        if not any(domain in broken for domain in valid_domains):
+            return False
+        
         if parsed.scheme not in set(["http", "https"]): ## not https will also avoid 
             return False
         return not re.match(

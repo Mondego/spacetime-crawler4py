@@ -1,26 +1,51 @@
 from urllib.parse import urlparse
-x = set()
-subdomains = {"www": (url , 3), "sch": (url , 3), "mwh": (url , 3),}
 
-# rl = "https://redmiles.ics.uci.edu/people"
-# parsed_url = urlparse(rl).netloc
-# y = parsed_url.split('.')[0]
-# # x.add(parsed_url.scheme + '://' + parsed_url.netloc)
-# print(y)
-subdomains["ics"].add(1)
-subdomains["ics"].add(2)
-subdomains["ics"].add(3)
-print(len(subdomains["ics"]))
-# x = (parsed_url.netloc.split('.'))
+x = urls = [
+    "https://www8.cao.go.jp",
+    "https://police.uci.edu",
+    "https://portal.uci.edu",
+    "https://twitter.com",
+    "https://www.stat.uci.edu",
+    "http://www.redcross.org",
+    "https://repository.lib.ncsu.edu",
+    "https://www.informatics.uci.edu",
+    "https://hengruicai.github.io",
+    "https://www.ehs.uci.edu"]
+#     "https://www.who.int",
+#     "https://www.php.net",
+#     "https://www.dokuwiki.org",
+#     "http://youtube.com",
+#     "http://www.uci.edu",
+#     "https://www.weforum.org",
+#     "http://www.informatics.ics.uci.edu",
+#     "http://directory.uci.edu",
+#     "http://www.youtube.com",
+#     "https://cscw.acm.org",
+#     "http://catalogue.uci.edu",
+#     "http://www.ehs.uci.edu",
+#     "http://www.informatics.uci.edu",
+#     "https://www.ics.uci.edu",
+#     "http://jigsaw.w3.org",
+#     "http://html5up.net",
+#     "http://www.ics.uci.edu",
+#     "http://www.mckinsey.com",
+#     "http://creativecommons.org",
+#     "https://www.basicbooks.com",
+#     "http://udsauci.weebly.com",
+#     "http://validator.w3.org",
+#     "https://www.wyzant.com",
+#     "http://intranet.ics.uci.edu",
+#     "https://seal.ics.uci.edu",
+#     "https://www.choc.org",
+#     "https://campusgroups.uci.edu",
+#     "http://engineering.uci.edu",
+#     "https://ehs.ucop.edu",
+#     "http://hai.ics.uci.edu",
+# ]
 
-# if x[0] not in subdomains[x[1]]:
-#             subdomains[x[1]].add(x[0])
-
-# rl = "https://redsdmiles.ics.uci.edu/peopewlkffle"
-# parsed_url = urlparse(rl)
-# x = (parsed_url.netloc.split('.'))
-
-# if x[0] not in subdomains[x[1]]:
-#             subdomains[x[1]].add(x[0])
-
-# print(subdomains)
+valid_domains = {"ics", "stat", "informatics", "cs"} # set of valid domains 
+for url in x:
+    parsed = urlparse(url)
+    parsed_broken = parsed.netloc.split('.')
+    if not any(domain in url for domain in valid_domains):
+        print(f"{url} is not valid")

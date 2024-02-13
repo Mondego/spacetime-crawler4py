@@ -29,7 +29,7 @@ class Worker(Thread):
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
         super().__init__(daemon=True)
         
-    def get_subdomain(self, tbd_url):
+    def count_unqiues(self, tbd_url):
         parsed_url = urlparse(tbd_url)
         self.UniqueUrls.add(parsed_url.scheme + '://' + parsed_url.netloc) # add to our unqiue set 
 
@@ -37,12 +37,12 @@ class Worker(Thread):
         # if split_url[0] not in self.subdomains[split_url[1]]: # if that specific sub not in our domain set yet
         #     self.subdomains[split_url[1]].add(split_url[0]) # add to our subdomains 
 
-    def count_unqiues(self, tbd_url, urls):
+    def get_subdomain(self, tbd_url, urls):
         # urls is the list of urls extracted from tbd
 
         parsed_tbd = urlparse(tbd_url)
         parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc 
-        if parsed_tbd[1] == "ics": # we only want ics domains 
+        if parsed_tbd_sub[1] == "ics": # we only want ics domains 
 
             if parsed_tbd_sub[0] not in self.JustICS: # if this specific subdmaoin is not in ics
                 unqies = set()
@@ -92,6 +92,7 @@ class Worker(Thread):
                 if self.worker_id == 0: # only one worker can print to freq_words.txt
                     file_path = 'freq_words.txt'
                     file_path2 = 'justics.txt'
+                    file_path3 = "unquie links.txt"
                     # print the number of unqiue urls 
                     print(f"Unqiue links: {len(self.UniqueUrls)}")
                     
@@ -105,8 +106,13 @@ class Worker(Thread):
 
                     with open(file_path2, 'w') as file:
                             # write ics domains alpha betically
-                        for key, value in dict(sorted(your_dict.items(), key=lambda x: x[1][0])):
+                        for key, value in sorted(self.JustICS.items(), key=lambda x: x[0]):
                             file.write(f"{key}: {value}\n")
+
+                    with open(file_path3, 'w') as file:
+                            # write ics domains alpha betically
+                        for item in self.UniqueUrls:
+                            file.write(f"{item} \n")
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
@@ -117,12 +123,12 @@ class Worker(Thread):
                 self.parse_text(tbd_url, resp) # parse the text and add it to our dict, and add a checksum hash to the url dict too 
             scraped_urls = scraper.scraper(tbd_url, resp)
 
-            self.count_unqiues(tbd_url, scraped_urls) # count and add to our ics thingy 
+            self.get_subdomain(tbd_url, scraped_urls) # check the sub domain of ics 
             # check the url if its of ics type, we take the scraped urls (uci.edu type and sort it into a fucniton )
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
 
-            self.get_subdomain(tbd_url) # check the sub domain 
+            self.count_unqiues(tbd_url)   # count and add to our ics thingy 
             self.frontier.mark_url_complete(tbd_url) 
 
             time.sleep(self.config.time_delay)
