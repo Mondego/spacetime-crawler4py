@@ -48,7 +48,7 @@ def is_valid(url):
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf|txt"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
@@ -73,5 +73,6 @@ def checkSum_Hash(words_only):
             sums.add(checksum)
             checksum = 0
 
-    return tuple(set([num for num in sums if num % 4 == 0]))
+    return tuple(set([num for num in sums if num % 15 == 0]))
+    
 # name me 

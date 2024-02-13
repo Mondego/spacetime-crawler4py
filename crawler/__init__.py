@@ -10,11 +10,14 @@ class Crawler(object):
         self.word_dict = dict() # pass a dictionary to keep track of all words, is referenced by all workers 
         self.workers = list()
         self.worker_factory = worker_factory
-        self.checkSum_hashes = dict()
+        self.checkSum_hashes = set()
+        self.UniqueUrls = set()
+        self.JustICS = dict()
+            # this keeps track of all domains and their sub domains, sets will grow under these domains 
 
     def start_async(self):
         self.workers = [
-            self.worker_factory(worker_id, self.config, self.frontier, self.word_dict, self.checkSum_hashes)
+            self.worker_factory(worker_id, self.config, self.frontier, self.word_dict, self.checkSum_hashes, self.UniqueUrls, self.JustICS)
             for worker_id in range(self.config.threads_count)]
         for worker in self.workers:
             worker.start()
