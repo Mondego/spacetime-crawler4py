@@ -38,7 +38,7 @@ import requests
 from bs4 import BeautifulSoup 
 import time
 
-from scraper_stats import scraper_stats
+from crawling_function import ScraperStats
 
 
 def tokenizer(text):
@@ -87,9 +87,9 @@ valid_domains = [
 
 import time
 from queue import Queue
-stats = scraper_stats()
+stats = ScraperStats()
 
-def check_robots(domain,stats):
+def check_robots(domain,stats=stats):
     robots_url = f"http://{domain}/robots.txt"
     try: 
         robots_response = requests.get(robots_url)
@@ -130,7 +130,7 @@ def handle_relative_url(base,url):
         return url
     
 
-def is_allowed_url(url, allowed = stats.allowed_path , disallowed = stats.disallowed_path):
+def is_robot_allowed_url(url, allowed = stats.allowed_path , disallowed = stats.disallowed_path):
     """
     2. if urls are allowed by robot, return true
     3. if urls are not found in allowed and specified disallowed, return false
@@ -161,12 +161,12 @@ def is_trap(url,stats= stats,threshold = 100):
         return False
     # print(f'this url {url} is trap')
     # assert False, f'{stats.repeat_url_counter}'
-    stats.update_trap_csv(url)
+    stats.update_csv(url,stats.trap_detection_file)
     return True
 
 # print(is_trap('https://ics.uci.edu'))
 
-def handle_high_textual_content(url,resp,stats = stats,threshold = 100,MAX_FILE_SIZE = 10 * 1024 * 1024):
+def handle_high_textual_content(url,soup,stats = stats,threshold = 1000):
     #TODO: need change when doing actual implementation, the resp need chance
     """
     if the file is too large, return none
@@ -182,23 +182,14 @@ def handle_high_textual_content(url,resp,stats = stats,threshold = 100,MAX_FILE_
     if url in stats.crawled_urls:
         return None
     
-    if len(resp.text)> MAX_FILE_SIZE:
-        stats.update_abnormal_url_csv(url,'too large file')
-        return None
-
-    # soup = BeautifulSoup(resp.raw_response.content, 'lmxl') for class
-    ##################################################
-    soup = BeautifulSoup(resp.content, 'lxml')######## need change 
-    # soup = BeautifulSoup(resp.raw_response.content,'lxml')
-    ##################################################
     urls = []
     if soup.body == None:
         return None
-    text_in_page = soup.body.get_text(' ', strip=True)
-
-    tokenized_text = tokenizer(text_in_page)
-    remove_stop_word_text = remove_stop_words(tokenized_text)
-    num_word = len(remove_stop_word_text)
+    raw_text = soup.body.get_text(' ', strip=True)
+    stats.update_word_count(raw_text)
+    text_in_page = raw_text.split()
+    # print(f'test what is text in page: {text_in_page}')
+    num_word = len(text_in_page)
     try: 
         for link in soup.find_all("a"):
             urls.append(link.get('href'))
@@ -208,22 +199,27 @@ def handle_high_textual_content(url,resp,stats = stats,threshold = 100,MAX_FILE_
         return None
     
     if num_word > stats.page_with_most_text['wordcount']:
-        stats.page_with_most_text['page'] = url
+        stats.page_with_most_text['url'] = url
         stats.page_with_most_text['wordcount'] = num_word
+        stats.update_csv(url,stats.page_word_count_file,count = num_word)
     
-    stats.update_count_words_csv(remove_stop_word_text)
-    stats.update_page_word_count_csv(url,word_count=num_word)
     return (urls,num_word)
 
-def extract_subdomain(url,stats = stats):
-    url = urlparse(url)
-    subdomain = url.netloc.split('.')
-    if len(subdomain) > 3:
-        # more than just ics.uci.edu ex. 
-        subdomain=  '.'.join(subdomain[:-3])
-        if subdomain not in stats.subdomains:
-            stats.update_subdomain_csv(subdomain)
-            stats.subdomains.add(subdomain)
+def handle_ics_subdomain(url, stats = stats):
+    parsed_url = urlparse(url)
+    domain_parts = parsed_url.netloc.split('.')
+    ics_uci_domain_parts = "ics.uci.edu".split('.')
+
+    if len(domain_parts) < len(ics_uci_domain_parts):
+        return False
+
+    for i in range(len(ics_uci_domain_parts)):
+        if domain_parts[-(i+1)] != ics_uci_domain_parts[-(i+1)]:
+            return False
+    stats.update_csv(url,stats.subdomains_file)
+    stats.subdomains.add(url)
+    return True
+
 
 def is_url(url):
     try:
@@ -244,12 +240,20 @@ def extract_next_links_test(url, resp, status_code):
     if status_code != 200: 
         return list()
     
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    if len(resp.text)> MAX_FILE_SIZE:
+        stats.update_abnormal_url_csv(url,'too large file')
+        return None
     
     # collect stats for subdomain 
-    extract_subdomain(url)
+    handle_ics_subdomain(url)
     
+    # get the soup object for handle_high_textual_content
+    # soup = BeautifulSoup(resp.raw_response.content,'lxml')
+    soup = BeautifulSoup(resp.content,'lxml')
+
     # check for high textual content
-    content = handle_high_textual_content(url,resp)
+    content = handle_high_textual_content(url,soup)
 
     # url crawled
     stats.crawled_urls.add(url)
@@ -284,7 +288,7 @@ def is_valid(url):
             return False
 
         # follow the robot.txt
-        if not is_allowed_url(url):
+        if not is_robot_allowed_url(url):
             return False
 
         # handle the trap here
@@ -343,7 +347,7 @@ def crawl_domains_with_politeness(domains, delay=0.3,stats = stats):
         except requests.RequestException as e:
         # If there's an error, print it
             print(f"An error occurred: {e} with url: {current_url}")
-            stats.update_abnormal_url_csv(current_url,'requestion_exception')
+            # stats.update_abnormal_url_csv(current_url,'requestion_exception')
         time.sleep(delay)
             
     # Visit the allowed URLs while respecting the politeness delay

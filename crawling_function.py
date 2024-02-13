@@ -3,6 +3,7 @@ from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
 from collections import Counter
 from collections import defaultdict
+import csv
 
 class ScraperStats:
 
@@ -23,8 +24,25 @@ class ScraperStats:
         self.domain_counts = defaultdict(int)
         self.trap_urls = []
 
-        ## save to csv: 
-        
+        ####################################################
+        # Lucas Changes: 
+
+        self.crawled_urls = set()
+        self.subdomains = set()
+        self.page_with_most_text = {'url':'','wordcount':0}
+
+        ## save to csv
+        self.page_word_count_file = r"./debug_log/page_word_count.csv"
+        self.trap_detection_file = r'./debug_log/trap_file.csv'
+        self.subdomains_file = r'./debug_log/subdomains_file.csv'
+
+        ## for robot.txt
+        self.allowed_path = defaultdict(list)
+        self.disallowed_path = defaultdict(list)
+
+        ## for repeat detection
+        self.repeat_url_counter = defaultdict(int)
+        ####################################################
 
     def update_pages(self):
         self.unique_pages += 1
@@ -86,6 +104,18 @@ class ScraperStats:
             return True
 
         return False
+    
+    ## Lucas's functions: 
+    # only need to keep track the most words' url and word count,
+    # and trap urls to see if the trap we detect are actual trap 
+    # and subdomain csv to store all unique subdomain from ics.uci.edu
+    def update_csv(self,url,csv_file,count = 0):
+        with open(csv_file, mode='a', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['URL', 'Word Count']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writerow({'URL': url, 'Word Count': count})
+        
+
 
 
 stats = ScraperStats()
