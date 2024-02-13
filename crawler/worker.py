@@ -83,10 +83,10 @@ class Worker(Thread):
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
-                if self.worker_id == 0 or len(self.UniqueUrls) == 20: # only one worker can print to freq_words.txt
+                if self.worker_id == 0: # only one worker can print to freq_words.txt
                     file_path = 'freq_words.txt'
                     file_path2 = 'justics.txt'
-                    file_path3 = "unquie links.txt"
+                    file_path3 = "unquie_links.txt"
                     # print the number of unqiue urls 
                     print(f"Unqiue links: {len(self.UniqueUrls)}")
                     
@@ -123,7 +123,6 @@ class Worker(Thread):
                 self.frontier.add_url(scraped_url)
 
             self.UniqueUrls.add(tbd_url)   # count and add to our ics thingy 
-            print(len(self.UniqueUrls))
 
             self.frontier.mark_url_complete(tbd_url) 
             time.sleep(self.config.time_delay)
