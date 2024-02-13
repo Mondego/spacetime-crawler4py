@@ -29,13 +29,7 @@ class Worker(Thread):
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
         super().__init__(daemon=True)
         
-    def count_unqiues(self, tbd_url):
-        parsed_url = urlparse(tbd_url)
-        self.UniqueUrls.add(parsed_url.scheme + '://' + parsed_url.netloc) # add to our unqiue set 
 
-        # split_url = parsed_url.netloc.split('.')
-        # if split_url[0] not in self.subdomains[split_url[1]]: # if that specific sub not in our domain set yet
-        #     self.subdomains[split_url[1]].add(split_url[0]) # add to our subdomains 
 
     def get_subdomain(self, tbd_url, urls):
         # urls is the list of urls extracted from tbd
@@ -89,7 +83,7 @@ class Worker(Thread):
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
-                if self.worker_id == 0: # only one worker can print to freq_words.txt
+                if self.worker_id == 0 or len(self.UniqueUrls) == 20: # only one worker can print to freq_words.txt
                     file_path = 'freq_words.txt'
                     file_path2 = 'justics.txt'
                     file_path3 = "unquie links.txt"
@@ -128,7 +122,8 @@ class Worker(Thread):
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
 
-            self.count_unqiues(tbd_url)   # count and add to our ics thingy 
-            self.frontier.mark_url_complete(tbd_url) 
+            self.UniqueUrls.add(tbd_url)   # count and add to our ics thingy 
+            print(len(self.UniqueUrls))
 
+            self.frontier.mark_url_complete(tbd_url) 
             time.sleep(self.config.time_delay)
