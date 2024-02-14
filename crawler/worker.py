@@ -38,8 +38,8 @@ class Worker(Thread):
         parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc 
         if parsed_tbd_sub[1] == "ics": # we only want ics domains 
             unqies = set()
-                for url in urls:
-                    unqies.add(url) 
+            for url in urls:
+                unqies.add(url) 
 
             if parsed_tbd_sub[0] not in self.JustICS: # if this specific subdmaoin is not in ics
                 
