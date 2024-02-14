@@ -27,6 +27,7 @@ def handle_high_textual_content(url,soup,stats = stats,threshold = 1000):
     if soup.body == None:
         return None
     raw_text = soup.body.get_text(' ', strip=True)
+
     stats.update_word_count(raw_text)
     # stats.print_word_count()
     # stats.update_word_count_csv()
@@ -40,6 +41,12 @@ def handle_high_textual_content(url,soup,stats = stats,threshold = 1000):
         return None
     if num_word < threshold and len(urls) ==0:
         return None
+    if stats.is_near_duplicate(text_in_page,url):
+        return None
+
+
+
+
     
     if num_word > stats.page_with_most_text['wordcount']:
         stats.page_with_most_text['url'] = url
@@ -148,9 +155,9 @@ def is_trap(url,stats= stats,threshold = 1000):
 
 
 ################
-for d in valid_domains: 
-    check_robots(d,stats)
-    
+#for d in valid_domains:
+#    check_robots(d,stats)
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -177,14 +184,17 @@ def extract_next_links(url, resp):
     soup = bs4.BeautifulSoup(resp.raw_response.content,'lxml')
 
     content = handle_high_textual_content(url,soup)
+    print("dup_count: ",stats.dup_count)
     
     # url crawled
-    stats.crawled_urls.add(url)
 
     # if fail to pass the high_textual content function requirements
     if content == None:
         return list()
     else:
+        stats.crawled_urls.add(url)
+        stats.unique_pages += 1
+        print("URLS_CRAWELED: ", stats.unique_pages)
         print(f'current url is {resp.url}')
         urls,num_word = content[0],content[1]
         for sub_url in urls: 
@@ -223,9 +233,10 @@ def is_valid(url):
             "informatics.uci.edu",
             "stat.uci.edu"
         ]
-        if not any(domain in parsed.netloc for domain in valid_domains):
+        if not any(parsed.netloc.endswith(domain) for domain in valid_domains):
             return False
-        
+
+        #need to exclude "pdf" in the middle of a path
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -234,7 +245,7 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz|ppsx|odc)$", parsed.path.lower())
 
     except TypeError:
         print ("TypeError for ", parsed)

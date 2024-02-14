@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from collections import Counter
 from collections import defaultdict
 import csv
+from simhash import Simhash, SimhashIndex
 
 class ScraperStats:
 
@@ -46,8 +47,15 @@ class ScraperStats:
         self.repeat_url_counter = defaultdict(int)
         ####################################################
 
+        #n-grams
+        self.grams=3
+        #simhash_index stores all the simhash values for all the pages
+        self.simhash_index=SimhashIndex([], k=self.grams)
+        self.dup_count=0
+
     def update_pages(self):
         self.unique_pages += 1
+        print("UNIQUE_PAGES: ",self.unique_pages)
 
     def update_traps(self, url):
         self.trap_urls.append(url)
@@ -127,7 +135,29 @@ class ScraperStats:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             for word, count in self.word_count.items():
                 writer.writerow({'word': word, 'Count': count})
-        
+
+    def get_features(self,tokens):
+        # Extract features using a sliding window of width 3
+        features = ["".join(tokens[i:i + self.grams]) for i in range(max(len(tokens) - self.grams + 1, 1))]
+        return features
+
+    def compute_simhash(self,text):
+        #tokens = re.findall(r'\b\w+\b', text)
+        # Extract features from tokens
+        features = self.get_features(text)
+        # Calculate the Simhash value for the features
+        return Simhash(features)
+
+    def is_near_duplicate(self,text,url):
+        # Check if the Simhash value for the given html_doc is similar to any previously crawled pages
+        simhash_value = self.compute_simhash(text)
+        duplicates = self.simhash_index.get_near_dups(simhash_value)
+        if duplicates==[]:
+            self.simhash_index.add(url, simhash_value)
+            return False
+        else:
+            self.dup_count+=1
+            return True
 
 
 
