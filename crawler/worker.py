@@ -31,28 +31,20 @@ class Worker(Thread):
         
 
 
-    def get_subdomain(self, tbd_url, urls):
+    def get_subdomain(self, tbd_url):
         # urls is the list of urls extracted from tbd
 
         parsed_tbd = urlparse(tbd_url)
-        parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc 
+        parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc [www, ics, uci, edu]
         if parsed_tbd_sub[1] == "ics": # we only want ics domains 
-            unqies = set()
-            for url in urls:
-                if url not in self.UniqueUrls: #this is to avoid duplicates / over counting 
-                    unqies.add(url) 
-
-            if parsed_tbd_sub[0] not in self.JustICS: # if this specific subdmaoin is not in ics
-                
-                self.JustICS[parsed_tbd_sub[0]] = (parsed_tbd.scheme + '://' + parsed_tbd.netloc, len(unqies))
+            if parsed_tbd_sub[0] not in self.JustICS: # if we have not covered this sub domain, add it to dict with starting count 1
+                self.JustICS[parsed_tbd_sub[0]] = (parsed_tbd.scheme + '://' + parsed_tbd.netloc, 1)
                 # key : subdomain, val : (url, num unqiue urls)
             else:
                 url, unqie_links = self.JustICS[parsed_tbd_sub[0]] # get the tuple 
-                unqie_links += len(unqies) # add the extra links we got from that sub domain 
+                unqie_links += 1 # add the extra links we got from that sub domain 
                 self.JustICS[parsed_tbd_sub[0]] = (url, unqie_links) # update our tuple 
         
-
-
     def parse_text(self, tbd_url, resp) -> None:
         string = ""
 
@@ -81,7 +73,6 @@ class Worker(Thread):
                 else:
                     self.word_dict[word] = 1
             self.sum_hashes.add(checkSum) #add that checkSum into our set
-            self.UniqueUrls.add(tbd_url)   # count and add to our ics thingy 
 
             # add that sum to keep track if we hit a duplicate this also helps keep track of unqiue urls (non duplicate urls) 
 
@@ -125,7 +116,7 @@ class Worker(Thread):
                 self.parse_text(tbd_url, resp) # parse the text and add it to our dict, and add a checksum hash to the url dict too 
             scraped_urls = scraper.scraper(tbd_url, resp)
 
-            self.get_subdomain(tbd_url, scraped_urls) # check the sub domain of ics 
+            self.get_subdomain(tbd_url) # check the sub domain of ics 
             # check the url if its of ics type, we take the scraped urls (uci.edu type and sort it into a fucniton )
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
