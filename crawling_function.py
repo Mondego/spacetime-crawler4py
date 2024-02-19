@@ -8,6 +8,20 @@ import csv
 # from simhash import Simhash, SimhashIndex
 
 class ScraperStats:
+    """
+    this class is called in scraper and launch for update the stats after program finish run
+    this class handle to collect stats for: 
+        1. word count 
+        2. longest page with word number 
+        3. unique pages 
+        4. simhash values for unique pages 
+        5. subdomains 
+        6. crawled urls 
+    this class also has helper function to 
+        1. save stats to csv file 
+        2. compute the simhash 
+    and store stop words
+    """
 
     def __init__(self):
         # tracks how many unique pages visited
@@ -94,23 +108,6 @@ class ScraperStats:
         # return f'Unique Pages: {self.unique_pages}. Top 50 words: {self.word_count.most_common(50)}'
         return f'Unique Pages: {self.unique_pages}'
     
-    def is_trap(self, parsed):
-        # Need to test
-        if parsed[:6] == "mailto":
-            return True
-        
-        if parsed.query in self.TRAP_PARAMS:
-            return True
-        
-        domainName = parsed.netloc + parsed.path
-        self.domain_counts[domainName] += 1
-        if self.domain_counts[domainName] > 12:
-            return True
-        
-        if parsed.scheme not in set(["http", "https"]):
-            return True
-
-        return False
     
     ## Lucas's functions: 
     # only need to keep track the most words' url and word count,

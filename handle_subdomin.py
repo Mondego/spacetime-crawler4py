@@ -1,6 +1,10 @@
 import csv
 from urllib.parse import urlparse,urlunparse,urljoin
 from collections import defaultdict
+
+
+##  we use this code to process the subdomain
+## we first store all the unique subdomain in csv file, and after process stop we print out the sorted subdomains
 def process_csv(csv_file):
     # subdomains = defaultdict(lambda: {'pages': '', 'count': 0})
     subdomains_dict = defaultdict(int)

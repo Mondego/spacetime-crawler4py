@@ -15,12 +15,14 @@ valid_domains = [
 ###############
 def handle_high_textual_content(url,soup,stats = stats,threshold = 100):
     """
-    if the file is too large, return none
+    1. if the file is too large, return none
     get a resp, check if has more than 100 words and no urls
     consider this url as low textual content and skip it
+    2. if the file content has redundant we return None
+    
+    else 
+    return the urls in this page, and word count 
     """
-    
-    
     urls = []
     if soup.body == None:
         return None
@@ -29,8 +31,6 @@ def handle_high_textual_content(url,soup,stats = stats,threshold = 100):
     raw_text = soup.body.get_text(' ', strip=True)
 
     stats.update_word_count(raw_text)
-    # stats.print_word_count()
-    # stats.update_word_count_csv()
     text_in_page = raw_text.split()
     # print(f'test what is text in page: {text_in_page}')
     num_word = len(text_in_page)
@@ -51,6 +51,10 @@ def handle_high_textual_content(url,soup,stats = stats,threshold = 100):
     return (urls,num_word)
 
 def handle_ics_subdomain(url, stats = stats):
+    """
+    only looking for domain with ics.uci.edu
+    if the domain has more than ics uci edu, we determine it as ics uci edu subdomain
+    """
     parsed_url = urlparse(url)
     domain_parts = parsed_url.netloc.split('.')
     ics_uci_domain_parts = "ics.uci.edu".split('.')
@@ -67,6 +71,9 @@ def handle_ics_subdomain(url, stats = stats):
 
 
 def is_url(url):
+    """
+    make sure the urls from href is a actual url 
+    """
     try:
         result = urlparse(url)
         return any([result.scheme, result.netloc])
@@ -74,6 +81,10 @@ def is_url(url):
         return False
     
 def handle_robots(text,domain,stats = stats):
+    """
+    this code will make the content in robots 
+    and add the absolute url to allowed, disallowed url set
+    """
     robot_parser = text.split('\n')
     for line in robot_parser:
         if line.startswith('User-agent'):
@@ -93,12 +104,20 @@ def handle_robots(text,domain,stats = stats):
 
 
 def remove_fragment(url):
+    """
+    only accept scheme, netloc (domain), path, params, query, empty the fragment
+    """
     parsed_url = urlparse(url)
     defrag_page_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, parsed_url.query,'' ))
     defrag_page_url= defrag_page_url.rstrip('/')
     return defrag_page_url
 
 def handle_relative_url(base,url):
+    """
+    if a url is not start with "http://", "https://" will be considered as relative url 
+    1. we will need the base url the url that contain the current url crawled, 
+    2. join the base url and the current relative url 
+    """
     if not url.startswith(("http://", "https://")):
         # print(f'relative url : {url}, the base is {base}')
         absolute_url = urljoin(base, url)
@@ -126,6 +145,10 @@ def is_robot_allowed_url(url, allowed = stats.allowed_path , disallowed = stats.
     return True
 
 def is_trap(url,stats= stats,threshold = 200):
+    """
+    we count the number of certain scheme domain path 
+    if certain scheme domain path occur more than threshold: 200 time we consider it as trap 
+    """
     # RAP_PARAMS = {"action=download","action=login","action=edit"}
     parsed_url = urlparse(url)
     # print(f'path {parsed_url.path == ""} ?')
@@ -150,6 +173,18 @@ def scraper(url, resp):
     return [link for link in links if is_valid(link)]
     
 def extract_next_links(url, resp):
+    """
+    return empty list 
+        1. if status code is 404, 
+        2. if url already crawled,
+        3. if status code start with 3xx, 
+            we handle redirect url by return empty list
+            because resp did not provide us redirect url  
+        4. if resp is none or resp raw response is none 
+        5. if size of url is too large more than 10 * 1024 * 1024 length
+        6. if content of url is highly similar (handled in handle_high_textual_content )
+        
+    """
     if resp.status == 404:
         return list()
     
@@ -202,10 +237,15 @@ def extract_next_links(url, resp):
                 url_without_fragment = remove_fragment(absoluted_url)
                 next_urls.append(url_without_fragment)
         return next_urls
+    
 def is_valid(url):
-    # Decide whether to crawl this url or not. 
-    # If you decide to crawl it, return True; otherwise return False.
-    # There are already some conditions that return False.
+    """
+    return false: 
+     1. if the url is not in given domains 
+     2. if the url is not allowed by robot.txt
+     3. already crawled url 
+     4. we update to not accept ppsx urls
+    """
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
