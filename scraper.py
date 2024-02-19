@@ -58,19 +58,25 @@ def is_valid(url):
         
         if parsed.scheme not in set(["http", "https"]): ## not https will also avoid 
             return False
-
-        if "html" in parsed.scheme:
-            return False
         
-        if "txt" in parsed.scheme:
-            return False
+        if (parsed.query != ""): # b/c we care about queries, we also want to check for improper urls here 
+            return not re.match(
+            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|jav"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|jar"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.query.lower()) 
+
 
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4|jav"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf|txt"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|jar"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|html|htm"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) # accepts files of this type  

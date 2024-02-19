@@ -36,14 +36,15 @@ class Worker(Thread):
 
         parsed_tbd = urlparse(tbd_url)
         parsed_tbd_sub = parsed_tbd.netloc.split('.') # get the netloc [www, ics, uci, edu]
+        cleaned_subdomain = parsed_tbd_sub[0].lower().strip(' ') # removes caps, and white spaces 
         if parsed_tbd_sub[1] == "ics": # we only want ics domains 
-            if parsed_tbd_sub[0] not in self.JustICS: # if we have not covered this sub domain, add it to dict with starting count 1
-                self.JustICS[parsed_tbd_sub[0]] = (parsed_tbd.scheme + '://' + parsed_tbd.netloc, 1)
+            if cleaned_subdomain not in self.JustICS: # if we have not covered this sub domain, add it to dict with starting count 1
+                self.JustICS[cleaned_subdomain] = (parsed_tbd.scheme + '://' + parsed_tbd.netloc, 1)
                 # key : subdomain, val : (url, num unqiue urls)
             else:
-                url, unqie_links = self.JustICS[parsed_tbd_sub[0]] # get the tuple 
+                url, unqie_links = self.JustICS[cleaned_subdomain] # get the tuple 
                 unqie_links += 1 # add the extra links we got from that sub domain 
-                self.JustICS[parsed_tbd_sub[0]] = (url, unqie_links) # update our tuple 
+                self.JustICS[cleaned_subdomain] = (url, unqie_links) # update our tuple 
         
     def parse_text(self, tbd_url, resp) -> None:
         string = ""
