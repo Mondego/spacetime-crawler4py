@@ -19,6 +19,7 @@ def main(config_file, restart):
     stats.print_word_count()
     print('page with most text: ',stats.page_with_most_text)
     print('total number of page crawled: ',len(stats.crawled_urls))
+    stats.update_word_count_csv()
 
 if __name__ == "__main__":
     parser = ArgumentParser()

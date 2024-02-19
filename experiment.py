@@ -73,47 +73,37 @@ valid_domains = [
             "stat.uci.edu"
         ]
 
-# check_robots(valid_domains,stats=stats)
-# print('allowed: ',stats.allowed_path,'\n')
-# print('disallowed: ',stats.disallowed_path)
-
-
-
-# print(is_allowed_url('http://stat.uci.edu/wp-admin/?id=30',stats.allowed_path,stats.disallowed_path), ' should be false')
-# print(is_allowed_url('http://informatics.uci.edu/research/?id=30',stats.allowed_path,stats.disallowed_path), ' should be false')
-# print(is_allowed_url('http://informatics.uci.edu/research/masters-research/',stats.allowed_path,stats.disallowed_path), ' should be true')
-
 
 
 import time
 from queue import Queue
 stats = ScraperStats()
 
-def check_robots(domain,stats=stats):
-    robots_url = f"http://{domain}/robots.txt"
-    try: 
-        robots_response = requests.get(robots_url)
-        if robots_response.status_code == 200:
-            # Parse robots.txt to find rules for the user-agent
-            robots_txt = robots_response.text
-            robot_parser = robots_txt.split('\n')
+# def check_robots(domain,stats=stats):
+#     robots_url = f"http://{domain}/robots.txt"
+#     try: 
+#         robots_response = requests.get(robots_url)
+#         if robots_response.status_code == 200:
+#             # Parse robots.txt to find rules for the user-agent
+#             robots_txt = robots_response.text
+#             robot_parser = robots_txt.split('\n')
             
-            for line in robot_parser:
-                if line.startswith('User-agent'):
-                    _, agent = line.split(': ')
-                elif line.startswith('Allow'):
-                    content = line.split(': ')
-                    if len(content) ==2:
-                        absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
-                        stats.allowed_path[agent].append(absolute_url)
+#             for line in robot_parser:
+#                 if line.startswith('User-agent'):
+#                     _, agent = line.split(': ')
+#                 elif line.startswith('Allow'):
+#                     content = line.split(': ')
+#                     if len(content) ==2:
+#                         absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
+#                         stats.allowed_path[agent].append(absolute_url)
                         
-                elif line.startswith('Disallow'):
-                    content = line.split(': ')
-                    if len(content) ==2:
-                        absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
-                        stats.disallowed_path[agent].append(absolute_url)
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching {robots_url}: {e}")
+#                 elif line.startswith('Disallow'):
+#                     content = line.split(': ')
+#                     if len(content) ==2:
+#                         absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
+#                         stats.disallowed_path[agent].append(absolute_url)
+#     except requests.exceptions.RequestException as e:
+#         print(f"Error fetching {robots_url}: {e}")
 
 def remove_fragment(url):
     parsed_url = urlparse(url)
@@ -139,12 +129,13 @@ def is_robot_allowed_url(url, allowed = stats.allowed_path , disallowed = stats.
     parsed_url = urlparse(url)
     path = parsed_url.path
 
-    for allowed_url in allowed['*']:
+    for allowed_url in allowed:
         if path.startswith(urlparse(allowed_url).path):
             return True
-    for disallowed_url in disallowed['*']:
+    for disallowed_url in disallowed:
         if path.startswith(urlparse(disallowed_url).path):
             return False
+    # print(f'is_robot_allowed_url is working')
     return True
 
 def is_trap(url,stats= stats,threshold = 100):
@@ -166,27 +157,22 @@ def is_trap(url,stats= stats,threshold = 100):
 
 # print(is_trap('https://ics.uci.edu'))
 
-def handle_high_textual_content(url,soup,stats = stats,threshold = 1000):
-    #TODO: need change when doing actual implementation, the resp need chance
+def handle_high_textual_content(url,soup,stats = stats,threshold = 100):
     """
     if the file is too large, return none
     get a resp, check if has more than 100 words and no urls
     consider this url as low textual content and skip it
     """
-    ## TODO: change later if file too large return None 
-    # if len(resp.raw_response.text)> MAX_FILE_SIZE:
-    #     stats.update_abnormal_url_csv(url,'too large file')
-    #     return None
-
-    # not crawling crawled url
-    if url in stats.crawled_urls:
-        return None
-    
     urls = []
     if soup.body == None:
         return None
+    
+    # print(f'url soup is not none {url}')
     raw_text = soup.body.get_text(' ', strip=True)
+
     stats.update_word_count(raw_text)
+    # stats.print_word_count()
+    # stats.update_word_count_csv()
     text_in_page = raw_text.split()
     # print(f'test what is text in page: {text_in_page}')
     num_word = len(text_in_page)
@@ -197,12 +183,14 @@ def handle_high_textual_content(url,soup,stats = stats,threshold = 1000):
         return None
     if num_word < threshold and len(urls) ==0:
         return None
-    
+    if stats.is_near_duplicate(raw_text,url):
+        return None
     if num_word > stats.page_with_most_text['wordcount']:
         stats.page_with_most_text['url'] = url
         stats.page_with_most_text['wordcount'] = num_word
         stats.update_csv(url,stats.page_word_count_file,count = num_word)
-    
+
+    # stats.update_csv(url,stats.crawled_urls_file)
     return (urls,num_word)
 
 def handle_ics_subdomain(url, stats = stats):
@@ -227,10 +215,29 @@ def is_url(url):
         return any([result.scheme, result.netloc])
     except ValueError:
         return False
+def handle_robots(text,domain,stats = stats):
+    robot_parser = text.split('\n')
+    for line in robot_parser:
+        if line.startswith('User-agent'):
+            _, agent = line.split(': ')
+        elif line.startswith('Allow'):
+            content = line.split(': ')
+            if len(content) ==2:
+                absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
+                stats.allowed_path.add(absolute_url)
+                
+        elif line.startswith('Disallow'):
+            content = line.split(': ')
+            if len(content) ==2:
+                absolute_url = handle_relative_url(f'http://{domain}',content[1].strip())
+                stats.disallowed_path.add(absolute_url)
+    
+
 
 # not the same as hw 
 def extract_next_links_test(url, resp, status_code):
     next_urls = list()
+    
 
     if status_code == 307 or status_code ==308: 
         #TODO: still need to figure out redirect urls 
@@ -240,9 +247,19 @@ def extract_next_links_test(url, resp, status_code):
     if status_code != 200: 
         return list()
     
+    if url.endswith("/robots.txt"):
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        text = resp.text
+        handle_robots(text,domain)
+        # print(f'allowed path: ',stats.allowed_path)
+        # print(f'disallowed path: ',stats.disallowed_path)
+        return list()
+    stats.crawled_urls.add(url)
+    stats.update_csv(url,stats.crawled_urls_file)
+    
     MAX_FILE_SIZE = 10 * 1024 * 1024
     if len(resp.text)> MAX_FILE_SIZE:
-        stats.update_abnormal_url_csv(url,'too large file')
         return None
     
     # collect stats for subdomain 
@@ -250,7 +267,7 @@ def extract_next_links_test(url, resp, status_code):
     
     # get the soup object for handle_high_textual_content
     # soup = BeautifulSoup(resp.raw_response.content,'lxml')
-    soup = BeautifulSoup(resp.content,'lxml')
+    soup = BeautifulSoup(resp.content,'html.parser')
 
     # check for high textual content
     content = handle_high_textual_content(url,soup)
@@ -321,12 +338,16 @@ def is_valid(url):
 
 def crawl_domains_with_politeness(domains, delay=0.3,stats = stats):
     # first get followed the rules from robots
-    for d in domains: 
-        check_robots(d,stats)
+    # for d in domains: 
+    #     check_robots(d,stats)
     
     # initialize the frontier
     frontier = Queue()
-    initial_urls = ['https://www.ics.uci.edu',
+    initial_urls = ["http://ics.uci.edu/robots.txt",
+                    "http://cs.uci.edu/robots.txt",
+                    "http://informatics.uci.edu/robots.txt",
+                    "http://stat.uci.edu/robots.txt",
+        'https://www.ics.uci.edu',
                     'https://www.cs.uci.edu',
                           'https://www.informatics.uci.edu',
                           'https://www.stat.uci.edu']
@@ -334,7 +355,7 @@ def crawl_domains_with_politeness(domains, delay=0.3,stats = stats):
         frontier.put(url)
     
     # crawling loop:
-    while not frontier.empty():
+    for _ in range(100):
         try: 
             current_url = frontier.get()
             response = requests.get(current_url)
@@ -349,6 +370,8 @@ def crawl_domains_with_politeness(domains, delay=0.3,stats = stats):
             print(f"An error occurred: {e} with url: {current_url}")
             # stats.update_abnormal_url_csv(current_url,'requestion_exception')
         time.sleep(delay)
+    stats.update_word_count_csv()
+    stats.subdomain_unique_pages()
             
     # Visit the allowed URLs while respecting the politeness delay
 valid_domains = [
@@ -357,5 +380,6 @@ valid_domains = [
             "informatics.uci.edu",
             "stat.uci.edu"
         ]   
+    
 crawl_domains_with_politeness(valid_domains)
 
