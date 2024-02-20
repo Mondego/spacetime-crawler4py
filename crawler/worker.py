@@ -10,6 +10,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from bs4 import BeautifulSoup
+# we used beautiful soup to grab html content, https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier, word_dict, checkSum_hashes, UniqueUrls, JustICS):
@@ -51,9 +52,8 @@ class Worker(Thread):
 
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # bts content into a varaible that we can further parse 
         headers_types = ['title', 'h1','h2,''h3', 'h4', 'h5','h6','p']
-        # para = soup.find_all('p')
+        # the types ofheaders we want to crawl 
 
-        # headers = soup.find_all(headers_types)
         for headers in headers_types:
             plain_text = soup.find_all(headers)
             for text in plain_text:
@@ -61,20 +61,24 @@ class Worker(Thread):
             
         words = [word for word in word_tokenize(string.lower())  # parse only alphnumeric chars, lowercase  
                 if (word.isalpha() or word.isdigit()) and word not in self.stop_words] # ignore stops words in self.stop_words 
+        
+        if not (0 < len(words) < 100000): # words on page are valid for us between 0 words and 100000 words 
+            return
 
         if (len(words) > self.most_content[1]): # if this url content is larger than current url content
             self.most_content = (tbd_url, len(words)) # change to this new
 
         checkSum = scraper.checkSum_Hash(words) # get a tuple for check sum 
 
-        if checkSum not in self.sum_hashes or checkSum == (): # some html pages might not have a valid hash, so we just ignore it 
+        if checkSum not in self.sum_hashes or checkSum == ():
+             #the words in the page were not identifcal to another we found, or the hash is niegligible
             for word in words:
                 if word in self.word_dict: #not already in dict
                     self.word_dict[word] +=1 
                 else:
                     self.word_dict[word] = 1
             self.sum_hashes.add(checkSum) #add that checkSum into our set
-
+            self.UniqueUrls.add(tbd_url)   # count and add to our urls, since it was worth crawling
             # add that sum to keep track if we hit a duplicate this also helps keep track of unqiue urls (non duplicate urls) 
 
     def run(self):
@@ -121,8 +125,6 @@ class Worker(Thread):
             # check the url if its of ics type, we take the scraped urls (uci.edu type and sort it into a fucniton )
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
-
-            self.UniqueUrls.add(tbd_url)   # count and add to our ics thingy 
 
             self.frontier.mark_url_complete(tbd_url) 
             time.sleep(self.config.time_delay)
