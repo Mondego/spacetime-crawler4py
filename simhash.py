@@ -27,11 +27,14 @@ def md5_padding(message):
     message += original_length.to_bytes(8, byteorder='little')
     return message
 
-
+"""
+Javon’s function: It calculates the MD5 hash of a given string, initializes 
+variables representing specific constants, then processes the message in 
+512-bit chunks according to the MD5 algorithm, updating hash values iteratively. 
+Finally, it concatenates the hash values and returns the resulting MD5 hash as a 
+128-bit (16-byte) value.
+"""
 def md5(message):
-    """
-    Calculate the MD5 hash of a message.
-    """
     # Initialize variables
     a0 = 0x67452301
     b0 = 0xEFCDAB89
