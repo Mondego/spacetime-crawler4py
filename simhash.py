@@ -1,13 +1,22 @@
+"""
+Javon’s function: It takes two parameters: x, 
+which is the 32-bit integer to be rotated, and amount.
+By shifting x to the left by amount bits and then OR-ing it 
+with the result of shifting x to the right by (32 - amount) bits, 
+the function achieves the left rotation.
+"""
 def left_rotate(x, amount):
-    """
-    Rotate the bits of a 32-bit integer left by a specified amount.
-    """
     return ((x << amount) | (x >> (32 - amount))) & 0xFFFFFFFF
 
+"""
+Javon's function: It pads a message according to the MD5 algorithm before hashing. 
+It appends a single '1' bit to the message followed by '0' bits until 
+the length of the message is congruent to 448 modulo 512. Finally, 
+it appends the original length of the message as a 64-bit little-endian 
+integer, ensuring the message meets the required padding criteria for 
+MD5 hashing.
+"""
 def md5_padding(message):
-    """
-    Pad the message according to the MD5 algorithm.
-    """
     original_length = len(message) * 8
     # Append a single '1' bit
     message += b'\x80'
@@ -17,6 +26,7 @@ def md5_padding(message):
     # Append the original length in bits as a 64-bit little-endian integer
     message += original_length.to_bytes(8, byteorder='little')
     return message
+
 
 def md5(message):
     """
