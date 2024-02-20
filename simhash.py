@@ -1,5 +1,5 @@
 """
-Javon’s function: It takes two parameters: x, 
+Javon: Function left_rotate takes two parameters: x, 
 which is the 32-bit integer to be rotated, and amount.
 By shifting x to the left by amount bits and then OR-ing it 
 with the result of shifting x to the right by (32 - amount) bits, 
@@ -9,7 +9,7 @@ def left_rotate(x, amount):
     return ((x << amount) | (x >> (32 - amount))) & 0xFFFFFFFF
 
 """
-Javon's function: It pads a message according to the MD5 algorithm before hashing. 
+Javon: Function md5_padding pads a message according to the MD5 algorithm before hashing. 
 It appends a single '1' bit to the message followed by '0' bits until 
 the length of the message is congruent to 448 modulo 512. Finally, 
 it appends the original length of the message as a 64-bit little-endian 
@@ -28,7 +28,7 @@ def md5_padding(message):
     return message
 
 """
-Javon’s function: It calculates the MD5 hash of a given string, initializes 
+Javon: Function md5 calculates the MD5 hash of a given string, initializes 
 variables representing specific constants, then processes the message in 
 512-bit chunks according to the MD5 algorithm, updating hash values iteratively. 
 Finally, it concatenates the hash values and returns the resulting MD5 hash as a 
@@ -87,20 +87,31 @@ def md5(message):
 
 import re
 
+"""
+Javon: The Simhash class implements a technique for generating a fingerprint of a text 
+document called Simhash. It utilizes the MD5 algorithm to hash individual tokens 
+of the document and then combines these hashes to produce a unique fingerprint 
+representing the document's content. This fingerprint allows for efficient similarity 
+comparison between documents based on their tokenized content.
+"""
 class Simhash:
+    #Initializes attributes self.hash and self.hashbits, which can be customized.
     def __init__(self, tokens='', hashbits=64):
         self.hashbits = hashbits
         self.hash = self._simhash(tokens)
 
+    #Returns self.hash as string.
     def __str__(self):
         return str(self.hash)
 
+    #Returns a hash value for a given string using the MD5 algorithm.
     def _string_hash(self, source):
         if source == "":
             return 0
         else:
             return int.from_bytes(md5(source.encode('utf-8')), byteorder='big')  # Modified line
 
+    #Generates a Simhash fingerprint for a list of tokens by computing the weighted sum of their MD5 hash values.
     def _simhash(self, tokens):
         v = [0] * self.hashbits
         for t in [self._string_hash(x) for x in tokens]:
@@ -117,6 +128,8 @@ class Simhash:
                 fingerprint += 1 << i
         return fingerprint
 
+    #Calculates the similarity between two Simhash fingerprints by comparing 
+    #the Hamming distance between their binary representations
     def similarity(self, other):
         a = self.hash
         b = other.hash
