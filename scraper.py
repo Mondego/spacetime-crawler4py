@@ -1,5 +1,7 @@
 import re
 from urllib.parse import urlparse
+import re
+from urllib.parse import urljoin
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,6 +17,23 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    links = []
+
+    # Check if response is valid
+    if resp.status != 200 or not resp.raw_response:
+        return links  # Return an empty list if response is not OK
+
+    # Convert bytes content to string
+    html_content = resp.raw_response.content.decode(errors="ignore")
+
+    # Find all href attributes using regex
+    href_matches = re.findall(r'href=["\'](.*?)["\']', html_content)
+
+    # Convert relative URLs to absolute URLs and filter out invalid links
+    for link in href_matches:
+        absolute_link = urljoin(resp.url, link)
+        links.append(absolute_link)
+
     return list()
 
 def is_valid(url):
