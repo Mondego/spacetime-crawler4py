@@ -1,2 +1,3 @@
 cbor
 requests
+lxml
