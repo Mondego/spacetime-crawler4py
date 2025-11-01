@@ -3,6 +3,8 @@ import logging
 from hashlib import sha256
 from urllib.parse import urlparse
 
+
+STOPWORDS = set()
 def get_logger(name, filename=None):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
@@ -33,3 +35,8 @@ def normalize(url):
     if url.endswith("/"):
         return url.rstrip("/")
     return url
+
+def load_stopwords(filename='stopwords.txt'):
+    global STOPWORDS
+    with open(filename, "r", encoding="utf-8") as f:
+        STOPWORDS = {line.strip().lower() for line in f if line.strip()}
