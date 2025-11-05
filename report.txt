@@ -1,0 +1,12 @@
+Unique pages found:
+1
+
+Longest page:
+URL: http://test.com/page
+Word count: 60
+
+Top 50 words:
+word: 60
+
+Subdomains:
+cs.uci.edu, 1

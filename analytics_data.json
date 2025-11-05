@@ -1,0 +1,9 @@
+{
+  "unique_pages": [],
+  "longest_page_url": "http://test.com/page",
+  "longest_page_word_count": 110,
+  "word_frequencies": {
+    "word": 110
+  },
+  "subdomain_counts": {}
+}
