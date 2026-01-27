@@ -2,6 +2,7 @@ from utils import get_logger
 from crawler.frontier import Frontier
 from crawler.worker import Worker
 
+
 class Crawler(object):
     def __init__(self, config, restart, frontier_factory=Frontier, worker_factory=Worker):
         self.config = config

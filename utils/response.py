@@ -1,5 +1,6 @@
 import pickle
 
+
 class Response(object):
     def __init__(self, resp_dict):
         self.url = resp_dict["url"]
