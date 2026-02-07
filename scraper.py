@@ -2,41 +2,44 @@ import re
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
 
-from collections import Counter
+from collections import Counter, defaultdict
 import hashlib
 
-website_fps = []
+# LSH banding: group fingerprints into buckets for O(1) lookup instead of O(N) scan
+# Using 16 bands of 4 bits each (64 bits total)
+fp_bands = defaultdict(list)  # band_signature -> [fingerprints]
+website_fps = []  # Still keep all fps for final verification
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 
-def get_simhash_fingerprint(web_content: str) -> int:
+def get_simhash_fingerprint(words: list) -> int:
     """
-    Generates the fingerprint for the webpage content
+    Generates the fingerprint for the webpage content using word-based shingles.
+    Much faster than character shingles: ~1000 words vs ~50k chars.
     
-    :param web_content: The webpage content
+    :param words: List of words from the webpage
     :return: The Simhash fingerprint for the webpage
     """
-    shingle_len = 3
-    shingle_tokens = (web_content[i:i+shingle_len] for i in range(len(web_content) - (shingle_len - 1)))
-
     vector = [0] * 64
+    shingle_len = 3
+    
+    # Use word-based shingles instead of character shingles
+    # For 1000 words, this creates ~998 shingles vs ~50k for character-based
+    for i in range(len(words) - shingle_len + 1):
+        shingle = ' '.join(words[i:i+shingle_len])
+        token_hash = int.from_bytes(hashlib.blake2b(shingle.encode(), digest_size=8).digest(), 'big')
 
-    for shingle_token in shingle_tokens:
-        token_hash = int.from_bytes(hashlib.blake2b(shingle_token.encode(), digest_size=8).digest(), 'big')
-
-        for i in range(64):
-            bitmask = 1 << i
-
+        for bit_idx in range(64):
+            bitmask = 1 << bit_idx
             if token_hash & bitmask:
-                vector[i] += 1
+                vector[bit_idx] += 1
             else:
-                vector[i] -= 1
+                vector[bit_idx] -= 1
 
     fingerprint = 0
-
     for i in range(64):
         if vector[i] >= 0:
             fingerprint |= (1 << i)
@@ -44,18 +47,51 @@ def get_simhash_fingerprint(web_content: str) -> int:
     return fingerprint
 
 
-def is_near_dup(page_content: str) -> int:
-    curr_fingerprint = get_simhash_fingerprint(page_content)
+def get_band_signature(fingerprint: int, num_bands: int = 16) -> tuple:
+    """
+    Extract band signatures for LSH. Divides 64-bit fingerprint into bands.
+    Only compares against fingerprints in the same bands (cheap prefilter).
+    """
+    bits_per_band = 64 // num_bands
+    bands = []
+    for i in range(num_bands):
+        shift = i * bits_per_band
+        mask = (1 << bits_per_band) - 1
+        band_value = (fingerprint >> shift) & mask
+        bands.append(band_value)
+    return tuple(bands)
 
-    for fingerprint in website_fps:
+def is_near_dup(words: list) -> bool:
+    """
+    Check if content is a near-duplicate using Simhash with LSH banding.
+    Now O(k) instead of O(N) where k = candidates in matching bands.
+    
+    :param words: List of words from the page
+    :return: True if near-duplicate found, False otherwise
+    """
+    if len(words) < 10:  # Too short to fingerprint reliably
+        return False
+    
+    curr_fingerprint = get_simhash_fingerprint(words)
+    bands = get_band_signature(curr_fingerprint)
+    
+    # Check only against fingerprints that share at least one band (LSH prefilter)
+    candidates = set()
+    for band_idx, band_val in enumerate(bands):
+        candidates.update(fp_bands[(band_idx, band_val)])
+    
+    # Now only compare against candidates (typically << N)
+    for fingerprint in candidates:
         difference_distance = (curr_fingerprint ^ fingerprint).bit_count()
-
         similarity = (64 - difference_distance) / 64
 
         if similarity >= 0.95:
             return True
-        
+    
+    # Not a duplicate - store in both structures
     website_fps.append(curr_fingerprint)
+    for band_idx, band_val in enumerate(bands):
+        fp_bands[(band_idx, band_val)].append(curr_fingerprint)
 
     return False
 
@@ -78,16 +114,19 @@ def extract_next_links(url: str, resp):
     # Setting up BS Object for page parsing
     bs_web = BeautifulSoup(resp.raw_response.content, "html.parser")
     page_text = bs_web.get_text()
+    words = page_text.split()
 
-    if len(page_text.split()) < 50:
+    if len(words) < 50:
         return []
     
-    # Update the statistics from the crawling session
-    update_statistics(bs_web, resp.url)
-
-    # Detect duplicate/similar links and filter out invalid links
-    if is_near_dup(page_text):
+    # Check for near-duplicates BEFORE updating stats to avoid counting dupes
+    if is_near_dup(words):
         return []
+    
+    # Update the statistics (only for unique URLs and non-duplicate content)
+    if resp.url not in seen_urls:
+        update_statistics(bs_web, resp.url)
+        seen_urls.add(resp.url)
 
     anchor_tags = bs_web.find_all('a', href=True)
     
@@ -175,7 +214,7 @@ def is_valid(url):
             r'/attachment/',
         ]
         for pattern in trapPatterns:
-            if re.match(pattern, url.lower()):
+            if re.search(pattern, parsed.path.lower()):
                 return False
 
         
@@ -195,7 +234,7 @@ def is_valid(url):
             r'/download/',
         ]
         for pattern in low_info_patterns:
-            if pattern in url.lower():
+            if re.search(pattern, parsed.path.lower()):
                 return False
         
         # Avoid repeating date patterns in URLs
@@ -227,11 +266,12 @@ unique_page_count = 0
 longest_page_link = ""
 longest_page_length = -1
 most_common_words = Counter()
-sub_domain_list = {}
+sub_domain_pages = {}
+seen_urls = set()
 ########################
 # BeautifulSoup(httpresp) -> reddit.com/IATA/somepost
 def update_statistics(bs: BeautifulSoup, url: str) -> None:
-    global unique_page_count, longest_page_length, longest_page_link, most_common_words, sub_domain_list
+    global unique_page_count, longest_page_length, longest_page_link, most_common_words, sub_domain_pages
     unique_page_count += 1
     curr_tokens = text_to_word(bs.get_text())
     curr_length = len(curr_tokens)
@@ -242,16 +282,27 @@ def update_statistics(bs: BeautifulSoup, url: str) -> None:
 
     most_common_words.update((token for token in curr_tokens if not token in stop_words and len(token) > 1))
 
-    url_new = urlparse(url).hostname
-
-    if url_new is not None and url_new[0:4] == "www.":
-        url_new = url_new[4:]
-
-    if url_new is not None and "uci.edu" in url_new:
-        if url_new not in sub_domain_list:
-            sub_domain_list[url_new] = 1
-        else:
-            sub_domain_list[url_new] +=1
+    #validate it's in the allowed set
+    hostname = urlparse(url).hostname
+    if hostname is not None:
+        # Remove www.
+        if hostname.startswith("www."):
+            hostname = hostname[4:]
+        
+        #valid patterns: ics.uci.edu, cs.uci.edu, informatics.uci.edu, stat.uci.edu
+        #and any subdomain like vision.ics.uci.edu, etc.
+        valid_depts = ['ics.uci.edu', 'cs.uci.edu', 'informatics.uci.edu', 'stat.uci.edu']
+        is_valid_subdomain = False
+        
+        for dept in valid_depts:
+            if hostname == dept or hostname.endswith('.' + dept):
+                is_valid_subdomain = True
+                break
+        
+        if is_valid_subdomain:
+            if hostname not in sub_domain_pages:
+                sub_domain_pages[hostname] = set()
+            sub_domain_pages[hostname].add(url)
     
     
 
@@ -276,8 +327,8 @@ def text_to_word(text):
     return re.findall(r"[a-zA-Z0-9]+(?:'[a-z]+)?", text.lower())
 
 def final_report():
-    global unique_page_count, longest_page_length, longest_page_link, most_common_words, sub_domain_list
-    subdomains = sorted(sub_domain_list.items())
+    global unique_page_count, longest_page_length, longest_page_link, most_common_words, sub_domain_pages
+    subdomains = sorted((domain, len(url_set)) for domain, url_set in sub_domain_pages.items())
     fifty_most_common_words = most_common_words.most_common(50)
     with open("stats.txt", 'w') as f:
         f.write(f"{unique_page_count}\n")
