@@ -1,2 +1,5 @@
 cbor
 requests
+beautifulsoup4
+lxml
+tldextract
