@@ -19,7 +19,21 @@ class Crawler(object):
 
     def start(self):
         self.start_async()
-        self.join()
+
+        try:
+            self.join()  # main thread blocking (waits till all workers done)
+
+        except KeyboardInterrupt:  # Handles ctrl+c shutdown
+            self.logger.info("KeyboardInterrupt received. Closing frontier...")
+            self.frontier.close()
+
+            self.join()
+
+        finally:
+            try:
+                self.frontier.close()
+            except Exception:
+                pass
 
     def join(self):
         for worker in self.workers:
