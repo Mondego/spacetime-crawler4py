@@ -1,0 +1,4 @@
+cbor
+requests
+beautifulsoup4
+spacetime
