@@ -63,8 +63,8 @@ def init(df, user_agent, fresh):
 #             df.push()
 #     return reg.load_balancer
 #
-# def get_cache_server(config, restart):
-#     init_node = Node(
-#         init, Types=[Register], dataframe=(config.host, config.port))
-#     return init_node.start(
-#         config.user_agent, restart or not os.path.exists(config.save_file))
+def get_cache_server(config, restart):
+    init_node = Node(
+        init, Types=[Register], dataframe=(config.host, config.port))
+    return init_node.start(
+        config.user_agent, restart or not os.path.exists(config.save_file))
