@@ -6,7 +6,9 @@ def init(df, user_agent, fresh):
     print("DEBUG 1: Registration function started!", flush=True)
 
     reg = df.read_one(Register, user_agent)
-
+    print(f"DEBUG: Existing balancer = {reg.load_balancer if reg else None}", flush=True)
+    print(f"DEBUG: Existing invalid = {reg.invalid if reg else None}", flush=True)
+    print(f"DEBUG: Existing fresh = {reg.fresh if reg else None}", flush=True)
     print(f"DEBUG 2: Existing registration? {reg is not None}", flush=True)
 
     if not reg:
