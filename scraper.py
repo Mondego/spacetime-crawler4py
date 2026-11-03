@@ -1,7 +1,7 @@
 import hashlib
 import re
 from collections import Counter
-from urllib.parse import urlparse, urljoin, urldefrag, parse_qs
+from urllib.parse import urlparse, urljoin, urldefrag, parse_qs, unquote
 from bs4 import BeautifulSoup
 from stats import record_page
 
@@ -253,17 +253,47 @@ def is_valid(url):
         if is_trap(url):
             return False
 
-        return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$"
-            + r"|svg|webp|avif|woff2?|ttf|otf|ics|xml|json", parsed.path.lower())
+        path = unquote(parsed.path).lower()
+        blocked_extentions = (
+            ".css", ".js", ".bmp", ".gif", ".jpg", ".jpeg",
+            ".ico", ".png", ".tif", ".tiff", ".mid", ".mp2",
+            ".mp3", ".mp4", ".wav", ".avi", ".mov", ".mpeg",
+            ".ram", ".m4v", ".mkv", ".ogg", ".ogv", ".pdf",
+            ".ps", ".eps", ".tex", ".ppt", ".pptx", ".doc",
+            ".docx", ".xls", ".xlsx", ".names", ".data",
+            ".dat", ".exe", ".bz2", ".tar", ".msi", ".bin",
+            ".7z", ".psd", ".dmg", ".iso", ".epub", ".dll",
+            ".cnf", ".tgz", ".sha1", ".thmx", ".mso",
+            ".arff", ".rtf", ".jar", ".csv", ".rm", ".smil",
+            ".wmv", ".swf", ".wma", ".zip", ".rar", ".gz",
+            ".svg", ".webp", ".avif", ".woff", ".woff2",
+            ".ttf", ".otf", ".ics", ".xml", ".json"
+        )
+        if path.endswith(blocked_extentions):
+            return False
 
+        # reject anything with these in them bc of the wiki images
+        wiki = {
+            "/wiki/file:",
+            "/wiki/image:",
+            "/special:filepath/",
+            "/special:redirect/file/"
+        }
+
+        if any(pattern in path for pattern in wiki):
+            return False
+
+        # also reject any image-serving endpoints
+        if path.endswith(("/thumb.php", "/img_auth.php")):
+            return False
+
+        # some wiki pages use query parameters with images
+        query = parse_qs(parsed.query)
+        for title in query.get("title", []):
+            if title.lower().startswith(("file:", "image:")):
+                return False
+
+        return True
     # a little confused here, can i change this? don't want crawler to crash if it
     # encounters an url we want to reject
     except (TypeError, ValueError) as e:
