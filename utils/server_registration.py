@@ -6,6 +6,16 @@ def init(df, user_agent, fresh):
     print("DEBUG 1: Registration function started!", flush=True)
 
     reg = df.read_one(Register, user_agent)
+
+    if reg and not reg.load_balancer:
+        print("DEBUG: Removing incomplete registration...", flush=True)
+
+        df.delete_one(Register, reg)
+        df.commit()
+        df.push_await()
+
+        print("DEBUG: Old registration removed.", flush=True)
+        reg = None
     print(f"DEBUG: Existing balancer = {reg.load_balancer if reg else None}", flush=True)
     print(f"DEBUG: Existing invalid = {reg.invalid if reg else None}", flush=True)
     print(f"DEBUG: Existing fresh = {reg.fresh if reg else None}", flush=True)
